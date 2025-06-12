@@ -1,8 +1,13 @@
+using WebBrowser.Interfaces;
+using WebBrowser.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddHttpClient<IDepartmentService, DepartmentService>();
+builder.Services.AddHttpClient<IJobService, JobService>();
+builder.Services.AddHttpClient<IEmployeeService, EmployeeService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

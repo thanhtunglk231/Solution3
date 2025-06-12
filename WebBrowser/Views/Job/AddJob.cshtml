@@ -1,0 +1,31 @@
+﻿@{
+    ViewBag.Title = "Thêm Công Việc";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Thêm Công Việc</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                <div class="mb-3">
+                    <label for="id" class="form-label">Mã công việc</label>
+                    <input type="text" name="id" id="id" class="form-control" placeholder="Nhập mã công việc" required />
+                </div>
+                <div class="mb-3">
+                    <label for="jobName" class="form-label">Tên công việc</label>
+                    <input type="text" name="jobName" id="jobName" class="form-control" placeholder="Nhập tên công việc" required />
+                </div>
+                <button type="submit" class="btn btn-success">Thêm</button>
+            </form>
+
+            @if (ViewBag.Message != null)
+            {
+                <div class="alert @(ViewBag.IsSuccess ? "alert-success" : "alert-danger") mt-3" role="alert">
+                    @ViewBag.Message
+                </div>
+            }
+        </div>
+    </div>
+</div>

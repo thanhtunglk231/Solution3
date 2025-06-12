@@ -4,6 +4,6 @@ namespace WebApi.Service.Interfaces
 {
     public interface IDepartmentService
     {
-        public DataTable GetById(int id);
+        Task<List<Dictionary<string, object>>> getbyid(int id);
     }
 }

@@ -1,0 +1,99 @@
+﻿@model List<CoreLib.Models.Employee>
+
+@{
+    ViewBag.Title = "Danh sách nhân viên";
+}
+
+<h2 class="mb-4 text-primary">📋 Danh sách nhân viên</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
+        <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="errorAlert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<p>
+    <a class="btn btn-success mb-3" href="@Url.Action("Add", "Employee")">
+        <i class="bi bi-plus-circle me-1"></i> Thêm nhân viên mới
+    </a>
+</p>
+
+<table class="table table-bordered table-hover table-striped align-middle">
+    <thead class="table-dark text-center">
+        <tr>
+            <th>Mã NV</th>
+            <th>Họ tên</th>
+            <th>Ngày sinh</th>
+            <th>Địa chỉ</th>
+            <th>Phái</th>
+            <th>Lương</th>
+            <th>Mã NQL</th>
+            <th>Mã phòng</th>
+            <th>Ngày vào</th>
+            <th>Hoa hồng</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var emp in Model)
+        {
+            <tr>
+                <td>@emp.MANV</td>
+                <td>@emp.HO_TEN</td>
+                <td>@emp.NGSINH?.ToString("dd/MM/yyyy")</td>
+                <td>@emp.DCHI</td>
+                <td>@emp.PHAI</td>
+                <td>@String.Format("{0:N0}", emp.LUONG)</td>
+                <td>@emp.MA_NQL</td>
+                <td>@emp.MAPHG</td>
+                <td>@emp.NGAY_VAO?.ToString("dd/MM/yyyy")</td>
+                <td>@emp.HOAHONG</td>
+                <td class="text-center">
+                    <div class="d-flex justify-content-center gap-2">
+                        <form method="post" asp-action="UpdateCommision" onsubmit="return confirm('Bạn có chắc muốn tăng lương cho nhân viên này?');">
+                            <input type="hidden" name="manv" value="@emp.MANV" />
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                <i class="bi bi-cash-coin me-1"></i> Hoa hồng
+                            </button>
+                        </form>
+                        <form method="post" asp-action="Delete" onsubmit="return confirm('Bạn có chắc muốn xoá nhân viên này?');">
+                            <input type="hidden" name="manv" value="@emp.MANV" />
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="bi bi-trash me-1"></i> Xoá
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        setTimeout(function () {
+            const success = document.getElementById('successAlert');
+            const error = document.getElementById('errorAlert');
+
+            if (success) {
+                success.classList.remove('show');
+                success.classList.add('fade');
+                success.style.opacity = '0';
+            }
+            if (error) {
+                error.classList.remove('show');
+                error.classList.add('fade');
+                error.style.opacity = '0';
+            }
+        }, 3000);
+    </script>
+}

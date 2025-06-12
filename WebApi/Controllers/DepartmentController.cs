@@ -14,10 +14,10 @@ namespace WebApi.Controllers
             _departmentService = departmentService;
         }
 
-        [HttpGet("department/{id}")]
-        public IActionResult GetById(int id)
+        [HttpGet("{id}")]
+        public async Task< IActionResult> GetById(int id)
         {
-            var table = _departmentService.GetById(id);
+            var table = await _departmentService.getbyid(id);
             
 
             return Ok(table);

@@ -1,7 +1,12 @@
-﻿using DataServiceLib.Interfaces;
+﻿using CoreLib.Models;
+using DataServiceLib.Interfaces;
 using Oracle.ManagedDataAccess.Client;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace DataServiceLib.Implementations
 {
@@ -44,10 +49,31 @@ namespace DataServiceLib.Implementations
                 con = null;
             }
         }
-
-        public DataSet GetDataSetSP(string spName, IDbDataParameter[] parameters, string connectString)
+        public async Task Executenonqery(string spName, IDbDataParameter[] parameters,string connectionString)
         {
-            DataSet ds = new DataSet();
+            using(var con = new OracleConnection(connectionString))
+            {
+                
+                using(var cmd = new OracleCommand(spName, con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    if (parameters != null)
+                    {
+                        foreach(var param in parameters)
+                        {
+                            cmd.Parameters.Add(param);
+                        }
+                    }
+
+                    await con.OpenAsync();
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+        public async Task<List<Dictionary<string, object>>> GetDataSetSP(string spName, IDbDataParameter[] parameters, string connectString)
+        {
+            var lis = new List<Dictionary<string, object>>();
 
             if (!OpenConnection(connectString))
                 return null;
@@ -66,9 +92,28 @@ namespace DataServiceLib.Implementations
                         }
                     }
 
-                    using (OracleDataAdapter adapter = new OracleDataAdapter(command))
+                    using (reader = await command.ExecuteReaderAsync())
                     {
-                        adapter.Fill(ds);
+                        while (reader.Read())
+                        {
+                            var row = new Dictionary<string, object>();
+
+                            for (int i = 0; i < reader.FieldCount; i++)
+                            {
+                                var value = reader.IsDBNull(i) ? null : reader.GetValue(i);
+
+                                // Cách 1: Bỏ key nếu null
+                                //if (value != null)
+                                //{
+                                //    row[reader.GetName(i)] = value;
+                                //}
+
+                                //Cách 2(nếu bạn muốn giữ key và để value là null):
+                                 row[reader.GetName(i)] = value;
+                            }
+
+                            lis.Add(row);
+                        }
                     }
                 }
             }
@@ -81,8 +126,49 @@ namespace DataServiceLib.Implementations
             {
                 CloseConnection();
             }
-
-            return ds;
+            return lis;
         }
+
+        public async Task<CResponseMessage> GetResponseMessage(string SpName, IDbDataParameter[] parameters, string connectionString)
+        {
+            var code = new OracleParameter("o_code", OracleDbType.NVarchar2, 10)
+            {
+                Direction = ParameterDirection.Output
+            };
+            var message = new OracleParameter("o_message", OracleDbType.NVarchar2, 200)
+            {
+                Direction = ParameterDirection.Output
+            };
+
+            using (var con = new OracleConnection(connectionString))
+            using (var cmd = new OracleCommand(SpName, con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                if (parameters != null)
+                {
+                    foreach (var param in parameters)
+                    {
+                        cmd.Parameters.Add(param);
+                    }
+                }
+
+                cmd.Parameters.Add(code);
+                cmd.Parameters.Add(message);
+
+                await con.OpenAsync();
+                await cmd.ExecuteNonQueryAsync();
+
+                return new CResponseMessage
+                {
+                    code = code.Value?.ToString(),
+                    message = message.Value?.ToString()
+                };
+            }
+        }
+
+
+
+
     }
 }
