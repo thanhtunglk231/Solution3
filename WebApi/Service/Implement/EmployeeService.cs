@@ -85,30 +85,30 @@ namespace WebApi.Service.Implement
         }
         public async Task<List<Dictionary<string, object>>> HisEmp(string manv)
         {
-            var para = new OracleParameter[]
-         {
-                new OracleParameter("v_manv", OracleDbType.Char)
-                {
-                    Value = manv,
-                    Direction = ParameterDirection.Input
-                },
-                 new OracleParameter("o_cursor", OracleDbType.RefCursor)
-                {
-                    
-                    Direction = ParameterDirection.Output
-                }
-         };
-            var result = await _cBaseData.GetResponseMessage(SpRoute.sp_his_emp, para, _connectstring);
-            return new List<Dictionary<string, object>> {
-
-                new Dictionary<string, object>
-                {
-                    { "code", result.code },
-                    { "message", result.message }
-                }
+            var parameters = new OracleParameter[]
+            {
+        new OracleParameter("v_manv", OracleDbType.Varchar2)
+        {
+            Value = manv
+        },
+        new OracleParameter("o_cursor", OracleDbType.RefCursor)
+        {
+            Direction = ParameterDirection.Output
+        },
+        new OracleParameter("o_code", OracleDbType.Varchar2, 10)
+        {
+            Direction = ParameterDirection.Output
+        },
+        new OracleParameter("o_message", OracleDbType.Varchar2, 200)
+        {
+            Direction = ParameterDirection.Output
+        }
             };
 
+            var result = await _cBaseData.GetDataSetSP("job_his", parameters, _connectstring);
+            return result;
         }
+
         public async Task<List<Dictionary<string, object>>> get_all_emp()
         {
             var para = new OracleParameter[]

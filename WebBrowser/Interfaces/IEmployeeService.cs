@@ -1,4 +1,5 @@
-﻿using CoreLib.Models;
+﻿using CoreLib.Dtos;
+using CoreLib.Models;
 using WebBrowser.Models;
 
 namespace WebBrowser.Interfaces
@@ -10,5 +11,6 @@ namespace WebBrowser.Interfaces
           string phai, float luong, string mangql, int maph, DateTime ngayvao, float hoahong, string majob);
         Task<ApiResponse> DeleteEmp(string manv);
         Task<ApiResponse> UpdateCommision(string manv);
+        Task<List<HistoryDto>> GetHistory(string manv);
     }
 }

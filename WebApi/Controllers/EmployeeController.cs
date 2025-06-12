@@ -44,14 +44,16 @@ namespace WebApi.Controllers
             return await _jobLogicHandler.HandleResponeMessage(()=>_employeeService.UpdateCommision(manv.manv));
         }
 
-
-        [HttpPost("HisEmp")]
-        public async Task<IActionResult> HisEmp([FromBody] DeleteEmpRequest em)
+        [HttpGet("HisEmp")]
+        public async Task<IActionResult> HisEmp([FromQuery] string manv)
         {
-            return await _jobLogicHandler.HandleResponeMessage(() => _employeeService.HisEmp(em.manv));
+            var data = await _employeeService.HisEmp(manv);
+
+            if (data == null || data.Count == 0)
+                return NotFound("Không có dữ liệu");
+
+            return Ok(data);
         }
-
-
 
         [HttpPost("add_emp")]
         public async Task<IActionResult> Add_emp(

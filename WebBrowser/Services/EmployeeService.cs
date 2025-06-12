@@ -57,6 +57,8 @@ namespace WebBrowser.Services
                 };
             }
         }
+
+       
         public async Task<ApiResponse> UpdateCommision(string manv)
         {
             var url = _url + ApiRouter.UpdateCommission;
@@ -140,6 +142,32 @@ namespace WebBrowser.Services
                 };
             }
         }
+        public async Task<List<HistoryDto>> GetHistory(string manv)
+        {
+            var url = $"{_url.TrimEnd('/')}/Employee/HisEmp?manv={manv}";
+            var response = await _client.GetAsync(url);
+            var json = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("JSON nhận được từ API:");
+            Console.WriteLine(json);
+            if (!response.IsSuccessStatusCode)
+            {
+                return new List<HistoryDto>(); // hoặc throw lỗi nếu cần
+            }
+
+            try
+            {
+                var data = JsonConvert.DeserializeObject<List<HistoryDto>>(json);
+                
+                return data ?? new List<HistoryDto>();
+            }
+            catch
+            {
+                // Có thể log lỗi ở đây
+                return new List<HistoryDto>();
+            }
+        }
+
+
 
         public async Task<List<Employee>> getall()
         {

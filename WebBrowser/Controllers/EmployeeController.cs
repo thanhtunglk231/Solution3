@@ -71,6 +71,12 @@ namespace WebBrowser.Controllers
             }
             return RedirectToAction("getall");
         }
+        [HttpGet]
+        public async Task<IActionResult> HisEmp(string manv)
+        {
+            var result = await _employeeService.GetHistory(manv);
+            return View(result);
+        }
 
     }
 }
