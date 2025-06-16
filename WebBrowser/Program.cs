@@ -1,32 +1,44 @@
-using WebBrowser.Interfaces;
-using WebBrowser.Services;
-
+﻿    using WebBrowser.Services;
+    using WebBrowser.Services.Interfaces;
+    using Serilog;
+using WebBrowser.Services.Implements;
 var builder = WebApplication.CreateBuilder(args);
+// 👉 Tích hợp Serilog (đọc cấu hình từ appsettings.json)
+    Log.Logger = new LoggerConfiguration()
+        .ReadFrom.Configuration(builder.Configuration)
+        .Enrich.FromLogContext()
+        .Enrich.WithThreadId()
+        .Enrich.WithMachineName()
+        .CreateLogger();
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddHttpClient<IDepartmentService, DepartmentService>();
-builder.Services.AddHttpClient<IJobService, JobService>();
-builder.Services.AddHttpClient<IEmployeeService, EmployeeService>();
-var app = builder.Build();
+    builder.Host.UseSerilog();
+    // Add services to the container.
+    builder.Services.AddControllersWithViews();
+    builder.Services.AddHttpClient<IDepartmentService, DepartmentService>();
+    builder.Services.AddHttpClient<IJobService, JobService>();
+    builder.Services.AddHttpClient<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<ILoginService, LoginService>();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
+Log.Information("Ứng dụng đang khởi động...");
+    var app = builder.Build();
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
+    // Configure the HTTP request pipeline.
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseExceptionHandler("/Home/Error");
+        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+        app.UseHsts();
+    }
 
-app.UseRouting();
+    app.UseHttpsRedirection();
+    app.UseStaticFiles();
 
-app.UseAuthorization();
+    app.UseRouting();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    app.UseAuthorization();
 
-app.Run();
+    app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
+
+    app.Run();

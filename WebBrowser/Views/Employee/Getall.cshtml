@@ -6,20 +6,7 @@
 
 <h2 class="mb-4 text-primary">📋 Danh sách nhân viên</h2>
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
-        <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="errorAlert">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
+@await Html.PartialAsync("_AlertMessage")
 
 <p>
     <a class="btn btn-success mb-3" href="@Url.Action("Add", "Employee")">
@@ -71,6 +58,12 @@
                                 <i class="bi bi-cash-coin me-1"></i> Xem lịch sử
                             </button>
                         </form>
+                        <form method="post" asp-action="UpdateSalary">
+                            <input type="hidden" name="manv" value="@emp.MANV" />
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                <i class="bi bi-cash-coin me-1"></i> Tăng lương 
+                            </button>
+                        </form>
                         <form method="post" asp-action="Delete" onsubmit="return confirm('Bạn có chắc muốn xoá nhân viên này?');">
                             <input type="hidden" name="manv" value="@emp.MANV" />
                             <button type="submit" class="btn btn-danger btn-sm">
@@ -84,22 +77,3 @@
     </tbody>
 </table>
 
-@section Scripts {
-    <script>
-        setTimeout(function () {
-            const success = document.getElementById('successAlert');
-            const error = document.getElementById('errorAlert');
-
-            if (success) {
-                success.classList.remove('show');
-                success.classList.add('fade');
-                success.style.opacity = '0';
-            }
-            if (error) {
-                error.classList.remove('show');
-                error.classList.add('fade');
-                error.style.opacity = '0';
-            }
-        }, 3000);
-    </script>
-}

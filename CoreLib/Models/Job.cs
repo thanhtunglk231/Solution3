@@ -10,7 +10,7 @@ namespace CoreLib.Models
     {
         public string MAJOB { get; set; }
         public string TENJOB { get; set; }
-        public int MIN_SALARY { get; set; } 
-        public int MAX_SALARY { get;set; }
+        public decimal? MIN_SALARY { get; set; } 
+        public decimal? MAX_SALARY { get;set; }
     }
 }

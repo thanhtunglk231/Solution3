@@ -1,17 +1,28 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DataServiceLib.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using WebApi.Service.Interfaces;
+using WebApi.Handles;
+
 
 namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+   
     public class DepartmentController : ControllerBase
     {
-        private readonly IDepartmentService _departmentService;
-        public DepartmentController(IDepartmentService departmentService)
+        private readonly ICDepartmentDataProvider _departmentService;
+        private readonly IJobLogicHandler _logicHandler;
+        public DepartmentController(ICDepartmentDataProvider departmentService,IJobLogicHandler jobLogicHandler)
         {
+            _logicHandler=jobLogicHandler;
             _departmentService = departmentService;
+        }
+        [HttpGet("getall")]
+        public async Task<IActionResult> Get() {
+            var result = await _departmentService.getall();
+            return Ok(result);
         }
 
         [HttpGet("{id}")]

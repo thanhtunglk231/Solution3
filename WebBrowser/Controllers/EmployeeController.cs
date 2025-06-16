@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebBrowser.Interfaces;
+using WebBrowser.Services.Interfaces;
 namespace WebBrowser.Controllers
 {
     public class EmployeeController : Controller
@@ -28,12 +28,15 @@ namespace WebBrowser.Controllers
         {
             try
             {
-
-
-                var result = await _employeeService.Add_emp(
-                    ho_ten, manv, ngaysinh, diachi, phai, luong, mangql, maph, ngayvao, hoahong, majob);
-                ViewBag.message = result.Message;
-                ViewBag.IsSuccess = result.Success;
+                ho_ten = ho_ten?.Trim();
+                manv = manv?.Trim();
+                diachi = diachi?.Trim();
+                phai = phai?.Trim();
+                mangql = mangql?.Trim();
+                majob = majob?.Trim();
+                var result = await _employeeService.Add_emp(ho_ten, manv, ngaysinh, diachi, phai, luong, mangql, maph, ngayvao, hoahong, majob);
+                TempData["message"] = result.Message;
+                TempData["isSuccess"] = result.Success;
                 return View();
             }
             catch (Exception ex)
@@ -42,33 +45,29 @@ namespace WebBrowser.Controllers
                 return StatusCode(500, "Lỗi server: " + ex.Message);
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> UpdateSalary(string manv)
+        {
+            var result = await _employeeService.UpdateSalary(manv);
+            TempData["message"] = result.Message;
+            TempData["isSuccess"] = result.Success;
+            return RedirectToAction("getall");
+        }
 
         [HttpPost]
         public async Task<IActionResult> UpdateCommision(string manv)
         {
             var result= await _employeeService.UpdateCommision(manv);
-            if (result.Success)
-            {
-                TempData["SuccessMessage"] = result.Message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = result.Message;
-            }
+            TempData["message"] = result.Message;
+            TempData["isSuccess"] = result.Success;
             return RedirectToAction("getall");
         }
         [HttpPost]
         public async Task<IActionResult> Delete(string manv)
         {
             var result= await _employeeService.DeleteEmp(manv);
-            if (result.Success)
-            {
-                TempData["SuccessMessage"] = result.Message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = result.Message;
-            }
+            TempData["message"] = result.Message;
+            TempData["isSuccess"] = result.Success;
             return RedirectToAction("getall");
         }
         [HttpGet]

@@ -2,7 +2,7 @@
 using CoreLib.Models;
 using WebBrowser.Models;
 
-namespace WebBrowser.Interfaces
+namespace WebBrowser.Services.Interfaces
 {
     public interface IEmployeeService
     {
@@ -12,5 +12,6 @@ namespace WebBrowser.Interfaces
         Task<ApiResponse> DeleteEmp(string manv);
         Task<ApiResponse> UpdateCommision(string manv);
         Task<List<HistoryDto>> GetHistory(string manv);
+        Task<ApiResponse> UpdateSalary(string manv);
     }
 }

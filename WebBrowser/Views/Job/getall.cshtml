@@ -1,0 +1,54 @@
+﻿@model List<CoreLib.Models.Job>
+
+@{
+    ViewData["Title"] = "Danh sách Công việc";
+}
+
+@await Html.PartialAsync("_AlertMessage")
+<div class="container mt-4">
+    <h2 class="mb-4 text-primary">Danh sách Công việc</h2>
+    <div class="mb-3 text-end">
+        <a class="btn btn-success" href="@Url.Action("AddJob", "Job")">
+            <i class="bi bi-plus-circle"></i> Thêm công việc
+        </a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Mã Job</th>
+                    <th>Tên Job</th>
+                    <th>Lương tối thiểu</th>
+                    <th>Lương tối đa</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var job in Model)
+                {
+                    <tr>
+                        <td>@job.MAJOB</td>
+                        <td>@job.TENJOB</td>
+                        <td>@job.MIN_SALARY</td>
+                        <td>@job.MAX_SALARY</td>
+                        <td>
+                            <form asp-action="Deletejob" asp-controller="Job" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa công việc này không?');">
+                                <input type="hidden" name="id" value="@job.MAJOB" />
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash"></i> Xóa
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-warning">Không có công việc nào được tìm thấy.</div>
+    }
+</div>
+

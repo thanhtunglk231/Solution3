@@ -3,12 +3,7 @@
 }
 
 <h2 class="mt-4 mb-4 text-primary">Thêm Nhân viên</h2>
-@if (ViewBag.Message != null)
-{
-    <div class="alert @(ViewBag.IsSuccess ? "alert-success" : "alert-danger") mt-3" role="alert">
-        @ViewBag.Message
-    </div>
-}
+@await Html.PartialAsync("_AlertMessage")
 <form asp-action="Add" method="post" class="row g-3">
     <div class="col-md-6">
         <label for="ho_ten" class="form-label">Họ tên</label>

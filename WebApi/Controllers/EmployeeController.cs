@@ -1,12 +1,13 @@
 ﻿using CoreLib.config;
 using CoreLib.Dtos;
 using CoreLib.Models;
+using DataServiceLib.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Writers;
 using System.DirectoryServices.Protocols;
 using WebApi.Handles;
-using WebApi.Service.Interfaces;
+
 
 namespace WebApi.Controllers
 {
@@ -14,9 +15,9 @@ namespace WebApi.Controllers
     [ApiController]
     public class EmployeeController : ControllerBase
     {
-        private readonly IEmployeeService _employeeService;
+        private readonly ICEmployeeDataProvider _employeeService;
         private readonly IJobLogicHandler _jobLogicHandler;
-        public EmployeeController(IEmployeeService employeeService, IJobLogicHandler jobLogicHandler)
+        public EmployeeController(ICEmployeeDataProvider employeeService, IJobLogicHandler jobLogicHandler)
         {
             _employeeService = employeeService;
             _jobLogicHandler = jobLogicHandler;
@@ -26,9 +27,10 @@ namespace WebApi.Controllers
         [HttpGet("getall")]
         public async Task<IActionResult> getallemp()
         {
-            var result= await _employeeService.get_all_emp();
+            var result = await _employeeService.get_all_emp ();
             return Ok(result);
         }
+
 
 
         [HttpPut("UpdateSalary")]
@@ -49,37 +51,21 @@ namespace WebApi.Controllers
         {
             var data = await _employeeService.HisEmp(manv);
 
-            if (data == null || data.Count == 0)
+            if (data == null )
                 return NotFound("Không có dữ liệu");
 
             return Ok(data);
         }
-
         [HttpPost("add_emp")]
-        public async Task<IActionResult> Add_emp(
-          [FromBody] Employee employee)
+        public async Task<IActionResult> Add_emp([FromBody] Employee employee)
         {
-            return await _jobLogicHandler.HandleResponeMessage(() => _employeeService.Add_emp(
-            employee.HO_TEN,
-            employee.MANV,
-            employee.NGSINH ?? DateTime.MinValue,    // hoặc throw nếu không được null
-            employee.DCHI,
-            employee.PHAI,
-            employee.LUONG ?? 0f,
-            employee.MA_NQL,
-            employee.MAPHG ?? 0,
-            employee.NGAY_VAO ?? DateTime.MinValue,
-            employee.HOAHONG ?? 0f,
-            employee.MAJOB ?? ""
-        ));
-
+            return await _jobLogicHandler.HandleResponeMessage(() => _employeeService.Add_emp(employee));
         }
 
-
         [HttpDelete("delete")]
-        public async Task<IActionResult> Delete_emp([FromBody] DeleteEmpRequest manv)
+        public async Task<IActionResult> Delete_emp([FromBody] DeleteEmpRequest empRequest)
         {
-            return await _jobLogicHandler.HandleResponeMessage(() => _employeeService.DeleteEmp(manv.manv));
+            return await _jobLogicHandler.HandleResponeMessage(() => _employeeService.DeleteEmp(empRequest.manv));
         }
     }
 }

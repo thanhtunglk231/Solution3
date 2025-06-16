@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebBrowser.Interfaces;
+using WebBrowser.Services.Interfaces;
 
 namespace WebBrowser.Controllers
 {
@@ -19,9 +19,26 @@ namespace WebBrowser.Controllers
         {
 
             var result = await _jobService.Addjob(id, jobname);
-            ViewBag.message = result.Message;
-            ViewBag.IsSuccess = result.Success;
+            TempData["message"] = result.Message;
+            TempData["isSuccess"] = result.Success;
             return View();
         }
+        [HttpGet]
+        public async Task<IActionResult> Getall()
+        {
+            var result = await _jobService.getall();
+            return View(result);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Deletejob(string id)
+        {
+            var result = await _jobService.DeleteJob(id);
+
+            ViewBag.message = result.Message;
+            ViewBag.Success = result.Success;
+
+            return RedirectToAction("getall"); 
+        }
+
     }
 }

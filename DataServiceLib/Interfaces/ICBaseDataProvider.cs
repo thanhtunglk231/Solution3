@@ -10,5 +10,6 @@ namespace DataServiceLib.Interfaces
         Task Executenonqery(string spName, IDbDataParameter[] parameters, string connectionString);
         bool OpenConnection(string connectString);
         Task<CResponseMessage> GetResponseMessage(string SpName, IDbDataParameter[] parameters, string connectionString);
+        Task<(List<Dictionary<string, object>> Data, CResponseMessage Response)> GetDataSetAndResponse(string spName, IDbDataParameter[] parameters, string connectionString);
     }
 }

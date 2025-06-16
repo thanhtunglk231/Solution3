@@ -1,11 +1,12 @@
 ﻿
 using CoreLib.config;
+using DataServiceLib.Interfaces;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.AspNetCore.Mvc;
 using WebApi.Handles;
-using WebApi.Service.Interfaces;
+
 
     namespace WebApi.Controllers
     {
@@ -14,9 +15,9 @@ using WebApi.Service.Interfaces;
         public class JobController : ControllerBase
         {
 
-            private readonly IJobService _jobService;
+            private readonly ICJobDataProvider _jobService;
         private readonly IJobLogicHandler _jobLogicHandler;
-            public JobController(IJobService jobService,IJobLogicHandler jobLogicHandler) { 
+            public JobController(ICJobDataProvider jobService,IJobLogicHandler jobLogicHandler) { 
             _jobService = jobService;
             _jobLogicHandler = jobLogicHandler;
             }
@@ -24,7 +25,24 @@ using WebApi.Service.Interfaces;
             public async Task<IActionResult>AddJob(string id, string jobName)
             {
 
-                 return await _jobLogicHandler.HandleResponeMessage(() => _jobService.AddJob(id,jobName));
+                var result = await _jobService.AddJob(id, jobName);
+                return Ok(result);
             }
+        [HttpGet("getall")]
+        public async Task<IActionResult> Get()
+        {
+
+            var result = await _jobService.getall();
+            return Ok(result);
+
+
         }
+        [HttpDelete("delete")]
+        public async Task<IActionResult> delete(string majob)
+        {
+            var resule = await _jobService.DeleteJob(majob);
+            return Ok(resule);
+
+        }
+    }
     }

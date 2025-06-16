@@ -20,12 +20,7 @@
                 <button type="submit" class="btn btn-success">Thêm</button>
             </form>
 
-            @if (ViewBag.Message != null)
-            {
-                <div class="alert @(ViewBag.IsSuccess ? "alert-success" : "alert-danger") mt-3" role="alert">
-                    @ViewBag.Message
-                </div>
-            }
+            @await Html.PartialAsync("_AlertMessage")
         </div>
     </div>
 </div>

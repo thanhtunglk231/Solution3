@@ -9,7 +9,9 @@ namespace CoreLib.Models
     public class CResponseMessage
     {     
             public string code { get; set; }
+            public bool Success { get; set; }
             public string message { get; set; }
+            public List<Dictionary<string, object>>? Data { get; set; }
 
     }
 }
