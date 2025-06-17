@@ -18,7 +18,15 @@ namespace WebBrowser.Services.Implements
             _baseUrl = configuration["PathStrings:Url"];
             _client = client;
         }
+        public async Task<LoginResponse> Register(string username , string password)
+        {
+            var para = new LoginRequest { password = password, username= username};
+            var url = _baseUrl + ApiRouter.register;
+            Console.Write(url);
+            var result = await PostJsonAsync<LoginResponse>(ApiRouter.register, para);
+            return result;
 
+        }
         public async Task<LoginResponse?> LoginAsync(string username, string password)
         {
             var body = new LoginRequest

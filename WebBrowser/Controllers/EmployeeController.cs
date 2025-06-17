@@ -2,19 +2,23 @@
 using WebBrowser.Services.Interfaces;
 namespace WebBrowser.Controllers
 {
-    public class EmployeeController : Controller
+    public class EmployeeController : BaseController
     {
         private readonly IEmployeeService _employeeService;
         public EmployeeController(IEmployeeService employeeService) { 
         _employeeService = employeeService;
         }
-      
+
         [HttpGet]
         public async Task<IActionResult> Getall()
         {
-            var resutt = await _employeeService.getall();
-            return View(resutt);
+            var token = GetJwtTokenOrRedirect(out var redirect);
+            if (redirect != null) return redirect;
+
+            var result = await _employeeService.getall(token!);
+            return View(result);
         }
+
         [HttpGet]
         public IActionResult Add()
         {
@@ -28,13 +32,17 @@ namespace WebBrowser.Controllers
         {
             try
             {
+                var token = GetJwtTokenOrRedirect(out var redirect);
+                if (redirect != null) return redirect;
+
+
                 ho_ten = ho_ten?.Trim();
                 manv = manv?.Trim();
                 diachi = diachi?.Trim();
                 phai = phai?.Trim();
                 mangql = mangql?.Trim();
                 majob = majob?.Trim();
-                var result = await _employeeService.Add_emp(ho_ten, manv, ngaysinh, diachi, phai, luong, mangql, maph, ngayvao, hoahong, majob);
+                var result = await _employeeService.Add_emp(ho_ten, manv, ngaysinh, diachi, phai, luong, mangql, maph, ngayvao, hoahong, majob,token);
                 TempData["message"] = result.Message;
                 TempData["isSuccess"] = result.Success;
                 return View();
@@ -48,7 +56,11 @@ namespace WebBrowser.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateSalary(string manv)
         {
-            var result = await _employeeService.UpdateSalary(manv);
+            var token = GetJwtTokenOrRedirect(out var redirect);
+            if (redirect != null) return redirect;
+
+
+            var result = await _employeeService.UpdateSalary(manv,token);
             TempData["message"] = result.Message;
             TempData["isSuccess"] = result.Success;
             return RedirectToAction("getall");
@@ -57,7 +69,10 @@ namespace WebBrowser.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateCommision(string manv)
         {
-            var result= await _employeeService.UpdateCommision(manv);
+            var token = GetJwtTokenOrRedirect(out var redirect);
+            if (redirect != null) return redirect;
+
+            var result= await _employeeService.UpdateCommision(manv, token);
             TempData["message"] = result.Message;
             TempData["isSuccess"] = result.Success;
             return RedirectToAction("getall");
@@ -65,7 +80,11 @@ namespace WebBrowser.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(string manv)
         {
-            var result= await _employeeService.DeleteEmp(manv);
+            var token = GetJwtTokenOrRedirect(out var redirect);
+            if (redirect != null) return redirect;
+
+
+            var result= await _employeeService.DeleteEmp(manv, token);
             TempData["message"] = result.Message;
             TempData["isSuccess"] = result.Success;
             return RedirectToAction("getall");
@@ -73,7 +92,11 @@ namespace WebBrowser.Controllers
         [HttpGet]
         public async Task<IActionResult> HisEmp(string manv)
         {
-            var result = await _employeeService.GetHistory(manv);
+            var token = GetJwtTokenOrRedirect(out var redirect);
+            if (redirect != null) return redirect;
+
+
+            var result = await _employeeService.GetHistory(manv, token);
             return View(result);
         }
 

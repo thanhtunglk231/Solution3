@@ -1,4 +1,6 @@
-﻿namespace DataServiceLib.Interfaces
+﻿using CoreLib.Models;
+
+namespace DataServiceLib.Interfaces
 {
     public interface ICDepartmentDataProvider
     {

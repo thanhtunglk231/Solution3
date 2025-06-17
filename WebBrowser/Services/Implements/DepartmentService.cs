@@ -1,5 +1,7 @@
 ﻿using CoreLib.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Net.Http.Headers;
 
 public class DepartmentService : IDepartmentService
 {
@@ -12,24 +14,33 @@ public class DepartmentService : IDepartmentService
         _client = client;
     }
 
-    public async Task<List<Department>> GetDeptbyid(int id)
+    public async Task<List<Department>> GetDeptbyid(int id, string token)
     {
         var url = _baseUrl + "department/" + id;
-        var reponse = await _client.GetAsync(url);
-        if (reponse.IsSuccessStatusCode)
+
+        // ✅ Gắn JWT token
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var response = await _client.GetAsync(url);
+        if (response.IsSuccessStatusCode)
         {
-            var json = await reponse.Content.ReadAsStringAsync();
+            var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<Department>>(json);
         }
+
         return new List<Department>();
     }
 
-    public async Task<List<Department>> getall()
+
+    public async Task<List<Department>> GetAll(string token)
     {
         var url = _baseUrl + "department/getall";
         Console.WriteLine(url);
-        var response = await _client.GetAsync(url);
 
+        // ✅ Gắn JWT token
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var response = await _client.GetAsync(url);
         if (response.IsSuccessStatusCode)
         {
             var json = await response.Content.ReadAsStringAsync();
@@ -43,4 +54,5 @@ public class DepartmentService : IDepartmentService
 
         return new List<Department>();
     }
+
 }

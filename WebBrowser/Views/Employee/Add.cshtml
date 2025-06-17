@@ -1,9 +1,17 @@
 ﻿@{
     ViewData["Title"] = "Thêm Nhân viên";
 }
+@model WebBrowser.Models.ApiResponse
 
 <h2 class="mt-4 mb-4 text-primary">Thêm Nhân viên</h2>
-@await Html.PartialAsync("_AlertMessage")
+@if (!string.IsNullOrEmpty(Model?.Message))
+{
+    var alertClass = Model.Success ? "alert-success" : "alert-danger";
+    <div class="alert @alertClass">
+        @Model.Message
+    </div>
+}
+
 <form asp-action="Add" method="post" class="row g-3">
     <div class="col-md-6">
         <label for="ho_ten" class="form-label">Họ tên</label>

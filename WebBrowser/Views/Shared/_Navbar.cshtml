@@ -1,8 +1,12 @@
-﻿<nav class="navbar navbar-expand-lg bg-body-tertiary">
+﻿@{
+    var token = Context.Session.GetString("JWToken");
+    var islogin = !string.IsNullOrEmpty(token);
+}
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
         <a class="navbar-brand" asp-controller="Employee" asp-action="GetAll">Trang chủ</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -17,8 +21,21 @@
                 <li class="nav-item">
                     <a class="nav-link active" asp-controller="Job" asp-action="GetAll">Công việc</a>
                 </li>
+                @if (!islogin)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link active" asp-controller="Login" asp-action="Login">Đăng nhập </a>
+                    </li>
+                }
+                else{
+                    <form asp-controller="Login" asp-action="Logout" method="post" class="form-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="nav-link btn btn-link text-decoration-none">Đăng xuất</button>
+                    </form>
+
+                }
                 <li class="nav-item">
-                    <a class="nav-link active" asp-controller="Login" asp-action="Login">Đăng nhập </a>
+                    <a class="nav-link active" asp-controller="Login" asp-action="Register">Đăng ký </a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">

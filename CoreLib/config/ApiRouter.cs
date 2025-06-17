@@ -23,5 +23,6 @@ namespace CoreLib.config
         public const string add_job = "job/add";
         public const string del_job = "job/delete";
         public const string log_in = "Login";
+        public const string register = "login/register";
     }
 }

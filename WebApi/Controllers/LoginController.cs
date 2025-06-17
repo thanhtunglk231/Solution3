@@ -21,14 +21,24 @@ namespace WebApi.Controllers
             _configuration = configuration;
         }
 
-        [HttpPost()]
+        [HttpPost]
         public async Task<IActionResult> Login([FromBody] CoreLib.Dtos.LoginRequest req)
         {
             var result = await _userService.Login(req.username, req.password);
 
+          
             if (result == null || result.code != "200")
             {
-               
+                return Ok(new
+                {
+                    code = result?.code ,
+                    message = result?.message ?? "Lỗi không xác định.",
+                    success = false,           
+                    token = (string?)null,    
+                    username = req.username,
+                    role = (string?)null,
+                    manv = (string?)null
+                });
             }
 
             var userData = result.Data?.FirstOrDefault();
@@ -39,7 +49,7 @@ namespace WebApi.Controllers
 
             return Ok(new
             {
-                code= result.code,
+                code = result.code,
                 message = result.message,
                 success = true,
                 token,
@@ -47,6 +57,13 @@ namespace WebApi.Controllers
                 role,
                 manv
             });
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] CoreLib.Dtos.LoginRequest loginRequest)
+        {
+            var result = await _userService.Register(loginRequest.username, loginRequest.password);
+            return Ok(result);
         }
 
         private string GenerateJwtToken(string username, string role, string manv)

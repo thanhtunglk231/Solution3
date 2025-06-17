@@ -3,7 +3,7 @@
     using Serilog;
 using WebBrowser.Services.Implements;
 var builder = WebApplication.CreateBuilder(args);
-// 👉 Tích hợp Serilog (đọc cấu hình từ appsettings.json)
+// Tích hợp Serilog (đọc cấu hình từ appsettings.json)
     Log.Logger = new LoggerConfiguration()
         .ReadFrom.Configuration(builder.Configuration)
         .Enrich.FromLogContext()
@@ -18,7 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddHttpClient<IJobService, JobService>();
     builder.Services.AddHttpClient<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
-
+builder.Services.AddSession();
 Log.Information("Ứng dụng đang khởi động...");
     var app = builder.Build();
 
@@ -29,8 +29,8 @@ Log.Information("Ứng dụng đang khởi động...");
         // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
         app.UseHsts();
     }
-
-    app.UseHttpsRedirection();
+app.UseSession();
+app.UseHttpsRedirection();
     app.UseStaticFiles();
 
     app.UseRouting();

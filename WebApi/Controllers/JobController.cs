@@ -7,11 +7,12 @@ using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
 using WebApi.Handles;
 
-
-    namespace WebApi.Controllers
+using Microsoft.AspNetCore.Authorization;
+namespace WebApi.Controllers
     {
         [Route("api/[controller]")]
         [ApiController]
+    [Authorize]
         public class JobController : ControllerBase
         {
 

@@ -201,15 +201,15 @@ namespace DataServiceLib.Implementations
                 if (msgParam != null)
                     response.message = cmd.Parameters["o_message"].Value?.ToString();
 
-                this.Logger.Information("✅ SP {SP} hoàn tất với {Count} dòng", spName, data.Count);
+                Log.Information(" SP {SP} hoàn tất với {Count} dòng", spName, data.Count);
             }
             catch (Exception ex)
             {
-                this.Logger.Error(ex, "❌ SP {SP} lỗi", spName);
-                this.WriteToFile(ex);
+                Log.Error(" SP {SP} hoàn tất với {Count} dòng", " SP {SP} lỗi", spName);
+                //this.WriteToFile(ex);
             }
 
-            return (data, response); // vẫn trả dữ liệu rỗng nếu lỗi
+            return (data, response); 
         }
 
 

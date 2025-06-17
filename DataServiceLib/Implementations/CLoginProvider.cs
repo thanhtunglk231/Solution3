@@ -17,8 +17,8 @@ namespace DataServiceLib.Implementations
     {
         private readonly ICBaseDataProvider _dataProvider;
         private readonly string _connectString;
-        
-        public CLoginProvider(ICBaseDataProvider dataProvider,IConfiguration configuration)
+
+        public CLoginProvider(ICBaseDataProvider dataProvider, IConfiguration configuration)
         {
             _dataProvider = dataProvider;
             _connectString = configuration.GetConnectionString("OracleDb");
@@ -75,7 +75,15 @@ namespace DataServiceLib.Implementations
             }
             return result ?? new CResponseMessage { code = "500", message = "Lỗi khác" };
         }
+        public async Task<CResponseMessage> Register(string username, string password)
+        {
+            var para = new IDbDataParameter[]{
+                new OracleParameter("v_username", OracleDbType.Varchar2) { Direction = ParameterDirection.Input,Value=username },
+                new OracleParameter("v_password", OracleDbType.Varchar2) { Direction = ParameterDirection.Input,Value = password }
+             };
+            var result = await _dataProvider.GetResponseMessage(SpRoute.sp_resgis, para, _connectString);
+            return result ?? new CResponseMessage { code = "500", message = "Lỗi khác" };
 
-
+        }
     }
 }

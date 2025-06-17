@@ -4,6 +4,7 @@ using CoreLib.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -24,8 +25,9 @@ namespace WebBrowser.Services
             _url = configuration["PathStrings:Url"];
             _client = client;
         }
-        public async Task<ApiResponse> DeleteEmp(string manv)
+        public async Task<ApiResponse> DeleteEmp(string manv,string token)
         {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var url = _url + ApiRouter.delete_emp;
             Console.WriteLine("DELETE URL: " + url);
 
@@ -33,8 +35,9 @@ namespace WebBrowser.Services
             var result = await DeleteJsonAsync<ApiResponse>(ApiRouter.delete_emp, payload);
             return result ?? new ApiResponse { Success = false, Message = "Không phân tích được phản hồi." };
         }
-        public async Task<ApiResponse> UpdateSalary(string manv)
+        public async Task<ApiResponse> UpdateSalary(string manv,string token)
         {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var url = _url + ApiRouter.UpdateSalary;
             Console.WriteLine(url);
             var payload = new { Manv = manv };
@@ -44,8 +47,9 @@ namespace WebBrowser.Services
         }
 
 
-        public async Task<ApiResponse> UpdateCommision(string manv)
+        public async Task<ApiResponse> UpdateCommision(string manv,string token)
         {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var url = _url + ApiRouter.UpdateCommission;
             Console.WriteLine(url);
             var payload = new { Manv= manv};
@@ -55,12 +59,13 @@ namespace WebBrowser.Services
         }
 
         public async Task<ApiResponse> Add_emp(string ho_ten, string manv, DateTime ngaysinh, string diachi,
-           string phai, float luong, string mangql, int maph, DateTime ngayvao, float hoahong, string majob)
+           string phai, float luong, string mangql, int maph, DateTime ngayvao, float hoahong, string majob,string token)
         {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var url = _url + ApiRouter.add_emp;
             Console.WriteLine(url);
 
-            var payload = new
+            var employee = new Employee
             {
                 HO_TEN = ho_ten?.Trim(),
                 MANV = manv?.Trim(),
@@ -71,17 +76,16 @@ namespace WebBrowser.Services
                 MA_NQL = string.IsNullOrEmpty(mangql) ? null : mangql.Trim(),
                 MAPHG = maph,
                 NGAY_VAO = ngayvao,
-                HoaHong = hoahong,
+                HOAHONG = hoahong,
                 MAJOB = majob?.Trim()
             };
 
-            var result = await PostJsonAsync<ApiResponse>(ApiRouter.add_emp, payload);
+            var result = await PostJsonAsync<ApiResponse>(ApiRouter.add_emp, employee);
             return result ?? new ApiResponse { Success = false, Message = "Không phân tích được phản hồi." };
-
-
         }
-        public async Task<List<HistoryDto>> GetHistory(string manv)
+        public async Task<List<HistoryDto>> GetHistory(string manv,string token)
         {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var url = $"{_url.TrimEnd('/')}/Employee/HisEmp?manv={manv}";
             var response = await _client.GetAsync(url);
             var json = await response.Content.ReadAsStringAsync();
@@ -112,8 +116,9 @@ namespace WebBrowser.Services
 
 
 
-        public async Task<List<Employee>> getall()
+        public async Task<List<Employee>> getall(string token)
         {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var url = _url + ApiRouter.getall_emp;
             Console.WriteLine(url);
             var response = await _client.GetAsync(url);

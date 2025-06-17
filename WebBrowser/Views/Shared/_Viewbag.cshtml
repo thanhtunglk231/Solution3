@@ -1,0 +1,20 @@
+﻿@{
+    var message = ViewBag.Message as string;
+    var isSuccess = ViewBag.IsSuccess as bool?;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div id="alert-box" class="alert @(isSuccess == true ? "alert-success" : "alert-danger")" role="alert">
+        @message
+    </div>
+
+    <script>
+        setTimeout(function () {
+            var alertBox = document.getElementById('alert-box');
+            if (alertBox) {
+                alertBox.style.display = 'none';
+            }
+        }, 3000); // 3 giây
+    </script>
+}

@@ -2,6 +2,7 @@
 using CoreLib.Dtos;
 using CoreLib.Models;
 using DataServiceLib.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Writers;
@@ -13,6 +14,7 @@ namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class EmployeeController : ControllerBase
     {
         private readonly ICEmployeeDataProvider _employeeService;

@@ -3,7 +3,7 @@ using WebBrowser.Services.Interfaces;
 
 namespace WebBrowser.Controllers
 {
-    public class JobController : Controller
+    public class JobController : BaseController
     {
         private readonly IJobService _jobService;
         public JobController(IJobService jobService)
@@ -17,8 +17,9 @@ namespace WebBrowser.Controllers
         [HttpPost]
         public async Task<IActionResult> AddJob(string id, string jobname)
         {
-
-            var result = await _jobService.Addjob(id, jobname);
+            var token = GetJwtTokenOrRedirect(out var redirect);
+            if (redirect != null) return redirect;
+            var result = await _jobService.Addjob(id, jobname, token);
             TempData["message"] = result.Message;
             TempData["isSuccess"] = result.Success;
             return View();
@@ -26,13 +27,25 @@ namespace WebBrowser.Controllers
         [HttpGet]
         public async Task<IActionResult> Getall()
         {
-            var result = await _jobService.getall();
+            var token = HttpContext.Session.GetString("JWToken");
+            if (string.IsNullOrEmpty(token))
+            {
+                TempData["message"] = "Bạn cần đăng nhập";
+                return RedirectToAction("Login", "Login");
+            }
+            var result = await _jobService.getall(token);
             return View(result);
         }
         [HttpPost]
         public async Task<IActionResult> Deletejob(string id)
         {
-            var result = await _jobService.DeleteJob(id);
+            var token = HttpContext.Session.GetString("JWToken");
+            if (string.IsNullOrEmpty(token))
+            {
+                TempData["message"] = "Bạn cần đăng nhập";
+                return RedirectToAction("Login", "Login");
+            }
+            var result = await _jobService.DeleteJob(id, token);
 
             ViewBag.message = result.Message;
             ViewBag.Success = result.Success;
