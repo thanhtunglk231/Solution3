@@ -1,4 +1,4 @@
-﻿@model List<CoreLib.Models.Employee>
+﻿@model WebBrowser.Models.ViewModels.EmployeeListViewModel
 
 @{
     ViewBag.Title = "Danh sách nhân viên";
@@ -6,7 +6,14 @@
 
 <h2 class="mb-4 text-primary">📋 Danh sách nhân viên</h2>
 
-@await Html.PartialAsync("_AlertMessage")
+@if (Model.Response != null && !string.IsNullOrWhiteSpace(Model.Response.Message))
+{
+    var alertClass = Model.Response.Success ? "alert-success" : "alert-danger";
+    <div id="alertMessage" class="alert @alertClass alert-dismissible fade show" role="alert">
+        @Model.Response.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 <p>
     <a class="btn btn-success mb-3" href="@Url.Action("Add", "Employee")">
@@ -31,7 +38,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var emp in Model)
+        @foreach (var emp in Model.Employees)
         {
             <tr>
                 <td>@emp.MANV</td>
@@ -46,7 +53,7 @@
                 <td>@emp.HOAHONG</td>
                 <td class="text-center">
                     <div class="d-flex justify-content-center gap-2">
-                        <form method="post" asp-action="UpdateCommision" onsubmit="return confirm('Bạn có chắc muốn tăng lương cho nhân viên này?');">
+                        <form method="post" asp-action="UpdateCommision" onsubmit="return confirm('Bạn có chắc muốn tăng hoa hồng cho nhân viên này?');">
                             <input type="hidden" name="manv" value="@emp.MANV" />
                             <button type="submit" class="btn btn-warning btn-sm">
                                 <i class="bi bi-cash-coin me-1"></i> Hoa hồng
@@ -54,14 +61,14 @@
                         </form>
                         <form method="get" asp-action="HisEmp">
                             <input type="hidden" name="manv" value="@emp.MANV" />
-                            <button type="submit" class="btn btn-warning btn-sm">
-                                <i class="bi bi-cash-coin me-1"></i> Xem lịch sử
+                            <button type="submit" class="btn btn-info btn-sm">
+                                <i class="bi bi-clock-history me-1"></i> Lịch sử
                             </button>
                         </form>
                         <form method="post" asp-action="UpdateSalary">
                             <input type="hidden" name="manv" value="@emp.MANV" />
-                            <button type="submit" class="btn btn-warning btn-sm">
-                                <i class="bi bi-cash-coin me-1"></i> Tăng lương 
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="bi bi-arrow-up-circle me-1"></i> Tăng lương
                             </button>
                         </form>
                         <form method="post" asp-action="Delete" onsubmit="return confirm('Bạn có chắc muốn xoá nhân viên này?');">
@@ -77,3 +84,16 @@
     </tbody>
 </table>
 
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const alert = document.getElementById("alertMessage");
+            if (alert) {
+                setTimeout(function () {
+                    const alertInstance = bootstrap.Alert.getOrCreateInstance(alert);
+                    alertInstance.close();
+                }, 3000);
+            }
+        });
+    </script>
+}

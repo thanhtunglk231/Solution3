@@ -76,7 +76,7 @@ namespace WebBrowser.Services.ApiServices
                 var response = await _client.DeleteAsync(_baseUrl + relativeUrl);
 
                 if (!response.IsSuccessStatusCode)
-                    {
+                {
                     Log.Warning("GET request failed with status code {StatusCode} for URL {Url}", response.StatusCode, _baseUrl + relativeUrl);
                     return default;
                 }
@@ -85,7 +85,7 @@ namespace WebBrowser.Services.ApiServices
                 Log.Information("GET request to {Url} succeeded", _baseUrl + relativeUrl);
                 return JsonConvert.DeserializeObject<T>(json);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 this._errorHandler.WriteToFile(ex);
                 return default;
@@ -116,7 +116,8 @@ namespace WebBrowser.Services.ApiServices
                 Log.Information("GET request to {Url} succeeded", _baseUrl + relativeUrl);
                 return JsonConvert.DeserializeObject<T>(json);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
 
 
                 this._errorHandler.WriteToFile(ex);
@@ -126,7 +127,7 @@ namespace WebBrowser.Services.ApiServices
 
 
 
-            
+
         protected async Task<T?> PutAsync<T>(string relativeUrl)
         {
             try
@@ -143,7 +144,7 @@ namespace WebBrowser.Services.ApiServices
                 Log.Information("GET request to {Url} succeeded", _baseUrl + relativeUrl);
                 return JsonConvert.DeserializeObject<T>(json);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 this._errorHandler.WriteToFile(ex);
                 return default;
@@ -157,7 +158,7 @@ namespace WebBrowser.Services.ApiServices
                 var response = await _client.PutAsync(_baseUrl + relativeUrl, content);
 
                 if (!response.IsSuccessStatusCode)
-                 {
+                {
                     Log.Warning("GET request failed with status code {StatusCode} for URL {Url}", response.StatusCode, _baseUrl + relativeUrl);
                     return default;
                 }
@@ -166,7 +167,8 @@ namespace WebBrowser.Services.ApiServices
                 Log.Information("GET request to {Url} succeeded", _baseUrl + relativeUrl);
                 return JsonConvert.DeserializeObject<T>(json);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 this._errorHandler.WriteToFile(ex);
                 return default;
             }
@@ -177,27 +179,37 @@ namespace WebBrowser.Services.ApiServices
         {
             try
             {
-
-
                 var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
                 var response = await _client.PostAsync(_baseUrl + relativeUrl, content);
+                var json = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    Log.Warning("GET request failed with status code {StatusCode} for URL {Url}", response.StatusCode, _baseUrl + relativeUrl);
-                    return default;
+                    Log.Warning("POST request failed with status code {StatusCode} for URL {Url}. Response: {Response}",
+                        response.StatusCode, _baseUrl + relativeUrl, json);
+
+
+                    try
+                    {
+                        return JsonConvert.DeserializeObject<T>(json);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("Không thể parse lỗi JSON về kiểu {Type}. Error: {Error}", typeof(T).Name, ex.Message);
+                        return default;
+                    }
                 }
 
-                var json = await response.Content.ReadAsStringAsync();
-                Log.Information("GET request to {Url} succeeded", _baseUrl + relativeUrl);
+                Log.Information("POST request to {Url} succeeded", _baseUrl + relativeUrl);
                 return JsonConvert.DeserializeObject<T>(json);
             }
-            catch (Exception ex) { 
-            
-            this._errorHandler?.WriteToFile(ex);
+            catch (Exception ex)
+            {
+                this._errorHandler?.WriteToFile(ex);
                 return default;
             }
         }
+
     }
 
 }

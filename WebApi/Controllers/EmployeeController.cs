@@ -2,6 +2,7 @@
 using CoreLib.Dtos;
 using CoreLib.Models;
 using DataServiceLib.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Writers;
@@ -13,6 +14,7 @@ namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class EmployeeController : ControllerBase
     {
         private readonly ICEmployeeDataProvider _employeeService;
@@ -27,7 +29,7 @@ namespace WebApi.Controllers
         [HttpGet("getall")]
         public async Task<IActionResult> getallemp()
         {
-            var result = await _employeeService.get_all_emp ();
+            var result = await _employeeService.get_all_emp();
             return Ok(result);
         }
 
@@ -36,14 +38,14 @@ namespace WebApi.Controllers
         [HttpPut("UpdateSalary")]
         public async Task<IActionResult> UpdateSalary()
         {
-            return await _jobLogicHandler.HandleResponeMessage(()=>_employeeService.UpdateSalary());
+            return await _jobLogicHandler.HandleResponeMessage(() => _employeeService.UpdateSalary());
         }
 
 
         [HttpPut("UpdateCommission")]
         public async Task<IActionResult> UpdateCommision([FromBody] DeleteEmpRequest manv)
         {
-            return await _jobLogicHandler.HandleResponeMessage(()=>_employeeService.UpdateCommision(manv.manv));
+            return await _jobLogicHandler.HandleResponeMessage(() => _employeeService.UpdateCommision(manv.manv));
         }
 
         [HttpGet("HisEmp")]
@@ -51,7 +53,7 @@ namespace WebApi.Controllers
         {
             var data = await _employeeService.HisEmp(manv);
 
-            if (data == null )
+            if (data == null)
                 return NotFound("Không có dữ liệu");
 
             return Ok(data);

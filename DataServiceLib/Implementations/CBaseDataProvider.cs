@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace DataServiceLib.Implementations
 {
-    public class CBaseDataProvider : ErrorHandler,ICBaseDataProvider
+    public class CBaseDataProvider : ErrorHandler, ICBaseDataProvider
     {
         private OracleConnection con;
         private OracleCommand command;
@@ -70,7 +70,7 @@ namespace DataServiceLib.Implementations
 
             }
         }
-        public async Task Executenonqery(string spName, IDbDataParameter[] parameters,string connectionString)
+        public async Task Executenonqery(string spName, IDbDataParameter[] parameters, string connectionString)
         {
             try
             {
@@ -94,7 +94,8 @@ namespace DataServiceLib.Implementations
                     }
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 this.WriteToFile(ex);
             }
         }
@@ -139,7 +140,7 @@ namespace DataServiceLib.Implementations
                                 //}
 
                                 //Cách 2(nếu muốn giữ key và để value là null):
-                                 row[reader.GetName(i)] = value;
+                                row[reader.GetName(i)] = value;
                             }
 
                             lis.Add(row);
@@ -201,68 +202,69 @@ namespace DataServiceLib.Implementations
                 if (msgParam != null)
                     response.message = cmd.Parameters["o_message"].Value?.ToString();
 
-                this.Logger.Information("✅ SP {SP} hoàn tất với {Count} dòng", spName, data.Count);
+                Log.Information(" SP {SP} hoàn tất với {Count} dòng", spName, data.Count);
             }
             catch (Exception ex)
             {
-                this.Logger.Error(ex, "❌ SP {SP} lỗi", spName);
-                this.WriteToFile(ex);
+                Log.Error(" SP {SP} hoàn tất với {Count} dòng", " SP {SP} lỗi", spName);
+                //this.WriteToFile(ex);
             }
 
-            return (data, response); // vẫn trả dữ liệu rỗng nếu lỗi
+            return (data, response);
         }
 
 
-            public async Task<CResponseMessage> GetResponseMessage(string SpName, IDbDataParameter[] parameters, string connectionString)
+        public async Task<CResponseMessage> GetResponseMessage(string SpName, IDbDataParameter[] parameters, string connectionString)
+        {
+            var code = new OracleParameter("o_code", OracleDbType.NVarchar2, 10)
             {
-                var code = new OracleParameter("o_code", OracleDbType.NVarchar2, 10)
-                {
-                    Direction = ParameterDirection.Output
-                };
-                var message = new OracleParameter("o_message", OracleDbType.NVarchar2, 200)
-                {
-                    Direction = ParameterDirection.Output
-                };
-                try
-                {
+                Direction = ParameterDirection.Output
+            };
+            var message = new OracleParameter("o_message", OracleDbType.NVarchar2, 200)
+            {
+                Direction = ParameterDirection.Output
+            };
+            try
+            {
                 Log.Information("Before calling stored procedure: {SpName}", SpName);
                 using (var con = new OracleConnection(connectionString))
-                    using (var cmd = new OracleCommand(SpName, con))
+                using (var cmd = new OracleCommand(SpName, con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    if (parameters != null)
                     {
-                        cmd.CommandType = CommandType.StoredProcedure;
-
-                        if (parameters != null)
+                        foreach (var param in parameters)
                         {
-                            foreach (var param in parameters)
-                            {
-                                cmd.Parameters.Add(param);
-                            }
+                            cmd.Parameters.Add(param);
                         }
+                    }
 
-                        cmd.Parameters.Add(code);
-                        cmd.Parameters.Add(message);
+                    cmd.Parameters.Add(code);
+                    cmd.Parameters.Add(message);
 
-                        await con.OpenAsync();
-                        await cmd.ExecuteNonQueryAsync();
+                    await con.OpenAsync();
+                    await cmd.ExecuteNonQueryAsync();
                     Log.Information("Stored Procedure returned: code={Code}, message={Message}", code.Value, message.Value);
 
                     return new CResponseMessage
-                        {
-                            code = code.Value?.ToString(),
-                            message = message.Value?.ToString()
-                        };
-
-                    }
-                }
-                catch (Exception ex) {
-                    this.WriteToFile(ex);
-                    return new CResponseMessage
                     {
-                        code = "500",
-                        message = "Lỗi hệ thống"
+                        code = code.Value?.ToString(),
+                        message = message.Value?.ToString()
                     };
+
                 }
             }
+            catch (Exception ex)
+            {
+                this.WriteToFile(ex);
+                return new CResponseMessage
+                {
+                    code = "500",
+                    message = "Lỗi hệ thống"
+                };
+            }
+        }
 
         //public async Task<CResponseMessage> GetResponseMessageWithData(string SpName, OracleParameter[] parameters, string connectionString)
         //{
@@ -312,7 +314,7 @@ namespace DataServiceLib.Implementations
         //    }
         //}
 
-            
+
 
 
 

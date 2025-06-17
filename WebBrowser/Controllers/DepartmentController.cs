@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebBrowser.Services.Interfaces;
+using Microsoft.AspNetCore.Http; // để dùng HttpContext.Session
+using System.Threading.Tasks;
 
 namespace WebBrowser.Controllers
 {
     [Route("department")]
-    public class DepartmentController : Controller
+    public class DepartmentController : BaseController
     {
         private readonly IDepartmentService _departmentService;
 
@@ -12,32 +14,41 @@ namespace WebBrowser.Controllers
         {
             _departmentService = departmentService;
         }
+
         [HttpGet("search")]
         public async Task<IActionResult> SearchById(int id)
         {
-            var result = await _departmentService.GetDeptbyid(id);
+            var token = GetJwtTokenOrRedirect(out var redirect);
+            if (redirect != null) return redirect;
+
+            var result = await _departmentService.GetDeptbyid(id, token);
 
             if (result == null || result.Count == 0)
             {
                 ViewBag.Message = $"Không tìm thấy phòng ban với mã {id}.";
             }
 
-            return View("Getall", result); // View chính danh sách
+            return View("Getall", result);
         }
 
         [HttpGet("{id}")]
-        public async Task< IActionResult> Getbyid(int id)
+        public async Task<IActionResult> Getbyid(int id)
         {
-            var result = await _departmentService.GetDeptbyid(id);
+            var token = GetJwtTokenOrRedirect(out var redirect);
+            if (redirect != null) return redirect;
 
+            var result = await _departmentService.GetDeptbyid(id, token);
             return View(result);
         }
-            [HttpGet]
-            public async Task<IActionResult> Getall()
-            {
-                var result = await _departmentService.getall();
-                return View(result);
-            }
-    }
 
+        [HttpGet]
+        public async Task<IActionResult> Getall()
+        {
+            var token = GetJwtTokenOrRedirect(out var redirect);
+            if (redirect != null) return redirect;
+
+            var result = await _departmentService.GetAll(token);
+            return View(result);
+        }
+    }
 }
