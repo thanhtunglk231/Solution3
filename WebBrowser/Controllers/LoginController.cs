@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CoreLib.Dtos;
+using Microsoft.AspNetCore.Mvc;
+using WebBrowser.Models;
+using WebBrowser.Models.ViewModels;
 using WebBrowser.Services.Interfaces;
 
 namespace WebBrowser.Controllers
@@ -10,59 +13,106 @@ namespace WebBrowser.Controllers
         {
             _loginService = loginService;
         }
+        [HttpGet]
         public IActionResult Login()
         {
-            return View();
+            return View(new LoginViewModel());
         }
+
         [HttpPost]
-        public async Task<IActionResult> Login(string username, string password)
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
-            var loginResult = await _loginService.LoginAsync(username, password);
+            var loginResult = await _loginService.LoginAsync(model.Username, model.Password);
 
             if (loginResult != null)
             {
-                TempData["Message"] = loginResult.Message;
-
+                HttpContext.Session.SetString("JWToken", loginResult.Token ?? "");
+                HttpContext.Session.SetString("Username", loginResult.Username ?? "");
+                HttpContext.Session.SetString("Role", loginResult.Role ?? "");
                 if (loginResult.Success && !string.IsNullOrEmpty(loginResult.Token))
                 {
                     HttpContext.Session.SetString("JWToken", loginResult.Token);
-                    return RedirectToAction("GetAll", "Employee");
+                    model.Response = new ApiResponse
+                    {
+                        Success = true,
+                        Message = loginResult.Message
+                    };
+                    ViewBag.RedirectUrl = Url.Action("GetAll", "Employee");
+                    return View(model);
                 }
                 else
                 {
-
-                    TempData["IsSuccess"] = false;
+                    model.Response = new ApiResponse
+                    {
+                        Success = false,
+                        Message = loginResult.Message
+                    };
                 }
             }
             else
             {
-                TempData["Message"] = "Không nhận được phản hồi từ server.";
-                TempData["IsSuccess"] = false;
+                model.Response = new ApiResponse
+                {
+                    Success = false,
+                    Message = "Không nhận được phản hồi từ server."
+                };
             }
 
-            return View();
+            return View(model);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var apiResult = await _loginService.getall();
+
+            var viewModel = new UserListViewModel
+            {
+                Users = apiResult?.data ?? new List<UserDto>(),
+                Response = new ApiResponse
+                {
+                    Success = apiResult?.success ?? false,
+                    Message = apiResult?.message ?? "Không lấy được dữ liệu từ server."
+                }
+            };
+
+            return View(viewModel);
+        }
+
+
+
+        [HttpGet]
         public IActionResult Register()
         {
-            return View();
+            return View(new LoginViewModel());
         }
+
         [HttpPost]
-        public async Task<IActionResult> Register(string username, string password)
+        public async Task<IActionResult> Register(LoginViewModel model)
         {
-            var result = await _loginService.Register(username, password);
+            var result = await _loginService.Register(model.Username, model.Password);
 
-            TempData["Message"] = result.Message;
-            TempData["IsSuccess"] = result.Success;
+            model.Response = new ApiResponse
+            {
+                Message = result.Message,
+                Success = result.Success
+            };
 
-            return View();
+            return View(model);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Logout()
+        public IActionResult Logout(LoginViewModel model)
         {
             HttpContext.Session.Remove("JWToken");
-            TempData["Message"] = "Bạn đã đăng xuất.";
+            HttpContext.Session.Remove("Role");
+            HttpContext.Session.Remove("Admin");
+            model.Response = new ApiResponse
+            {
+                Message = "Bạn đã đăng xuất",
+                
+            };
             return RedirectToAction("Login", "Login");
         }
 

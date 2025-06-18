@@ -2,6 +2,7 @@
 using WebBrowser.Services.Interfaces;
 using Microsoft.AspNetCore.Http; // để dùng HttpContext.Session
 using System.Threading.Tasks;
+using WebBrowser.Services;
 
 namespace WebBrowser.Controllers
 {
@@ -10,9 +11,10 @@ namespace WebBrowser.Controllers
     {
         private readonly IDepartmentService _departmentService;
 
-        public DepartmentController(IDepartmentService departmentService)
+        public DepartmentController(IDepartmentService employeeService, IConfiguration configuration)
+              : base(configuration)
         {
-            _departmentService = departmentService;
+            _departmentService = employeeService;
         }
 
         [HttpGet("search")]

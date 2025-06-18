@@ -90,6 +90,11 @@ namespace WebApi.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
+        [HttpGet("getall")]
+        public async Task<IActionResult> Getall()
+        {
+            var result =await _userService.Getall();
+            return Ok(result);
+        }
     }
 }

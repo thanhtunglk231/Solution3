@@ -1,0 +1,42 @@
+﻿@model WebBrowser.Models.ViewModels.UserListViewModel
+
+@{
+    ViewData["Title"] = "Danh sách người dùng";
+}
+
+<h2>Danh sách người dùng</h2>
+
+@if (!string.IsNullOrEmpty(Model.Response.Message))
+{
+    var alertClass = Model.Response.Success ? "alert-success" : "alert-danger";
+    <div class="alert @alertClass">@Model.Response.Message</div>
+}
+
+@if (Model.Users != null && Model.Users.Count > 0)
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Tên đăng nhập</th>
+                <th>Mật khẩu</th>
+                <th>Vai trò</th>
+                <th>Mã nhân viên</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Users)
+            {
+                <tr>
+                    <td>@user.USERNAME</td>
+                    <td>@user.PASSWORD</td>
+                    <td>@user.ROLE</td>
+                    <td>@user.MANV</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">Không có người dùng nào.</div>
+}

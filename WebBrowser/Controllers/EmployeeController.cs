@@ -9,7 +9,8 @@ namespace WebBrowser.Controllers
     {
         private readonly IEmployeeService _employeeService;
 
-        public EmployeeController(IEmployeeService employeeService)
+        public EmployeeController(IEmployeeService employeeService, IConfiguration configuration)
+            : base(configuration)
         {
             _employeeService = employeeService;
         }
@@ -19,7 +20,7 @@ namespace WebBrowser.Controllers
         {
             var token = GetJwtTokenOrRedirect(out var redirect);
             if (redirect != null) return redirect;
-
+            
             var employees = await _employeeService.getall(token!);
             var response = string.IsNullOrWhiteSpace(msg)
                 ? null
@@ -37,6 +38,12 @@ namespace WebBrowser.Controllers
         [HttpGet]
         public IActionResult Add()
         {
+            var role = HttpContext.Session.GetString("Role");
+            if (role != "Admin")
+            {
+                return RedirectToAction("Getall", new { msg = "Không có quyền thêm", success = false });
+            }
+
             return View(new ApiResponse());
         }
 
@@ -49,7 +56,11 @@ namespace WebBrowser.Controllers
             {
                 var token = GetJwtTokenOrRedirect(out var redirect);
                 if (redirect != null) return redirect;
-
+                var role = HttpContext.Session.GetString("Role");
+                if (role != "Admin")
+                {
+                    return RedirectToAction("Getall", new { msg = "Không có quyền thêm", success = false });
+                }
                 // Trim dữ liệu
                 ho_ten = ho_ten?.Trim();
                 manv = manv?.Trim();
@@ -58,16 +69,14 @@ namespace WebBrowser.Controllers
                 mangql = mangql?.Trim();
                 majob = majob?.Trim();
 
-                // Gọi service
+            
                 var result = await _employeeService.Add_emp(ho_ten, manv, ngaysinh, diachi, phai, luong, mangql, maph, ngayvao, hoahong, majob, token);
 
-                // Nếu thành công, chuyển hướng về danh sách với thông báo
                 if (result.Success)
                 {
                     return RedirectToAction("Getall", new { msg = result.Message, success = result.Success });
                 }
 
-                // Nếu thất bại, trả lại view hiện tại với thông báo
                 return View(result);
             }
             catch (Exception ex)
@@ -85,7 +94,11 @@ namespace WebBrowser.Controllers
         {
             var token = GetJwtTokenOrRedirect(out var redirect);
             if (redirect != null) return redirect;
-
+            var role = HttpContext.Session.GetString("Role");
+            if (role != "Admin")
+            {
+                return RedirectToAction("Getall", new { msg = "Không có quyền chỉnh sửa", success = false });
+            }
             var result = await _employeeService.UpdateSalary(manv, token);
             return RedirectToAction("Getall", new { msg = result.Message, success = result.Success });
         }
@@ -95,7 +108,11 @@ namespace WebBrowser.Controllers
         {
             var token = GetJwtTokenOrRedirect(out var redirect);
             if (redirect != null) return redirect;
-
+            var role = HttpContext.Session.GetString("Role");
+            if (role != "Admin")
+            {
+                return RedirectToAction("Getall", new { msg = "Không có quyền chỉnh sửa", success = false });
+            }
             var result = await _employeeService.UpdateCommision(manv, token);
             return RedirectToAction("Getall", new { msg = result.Message, success = result.Success });
         }
@@ -105,7 +122,11 @@ namespace WebBrowser.Controllers
         {
             var token = GetJwtTokenOrRedirect(out var redirect);
             if (redirect != null) return redirect;
-
+            var role = HttpContext.Session.GetString("Role");
+            if (role != "Admin")
+            {
+                return RedirectToAction("Getall", new { msg = "Không có quyền chỉnh sửa", success = false });
+            }
             var result = await _employeeService.DeleteEmp(manv, token);
             return RedirectToAction("Getall", new { msg = result.Message, success = result.Success });
         }

@@ -34,14 +34,14 @@ namespace WebApi.Controllers
         }
 
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("UpdateSalary")]
         public async Task<IActionResult> UpdateSalary()
         {
             return await _jobLogicHandler.HandleResponeMessage(() => _employeeService.UpdateSalary());
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("UpdateCommission")]
         public async Task<IActionResult> UpdateCommision([FromBody] DeleteEmpRequest manv)
         {
@@ -58,6 +58,8 @@ namespace WebApi.Controllers
 
             return Ok(data);
         }
+
+        [Authorize(Roles = "Admin")]
         [HttpPost("add_emp")]
         public async Task<IActionResult> Add_emp([FromBody] Employee employee)
         {

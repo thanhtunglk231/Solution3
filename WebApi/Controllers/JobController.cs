@@ -23,6 +23,7 @@ namespace WebApi.Controllers
             _jobService = jobService;
             _jobLogicHandler = jobLogicHandler;
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost("addjob")]
         public async Task<IActionResult> AddJob(string id, string jobName)
         {
@@ -39,6 +40,7 @@ namespace WebApi.Controllers
 
 
         }
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete")]
         public async Task<IActionResult> delete(string majob)
         {

@@ -22,5 +22,6 @@ namespace CoreLib.config
         public const string sp_delete_job = "del_job";
         public const string sp_login = "sp_login_user";
         public const string sp_resgis = "sp_regis_user";
+        public const string sp_getall_users = "sp_get_all_users";
     }
 }

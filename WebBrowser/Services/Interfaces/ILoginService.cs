@@ -7,5 +7,6 @@ namespace WebBrowser.Services.Interfaces
     {
         Task<LoginResponse?> LoginAsync(string username, string password);
         Task<LoginResponse> Register(string username, string password);
+        Task<UserListResponse?> getall();
     }
 }

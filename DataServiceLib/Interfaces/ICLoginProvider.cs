@@ -6,5 +6,6 @@ namespace DataServiceLib.Implementations
     {
         Task<CResponseMessage> Login(string username, string password);
         Task<CResponseMessage> Register(string username, string password);
+        Task<CResponseMessage> Getall();
     }
 }

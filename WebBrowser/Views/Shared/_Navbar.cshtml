@@ -1,12 +1,13 @@
 ﻿@{
     var token = Context.Session.GetString("JWToken");
+    var role = Context.Session.GetString("Role");
     var islogin = !string.IsNullOrEmpty(token);
 }
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
         <a class="navbar-brand" asp-controller="Employee" asp-action="GetAll">Trang chủ</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -15,6 +16,13 @@
                 <li class="nav-item">
                     <a class="nav-link active" asp-controller="Employee" asp-action="GetAll">Nhân viên</a>
                 </li>
+                @if (role == "Admin")
+                {
+
+                    <li class="nav-item">
+                        <a class="nav-link active" asp-controller="Login" asp-action="getall">Tài khoản</a>
+                    </li>
+                }
                 <li class="nav-item">
                     <a class="nav-link active" asp-controller="Department" asp-action="GetAll">Phòng Ban</a>
                 </li>
@@ -26,6 +34,9 @@
                     <li class="nav-item">
                         <a class="nav-link active" asp-controller="Login" asp-action="Login">Đăng nhập </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" asp-controller="Login" asp-action="Register">Đăng ký </a>
+                    </li>
                 }
                 else
                 {
@@ -35,18 +46,15 @@
                     </form>
 
                 }
-                <li class="nav-item">
-                    <a class="nav-link active" asp-controller="Login" asp-action="Register">Đăng ký </a>
-                </li>
+               
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Dropdown
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Action</a></li>
-                        <li><a class="dropdown-item" href="#">Another action</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        <li><a class="dropdown-item" href="#">Xin chào @ViewBag.Username</a></li>
+                        <li><a class="dropdown-item" href="#">Role @ViewBag.Role</a></li>
+                       
                     </ul>
                 </li>
                 <li class="nav-item">

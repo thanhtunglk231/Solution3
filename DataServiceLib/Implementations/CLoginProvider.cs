@@ -85,5 +85,41 @@ namespace DataServiceLib.Implementations
             return result ?? new CResponseMessage { code = "500", message = "Lỗi khác" };
 
         }
+        public async Task<CResponseMessage> Getall()
+        {
+            var p_cursor = new OracleParameter("p_result", OracleDbType.RefCursor)
+            {
+                Direction = ParameterDirection.Output
+            };
+
+            var o_code = new OracleParameter("o_code", OracleDbType.Varchar2, 10)
+            {
+                Direction = ParameterDirection.Output
+            };
+
+            var o_message = new OracleParameter("o_message", OracleDbType.Varchar2, 200)
+            {
+                Direction = ParameterDirection.Output
+            };
+
+            var parameters = new IDbDataParameter[]
+            {
+        p_cursor,
+        o_code,
+        o_message
+            };
+
+            var (data, _) = await _dataProvider.GetDataSetAndResponse("sp_get_all_users", parameters, _connectString);
+
+            // ✅ Phải đọc kết quả từ chính object `o_code`, `o_message`
+            return new CResponseMessage
+            {
+                code = o_code.Value?.ToString(),
+                message = o_message.Value?.ToString(),
+                Data = data,
+                Success = o_code.Value?.ToString() == "200"
+            };
+        }
+
     }
 }

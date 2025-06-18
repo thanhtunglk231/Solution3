@@ -35,11 +35,18 @@ namespace WebBrowser.Services.Implements
                 password = password
             };
             var url = _baseUrl + ApiRouter.log_in;
-
+                
             var result = await PostJsonAsync<LoginResponse>(ApiRouter.log_in, body);
 
             return result;
         }
+        public async Task<UserListResponse?> getall()
+        {
+            
+            var result = await GetAsync<UserListResponse>(ApiRouter.user_getall);
+            return result;
+        }
+
 
     }
 
