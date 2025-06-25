@@ -1,24 +1,31 @@
+﻿using CommonLib.Handles;
+using CommonLib.Helpers;
 using CommonLib.Implementations;
 using CommonLib.Interfaces;
 using DataServiceLib.Implementations;
+using DataServiceLib.Implementations1;
 using DataServiceLib.Interfaces;
+using DataServiceLib.Interfaces1;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
-using WebApi.Handles;
-
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
+using DataServiceLib.unuse.Implementations;
+using DataServiceLib.unuse.Interfaces.unuse;
+using CommonLib.unuse;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ------------------ Logging ------------------
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .CreateLogger();
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Host.UseSerilog();
 
-
+// ------------------ JWT Auth ------------------
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 builder.Services.AddAuthentication(options =>
 {
@@ -38,27 +45,40 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]))
     };
 });
+
+// ------------------ Controller + Newtonsoft.Json ------------------
+builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.None;
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+    });
+
+// ------------------ Swagger ------------------
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// ------------------ DI Services ------------------
+builder.Services.AddScoped<ICEmpDataProvider, CEmpDataProvider>();
+builder.Services.AddScoped<ICAccountDataProvider,CAccountDataProvider>();
 builder.Services.AddScoped<ICBaseDataProvider, CBaseDataProvider>();
-builder.Services.AddScoped<DataTableHelper>();
-
-builder.Services.AddScoped<IJobLogicHandler, JobLogicHandler>();
-
+builder.Services.AddScoped<ICBaseDataProvider1, CBaseDataProvider1>();
+builder.Services.AddScoped<IDataConvertHelper, DataConvertHelper>();
 builder.Services.AddScoped<ICDepartmentDataProvider, CDepartmentDataProvider>();
-builder.Services.AddScoped<ICJobDataProvider,CJobDataProvider>();
+builder.Services.AddScoped<ICDepartmentDataProvider1, CDepartmentDataProvider1>();
+builder.Services.AddScoped<IJobLogicHandler, JobLogicHandler>();
+builder.Services.AddScoped<ICJobDataProvider, CJobDataProvider>();
+builder.Services.AddScoped<ICJob1DataProvider, CJob1DataProvider>();
 builder.Services.AddScoped<ICEmployeeDataProvider, CEmployeeDataProvider>();
-builder.Services.AddSingleton<ISerilogProvider, SerilogProvider>();
 builder.Services.AddScoped<ICLoginProvider, CLoginProvider>();
-Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
-    .Enrich.FromLogContext()
-    .CreateLogger();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<IErrorHandler, ErrorHandler>();
+builder.Services.AddScoped<DataTableHelper>();
+builder.Services.AddSingleton<ISerilogProvider, SerilogProvider>();
 
-builder.Host.UseSerilog();
-
-Log.Information("Ph�a backend...");
+// ------------------ Build & Run App ------------------
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -67,9 +87,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
-
 app.UseAuthorization();
-
 app.MapControllers();
+
+Log.Information("Phía backend...");
 
 app.Run();

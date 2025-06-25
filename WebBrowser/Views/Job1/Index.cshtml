@@ -1,0 +1,152 @@
+﻿@{
+    ViewData["Title"] = "Quản lý Job";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+@await Html.PartialAsync("_AlertMessage")
+
+<div class="container mt-4">
+    <h2 class="mb-4">Quản lý Công việc (Job)</h2>
+
+    <div class="d-flex justify-content-between mb-3">
+        <button class="btn btn-primary" id="btnShowForm">+ Thêm mới</button>
+        <button class="btn btn-success" id="btnLoad">Tải lại</button>
+    </div>
+
+    <div id="formContainer" class="card mb-4 d-none">
+        <div class="card-header">Thêm Công việc</div>
+        <div class="card-body">
+            <form id="jobForm">
+                <div class="mb-3">
+                    <label for="majob" class="form-label">Mã Job</label>
+                    <input type="text" class="form-control" id="majob" name="majob" required />
+                </div>
+                <div class="mb-3">
+                    <label for="tenjob" class="form-label">Tên Job</label>
+                    <input type="text" class="form-control" id="tenjob" name="tenjob" required />
+                </div>
+                <button type="submit" class="btn btn-primary">Thêm</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loader -->
+    <div id="loader" class="text-center my-3" style="display:none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Bảng danh sách Job -->
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Mã Job</th>
+                <th>Tên Job</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody id="jobTableBody"></tbody>
+    </table>
+</div>
+<script>
+    function showMessage(message) {
+        $('#jobTableBody').html(`<tr><td colspan="3" class="text-center text-danger">${message}</td></tr>`);
+    }
+
+    function showLoading(show) {
+        $("#loader").toggle(show);
+    }
+
+    function loadJobs() {
+        showLoading(true);
+        $.get('/Job1/getall')
+            .done(function (res) {
+                showLoading(false);
+                if (res.success && Array.isArray(res.data)) {
+                    let rows = '';
+                    res.data.forEach(job => {
+                        rows += `
+                            <tr>
+                                <td>${job.majob}</td>
+                                <td>${job.tenjob}</td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm btnDelete" data-id="${job.majob}">Xóa</button>
+                                </td>
+                            </tr>`;
+                    });
+                    $('#jobTableBody').html(rows);
+                } else {
+                    showMessage(res.message || "Không có dữ liệu hoặc bạn không có quyền truy cập.");
+                }
+            })
+            .fail(function (jqXHR) {
+                showLoading(false);
+                const msg = jqXHR.responseJSON?.message || "Lỗi khi tải danh sách: " + jqXHR.status;
+                showMessage(msg);
+            });
+    }
+
+    // Thêm Job
+    $('#jobForm').submit(function (e) {
+        e.preventDefault();
+
+        const formData = {
+            majob: $('#majob').val(),
+            tenjob: $('#tenjob').val()
+        };
+
+        showLoading(true);
+        $.post('/Job1/Add', formData, function (res) {
+            showLoading(false);
+            if (res.success) {
+                alert(res.message || "Thêm thành công!");
+                $('#jobForm')[0].reset();
+                $('#formContainer').addClass('d-none');
+                loadJobs();
+                $('html, body').animate({ scrollTop: 0 }, 'slow');
+            } else {
+                alert(res.message || "Thêm thất bại!");
+            }
+        });
+    });
+
+    // Xóa Job
+    $(document).on('click', '.btnDelete', function () {
+        const majob = $(this).data('id');
+        if (confirm(`Bạn có chắc muốn xóa Job "${majob}"?`)) {
+            showLoading(true);
+            $.post('/Job1/Delete', { majob }, function (res) {
+                showLoading(false);
+                if (res.success) {
+                    alert(res.message || "Xóa thành công!");
+                    loadJobs();
+                    $('html, body').animate({ scrollTop: 0 }, 'slow');
+                } else {
+                    alert(res.message || "Xóa thất bại!");
+                }
+            });
+        }
+    });
+
+    // Toggle form
+    $('#btnShowForm').click(function () {
+        $('#formContainer').toggleClass('d-none');
+        if (!$('#formContainer').hasClass('d-none')) {
+            $('html, body').animate({ scrollTop: $('#formContainer').offset().top }, 'slow');
+        }
+    });
+
+    // Nút tải lại
+    $('#btnLoad').click(function () {
+        loadJobs();
+    });
+
+    // Tải dữ liệu ban đầu
+    $(document).ready(function () {
+        loadJobs();
+    });
+</script>

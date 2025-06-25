@@ -1,6 +1,9 @@
 ﻿using CommonLib.Interfaces;
+using Newtonsoft.Json;
 using Serilog;
 using System;
+using System.Data;
+using System.Xml.Linq;
 
 namespace CommonLib.Handles
 {
@@ -13,6 +16,25 @@ namespace CommonLib.Handles
         public ErrorHandler(ISerilogProvider serilogProvider)
         {
             _logger = serilogProvider.Logger;
+        }
+       public void WriteStringToFuncion(string funcName,string ControllerName)
+        {
+            Logger.Debug("Call funcion: {SpName} | method: {Params}", funcName, ControllerName);
+        }
+        public void WriteStringToFile(string spName, IDbDataParameter?[] parameters)
+        {
+            var joinedParams = string.Join(", ", parameters?.Select(p => $"{p.ParameterName}={p.Value}") ?? ["rỗng"]);
+            Logger.Error("Call SP: {SpName} | Params: {Params}", spName, joinedParams);
+        }
+        public void WriteStringToFile(string spName)
+        {
+
+            Logger.Error("Call : {SpName} | Params: {Params}", spName);
+        }
+        public void WriteStringToFile(string funcName, object data)
+        {
+            var json = JsonConvert.SerializeObject(data);
+            Logger.Debug("Call Func: {FuncName} | Data: {JsonData}", funcName, json);
         }
 
         public void WriteToFile(Exception ex)

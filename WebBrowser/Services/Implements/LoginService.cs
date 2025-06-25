@@ -1,53 +1,84 @@
-﻿using CoreLib.config;
+﻿using CommonLib.Handles;
+using CoreLib.config;
 using CoreLib.Dtos;
 using CoreLib.Models;
-using WebBrowser.Models;
+using Microsoft.Extensions.Configuration;
 using WebBrowser.Services.ApiServices;
 using WebBrowser.Services.Interfaces;
 
 namespace WebBrowser.Services.Implements
 {
-    public class LoginService : BaseApiService, ILoginService
+    public class LoginService : ILoginService
     {
-
+        private readonly IHttpService _httpService;
+        private readonly IErrorHandler _errorHandler;
         private readonly string _baseUrl;
-        private readonly HttpClient _client;
-        public LoginService(IConfiguration configuration, HttpClient client)
-            : base(configuration, client)
-        {
-            _baseUrl = configuration["PathStrings:Url"];
-            _client = client;
-        }
-        public async Task<LoginResponse> Register(string username, string password)
-        {
-            var para = new LoginRequest { password = password, username = username };
-            var url = _baseUrl + ApiRouter.register;
-            Console.Write(url);
-            var result = await PostJsonAsync<LoginResponse>(ApiRouter.register, para);
-            return result;
 
+        public LoginService(IHttpService httpService, IConfiguration configuration, IErrorHandler errorHandler)
+        {
+            _httpService = httpService;
+            _errorHandler = errorHandler;
+            _baseUrl = configuration["PathStrings:Url"] ?? "";
         }
+
         public async Task<LoginResponse?> LoginAsync(string username, string password)
         {
-            var body = new LoginRequest
+            try
             {
-                username = username,
-                password = password
-            };
-            var url = _baseUrl + ApiRouter.log_in;
-                
-            var result = await PostJsonAsync<LoginResponse>(ApiRouter.log_in, body);
+                _errorHandler.WriteStringToFuncion(nameof(LoginService), nameof(LoginAsync));
 
-            return result;
+                var loginRequest = new LoginRequest
+                {
+                    username = username,
+                    password = password
+                };
+
+                var url = _baseUrl + ApiRouter.Login;
+
+                var result = await _httpService.PostAsync<LoginResponse>(url, loginRequest);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return new LoginResponse
+                {
+                    Code = "500",
+                    Message = "Lỗi khi đăng nhập.",
+                    Success = false
+                };
+            }
         }
-        public async Task<UserListResponse?> getall()
+
+        public async Task<LoginResponse?> Register(string username, string password)
         {
-            
-            var result = await GetAsync<UserListResponse>(ApiRouter.user_getall);
-            return result;
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(LoginService), nameof(Register));
+
+                var request = new LoginRequest
+                {
+                    username = username,
+                    password = password
+                };
+
+                var url = _baseUrl + ApiRouter.Register;
+
+                var result = await _httpService.PostAsync<LoginResponse>(url, request);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return new LoginResponse
+                {
+                    Code = "500",
+                    Message = "Lỗi khi đăng ký tài khoản.",
+                    Success = false
+                };
+            }
         }
-
-
     }
-
 }

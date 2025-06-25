@@ -23,5 +23,9 @@ namespace CoreLib.config
         public const string sp_login = "sp_login_user";
         public const string sp_resgis = "sp_regis_user";
         public const string sp_getall_users = "sp_get_all_users";
+        public const string sp_getpassword_users = "sp_get_user_password";
+        public const string sp_update_users = "sp_update_user_info";
+        public const string sp_get_permission_users = "get_all_permission";
     }
+
 }

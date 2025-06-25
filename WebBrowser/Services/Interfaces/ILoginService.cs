@@ -1,4 +1,5 @@
-﻿using CoreLib.Models;
+﻿using CoreLib.Dtos;
+using CoreLib.Models;
 using WebBrowser.Models;
 
 namespace WebBrowser.Services.Interfaces
@@ -7,6 +8,7 @@ namespace WebBrowser.Services.Interfaces
     {
         Task<LoginResponse?> LoginAsync(string username, string password);
         Task<LoginResponse> Register(string username, string password);
-        Task<UserListResponse?> getall();
+    
+        //Task<ApiResponse?> UpdateUserAsync(string username, string password, string role, string manv);
     }
 }
