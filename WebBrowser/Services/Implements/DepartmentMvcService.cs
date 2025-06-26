@@ -8,6 +8,7 @@ using WebBrowser.Services.Interfaces;
 using CommonLib.Handles;
 using CommonLib.Helpers;
 using CoreLib.config;
+using CoreLib.Models;
 
 namespace WebBrowser.Services.Implementations
 {
@@ -83,6 +84,84 @@ namespace WebBrowser.Services.Implementations
                 _errorHandler.WriteToFile(ex);
                 throw;
             }
+        }
+
+        public async Task<CResponseMessage1> Create(Department department)
+        {
+            const string func = "Create";
+            _errorHandler.WriteStringToFuncion("DepartmentMvcService", func);
+
+            try
+            {
+                var result = await _httpService.PostResponseAsync("Dep1/Create", department);
+                if (result.code != "200")
+                {
+                    result.Success = false;
+                }
+                else
+                {
+                    result.Success = true;
+                }
+                    return result;
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                throw;
+            }
+
+        }
+
+        public async Task<CResponseMessage1> Delete(string ma)
+        {
+            const string func = "Delete";
+            _errorHandler.WriteStringToFuncion("DepartmentMvcService", func);
+
+            try
+            {
+                var result = await _httpService.DeleteResponseAsync($"Dep1/Delete?maphg={ma}");
+                if (result.code != "200")
+                {
+                    result.Success = false;
+                }
+                else
+                {
+                    result.Success = true;
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                throw;
+            }
+
+        }
+
+        public async Task<CResponseMessage1> update(Department department)
+        {
+            const string func = "update";
+            _errorHandler.WriteStringToFuncion("DepartmentMvcService", func);
+
+            try
+            {
+                var result = await _httpService.PutResponseAsync($"Dep1/update",department);
+                if (result.code != "200")
+                {
+                    result.Success = false;
+                }
+                else
+                {
+                    result.Success = true;
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                throw;
+            }
+
         }
 
         //public async Task<DepartmentDto> GetById(int id)

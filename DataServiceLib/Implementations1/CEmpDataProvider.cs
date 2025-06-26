@@ -7,10 +7,11 @@ using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Data;
 using CommonLib.Handles;
+using System.Threading.Tasks;
 
 namespace DataServiceLib.Implementations1
 {
-    public class CEmpDataProvider : ICEmpDataProvider
+    public class CEmpDataProvider : CBaseDataProvider1, ICEmpDataProvider
     {
         private readonly ICBaseDataProvider1 _dataProvider;
         private readonly string _connectString;
@@ -19,36 +20,16 @@ namespace DataServiceLib.Implementations1
         public CEmpDataProvider(
             ICBaseDataProvider1 cBaseDataProvider1,
             IConfiguration configuration,
+            ISerilogProvider logger,
             IErrorHandler errorHandler)
+            : base(logger)
         {
             _dataProvider = cBaseDataProvider1;
             _connectString = configuration.GetConnectionString("OracleDb");
             _errorHandler = errorHandler;
         }
 
-        public DataSet GetAll()
-        {
-            try
-            {
-                _errorHandler.WriteStringToFuncion(nameof(CEmpDataProvider), nameof(GetAll));
-
-                var para = new OracleParameter[]
-                {
-                    new OracleParameter("p_cursor", OracleDbType.RefCursor) { Direction = ParameterDirection.Output },
-                    new OracleParameter("o_code", OracleDbType.Varchar2, 10) { Direction = ParameterDirection.Output },
-                    new OracleParameter("o_message", OracleDbType.Varchar2, 200) { Direction = ParameterDirection.Output }
-                };
-
-                return _dataProvider.GetDatasetFromSP(SpRoute.sp_getall_emp, para, _connectString);
-            }
-            catch (Exception ex)
-            {
-                _errorHandler.WriteToFile(ex);
-                return new DataSet();
-            }
-        }
-
-        public CResponseMessage1 AddEmp(Employee emp)
+        public async Task<CResponseMessage1> AddEmp(Employee emp)
         {
             try
             {
@@ -69,16 +50,19 @@ namespace DataServiceLib.Implementations1
                     new OracleParameter("p_majob", OracleDbType.Char) { Value = emp.MAJOB ?? (object)DBNull.Value }
                 };
 
-                return _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_add_emp, para, _connectString);
+                var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_add_emp, para, _connectString);
+                result.Success = result.code == "200";
+                return await Task.FromResult(result);
             }
             catch (Exception ex)
             {
                 _errorHandler.WriteToFile(ex);
-                return new CResponseMessage1 { code = "500", message = "Lỗi khi thêm nhân viên" };
+                _errorHandler.WriteStringToFuncion(nameof(CEmpDataProvider), nameof(AddEmp));
+                return new CResponseMessage1 { code = "500", message = ex.Message, Success = false };
             }
         }
 
-        public CResponseMessage1 DeleteEmp(string manv)
+        public async Task<CResponseMessage1> DeleteEmp(string manv)
         {
             try
             {
@@ -89,31 +73,37 @@ namespace DataServiceLib.Implementations1
                     new OracleParameter("v_manv", OracleDbType.Char) { Value = manv }
                 };
 
-                return _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_delete_em, para, _connectString);
+                var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_delete_em, para, _connectString);
+                result.Success = result.code == "200";
+                return await Task.FromResult(result);
             }
             catch (Exception ex)
             {
                 _errorHandler.WriteToFile(ex);
-                return new CResponseMessage1 { code = "500", message = "Lỗi khi xoá nhân viên" };
+                _errorHandler.WriteStringToFuncion(nameof(CEmpDataProvider), nameof(DeleteEmp));
+                return new CResponseMessage1 { code = "500", message = ex.Message, Success = false };
             }
         }
 
-        public CResponseMessage1 UpdateSalary()
+        public async Task<CResponseMessage1> UpdateSalary()
         {
             try
             {
                 _errorHandler.WriteStringToFuncion(nameof(CEmpDataProvider), nameof(UpdateSalary));
 
-                return _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_update_emsala, null, _connectString);
+                var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_update_emsala, null, _connectString);
+                result.Success = result.code == "200";
+                return await Task.FromResult(result);
             }
             catch (Exception ex)
             {
                 _errorHandler.WriteToFile(ex);
-                return new CResponseMessage1 { code = "500", message = "Lỗi khi cập nhật lương" };
+                _errorHandler.WriteStringToFuncion(nameof(CEmpDataProvider), nameof(UpdateSalary));
+                return new CResponseMessage1 { code = "500", message = ex.Message, Success = false };
             }
         }
 
-        public CResponseMessage1 UpdateCommission(string manv)
+        public async Task<CResponseMessage1> UpdateCommission(string manv)
         {
             try
             {
@@ -124,12 +114,38 @@ namespace DataServiceLib.Implementations1
                     new OracleParameter("v_manv", OracleDbType.Char) { Value = manv }
                 };
 
-                return _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_update_commision, para, _connectString);
+                var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_update_commision, para, _connectString);
+                result.Success = result.code == "200";
+                return await Task.FromResult(result);
             }
             catch (Exception ex)
             {
                 _errorHandler.WriteToFile(ex);
-                return new CResponseMessage1 { code = "500", message = "Lỗi khi cập nhật hoa hồng" };
+                _errorHandler.WriteStringToFuncion(nameof(CEmpDataProvider), nameof(UpdateCommission));
+                return new CResponseMessage1 { code = "500", message = ex.Message, Success = false };
+            }
+        }
+
+        public DataSet GetAll()
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(CEmpDataProvider), nameof(GetAll));
+
+                var para = new OracleParameter[]
+                {
+                    new OracleParameter("p_cursor", OracleDbType.RefCursor) { Direction = ParameterDirection.Output },
+                    new OracleParameter("o_code", OracleDbType.Varchar2, 10) { Direction = ParameterDirection.Output },
+                    new OracleParameter("o_message", OracleDbType.Varchar2, 200) { Direction = ParameterDirection.Output }
+                };
+
+                return _dataProvider.GetDatasetFromSP(SpRoute.sp_getall_emp, para, _connectString);
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                _errorHandler.WriteStringToFuncion(nameof(CEmpDataProvider), nameof(GetAll));
+                return new DataSet();
             }
         }
 
@@ -152,6 +168,7 @@ namespace DataServiceLib.Implementations1
             catch (Exception ex)
             {
                 _errorHandler.WriteToFile(ex);
+                _errorHandler.WriteStringToFuncion(nameof(CEmpDataProvider), nameof(GetHistoryByManv));
                 return new DataSet();
             }
         }

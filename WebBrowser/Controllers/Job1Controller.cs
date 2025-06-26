@@ -1,5 +1,6 @@
 ﻿using CommonLib.Handles;
 using CoreLib.Dtos;
+using CoreLib.Models;
 using Microsoft.AspNetCore.Mvc;
 using WebBrowser.Services.Interfaces;
 
@@ -45,8 +46,8 @@ namespace WebBrowser.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Add(Addjob job)
+       
+        public async Task<IActionResult> Add([FromBody]Addjob job)
         {
             const string func = "Add";
             _errorHandler.WriteStringToFuncion("Job1Controller", func);
@@ -62,8 +63,23 @@ namespace WebBrowser.Controllers
                 return Json(new { success = false, message = "Lỗi khi thêm công việc" });
             }
         }
+        public async Task<IActionResult> Update([FromBody]Job job)
+        {
+            const string func = "Update";
+            _errorHandler.WriteStringToFuncion("Job1Controller", func);
 
-        [HttpPost]
+            try
+            {
+                var result = await _jobService.Update(job);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return Json(new { success = false, message = "Lỗi khi thêm công việc" });
+            }
+        }
+
         public async Task<IActionResult> Delete(string majob)
         {
             const string func = "Delete";

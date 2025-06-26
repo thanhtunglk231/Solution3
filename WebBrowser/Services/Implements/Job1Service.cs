@@ -52,7 +52,19 @@ namespace WebBrowser.Services.Implements
             }
         }
 
-
+        public async Task<CResponseMessage1> Update(Job job)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion("Job1Service", "Update");
+                return await _httpService.PutResponseAsync("Job1/update", job);
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return new CResponseMessage1 { code = "500", message = "Lỗi khi thêm Job" };
+            }
+        }
         public async Task<CResponseMessage1> DeleteJob(string manv)
         {
             try

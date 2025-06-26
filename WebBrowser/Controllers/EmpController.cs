@@ -35,7 +35,7 @@ namespace WebBrowser.Controllers
                 return Json(new { success = false, message = ex });
             }
         }
-        [HttpGet]
+   
         public async Task<IActionResult> GetHistory(string manv)
         {
             try
@@ -51,7 +51,7 @@ namespace WebBrowser.Controllers
             }
         }
 
-        [HttpPost]
+
         public async Task<IActionResult> Add(Employee employee)
         {
             try
@@ -67,7 +67,7 @@ namespace WebBrowser.Controllers
             }
         }
 
-        [HttpPost]
+  
         public async Task<IActionResult> Delete(string manv)
         {
             try
@@ -83,7 +83,7 @@ namespace WebBrowser.Controllers
             }
         }
 
-        [HttpPost]
+       
         public async Task<IActionResult> UpdateSalary()
         {
             try
@@ -99,7 +99,7 @@ namespace WebBrowser.Controllers
             }
         }
 
-        [HttpPost]
+  
         public async Task<IActionResult> UpdateCommission(string manv)
         {
             try

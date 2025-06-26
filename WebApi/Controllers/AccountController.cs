@@ -55,8 +55,7 @@ namespace WebApi.Controllers
             {
                 var result = _accountDataProvider.UpdatePermission(userPermissionDto);
 
-                return Ok( result
-                );
+                return Ok( result);
             }
             catch (Exception ex)
             {
@@ -72,6 +71,7 @@ namespace WebApi.Controllers
 
 
         [HttpGet("getall")]
+        [CustomAuthorize("admin,user", View =true)]
         public IActionResult getall()
         {
             var (data, res) = _accountDataProvider.getall();
@@ -85,7 +85,10 @@ namespace WebApi.Controllers
                 );
 
         }
+
+
         [HttpGet("getUser")]
+        [CustomAuthorize("admin,user", View = true)]
         public IActionResult getUer()
         {
             var (data, res) = _accountDataProvider.getall_userName();
@@ -97,7 +100,6 @@ namespace WebApi.Controllers
                     code = res.code
                 }
                 );
-
         }
     }
 }

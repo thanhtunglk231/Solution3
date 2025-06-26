@@ -6,25 +6,25 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using WebApi.Attributes;
+using CoreLib.Models;
 
 namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+
     public class EmpController : ControllerBase
     {
         private readonly ICEmpDataProvider _empService;
         private readonly IDataConvertHelper _dataConvertHelper;
         private readonly IErrorHandler _errorHandler;
-        public EmpController(ICEmpDataProvider EmpmentService, IDataConvertHelper dataConvertHelper, IErrorHandler errorHandler)
+
+        public EmpController(ICEmpDataProvider empService, IDataConvertHelper dataConvertHelper, IErrorHandler errorHandler)
         {
-            _empService = EmpmentService;
-
+            _empService = empService;
             _dataConvertHelper = dataConvertHelper;
-            this._errorHandler = errorHandler;
+            _errorHandler = errorHandler;
         }
-
 
         [HttpGet("getall")]
         [CustomAuthorize("admin, user", View = true)]
@@ -35,19 +35,20 @@ namespace WebApi.Controllers
                 _errorHandler.WriteStringToFuncion("EmpController", "Getall");
                 return _empService.GetAll();
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 _errorHandler.WriteToFile(ex);
                 return new DataSet();
             }
-
         }
+
         [HttpPost("add")]
         [CustomAuthorize("admin", Add = true)]
         public IActionResult AddEmployee([FromBody] Employee emp)
         {
             try
             {
-                _errorHandler.WriteStringToFuncion("EmpController", "add");
+                _errorHandler.WriteStringToFuncion("EmpController", "Add");
                 var result = _empService.AddEmp(emp);
                 return Ok(result);
             }
@@ -57,13 +58,14 @@ namespace WebApi.Controllers
                 return StatusCode(500, "Lỗi server khi thêm nhân viên");
             }
         }
+
         [HttpDelete("delete/{manv}")]
         [CustomAuthorize("admin", Delete = true)]
         public IActionResult DeleteEmployee(string manv)
         {
             try
             {
-                _errorHandler.WriteStringToFuncion("EmpController", "Deleteemp");
+                _errorHandler.WriteStringToFuncion("EmpController", "Delete");
                 var result = _empService.DeleteEmp(manv);
                 return Ok(result);
             }
@@ -73,6 +75,7 @@ namespace WebApi.Controllers
                 return StatusCode(500, "Lỗi server khi xóa nhân viên");
             }
         }
+
         [HttpPut("update-salary")]
         [CustomAuthorize("admin", Edit = true)]
         public IActionResult UpdateSalary()
@@ -80,7 +83,7 @@ namespace WebApi.Controllers
             try
             {
                 _errorHandler.WriteStringToFuncion("EmpController", "UpdateSalary");
-                var result = _empService.UpdateSalary();
+                var result =  _empService.UpdateSalary();
                 return Ok(result);
             }
             catch (Exception ex)
@@ -91,7 +94,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("update-commission/{manv}")]
-        [CustomAuthorize("admin", Edit = true)]
+       
         public IActionResult UpdateCommission(string manv)
         {
             try
@@ -114,8 +117,7 @@ namespace WebApi.Controllers
             try
             {
                 _errorHandler.WriteStringToFuncion("EmpController", "GetHistory");
-                var ds = _empService.GetHistoryByManv(manv);
-                return ds;
+                return _empService.GetHistoryByManv(manv);
             }
             catch (Exception ex)
             {
@@ -123,6 +125,5 @@ namespace WebApi.Controllers
                 return new DataSet();
             }
         }
-
     }
 }

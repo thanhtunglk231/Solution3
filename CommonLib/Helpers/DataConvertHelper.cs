@@ -44,11 +44,12 @@ namespace CommonLib.Helpers
             T obj = new T();
             var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
+            this.WriteStringToFuncion("DataConvertHelper", "ConvertToObject"); // Gọi 1 lần mỗi dòng
+
             foreach (var prop in properties)
             {
                 try
                 {
-                    this.WriteStringToFuncion("DataConvertHelper", "ConvertToObject");
                     var column = GetColumnMatch(row.Table, prop.Name);
                     if (column == null)
                     {
@@ -71,6 +72,7 @@ namespace CommonLib.Helpers
 
             return obj;
         }
+
 
         private object ConvertValue(object value, Type targetType)
         {

@@ -32,8 +32,7 @@ namespace WebBrowser.Controllers
             }
 
 
-            [HttpGet]
-        
+         
             public async Task<IActionResult> getAll()
             {
                 try
@@ -57,7 +56,7 @@ namespace WebBrowser.Controllers
                     });
                 }
             }
-            [HttpGet]
+           
             public async Task<IActionResult> getUser()
             {
                 try
@@ -81,7 +80,7 @@ namespace WebBrowser.Controllers
                     });
                 }
             }
-        [HttpPost]
+       
         public async Task<IActionResult> deleteUserPermission([FromBody] UserPermissionDto userPermissionDto)
         {
             try
@@ -107,7 +106,7 @@ namespace WebBrowser.Controllers
             }
         }
 
-        [HttpPost]
+       
             public async Task<IActionResult> updateUserPermission([FromBody] UserPermissionDto userPermissionDto)
             {
                 try

@@ -24,7 +24,7 @@ namespace WebBrowser.Controllers
             return View();
         }
        
-        [HttpPost]
+       
         public async Task<IActionResult> LoginJson([FromBody] LoginViewModel model)
         {
             try
@@ -68,7 +68,7 @@ namespace WebBrowser.Controllers
        
 
 
-        [HttpPost]
+       
         public async Task<IActionResult> RegisterJson([FromBody] LoginViewModel model)
         {
             try

@@ -9,5 +9,8 @@ namespace DataServiceLib.Interfaces1
         Task<(DataRow DataRow, CResponseMessage1 Response)> GetById(int id);
         DataSet GetDataSet();
         DataSet GetbyidDataset(int id);
+        Task<CResponseMessage1> Create(Department department);
+        Task<CResponseMessage1> Delete(string maphg);
+        Task<CResponseMessage1> Update(Department department);
     }
 }

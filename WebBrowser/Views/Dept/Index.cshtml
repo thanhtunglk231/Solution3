@@ -20,10 +20,40 @@
 <div class="container mt-4">
     <h3 class="mb-3">Quản lý phòng ban</h3>
 
+    <div id="alertBox" style="display:none;" class="alert" role="alert"></div>
+
     <div class="form-inline mb-3">
         <input type="number" class="form-control mr-2" id="searchIdInput" placeholder="Nhập mã phòng cần tìm" />
         <button class="btn btn-primary mr-2" id="searchBtn">Tìm phòng</button>
-        <button class="btn btn-secondary" id="resetBtn">Reset</button>
+        <button class="btn btn-secondary mr-2" id="resetBtn">Reset</button>
+        <button class="btn btn-success" id="addDeptBtn">Thêm phòng ban</button>
+    </div>
+
+    <!-- Form thêm/sửa phòng ban -->
+    <div id="addDeptFormWrapper" class="card p-3 mb-3" style="display: none;" data-mode="add" data-id="">
+        <h5 id="formTitle">Thêm phòng ban</h5>
+        <form id="addDeptForm">
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label>Mã phòng</label>
+                    <input type="number" class="form-control" name="MAPHG" required />
+                </div>
+                <div class="form-group col-md-3">
+                    <label>Tên phòng</label>
+                    <input type="text" class="form-control" name="TENPHG" required />
+                </div>
+                <div class="form-group col-md-3">
+                    <label>Trưởng phòng</label>
+                    <input type="text" class="form-control" name="TRPHG" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label>Ngày nhận chức</label>
+                    <input type="date" class="form-control" name="NG_NHANCHUC" />
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success mr-2">Lưu</button>
+            <button type="button" class="btn btn-secondary" id="cancelAddDept">Hủy</button>
+        </form>
     </div>
 
     <div id="loading" class="alert alert-info">Đang tải dữ liệu...</div>
@@ -35,6 +65,7 @@
                 <th>Tên phòng</th>
                 <th>Trưởng phòng</th>
                 <th>Ngày nhận chức</th>
+                <th>Hành động</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -48,8 +79,15 @@
             $("#loading").toggle(show);
         }
 
+        function showAlert(message, type = 'success') {
+            const alertBox = $('#alertBox');
+            alertBox.removeClass().addClass(`alert alert-${type}`);
+            alertBox.text(message).slideDown();
+            setTimeout(() => alertBox.slideUp(), 3000);
+        }
+
         function showMessage(message) {
-            $('#departmentTable tbody').html(`<tr><td colspan="4" class="text-center text-danger">${message}</td></tr>`);
+            $('#departmentTable tbody').html(`<tr><td colspan="5" class="text-center text-danger">${message}</td></tr>`);
         }
 
         function formatDate(dateString) {
@@ -67,6 +105,14 @@
                     <td>${item.tenphg}</td>
                     <td>${item.trphg}</td>
                     <td>${formatDate(item.nG_NHANCHUC)}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm editBtn"
+                            data-id="${item.maphg}"
+                            data-ten="${item.tenphg}"
+                            data-trg="${item.trphg}"
+                            data-ngay="${item.nG_NHANCHUC}">Sửa</button>
+                        <button class="btn btn-danger btn-sm deleteBtn" data-id="${item.maphg}">Xóa</button>
+                    </td>
                 </tr>
             `);
             $('#departmentTable tbody').html(rows.join(''));
@@ -74,15 +120,10 @@
 
         function handleError(jqXHR, action) {
             const resp = jqXHR.responseJSON;
-            if (resp && resp.message) {
-                showMessage(resp.message);
-            } else if (jqXHR.status === 403) {
-                showMessage("Bạn không có quyền " + action + ".");
-            } else if (jqXHR.status === 401) {
-                showMessage("Bạn chưa đăng nhập. Vui lòng đăng nhập lại.");
-            } else {
-                showMessage("Lỗi khi " + action + ": " + jqXHR.status);
-            }
+            if (resp?.message) showMessage(resp.message);
+            else if (jqXHR.status === 403) showMessage("Bạn không có quyền " + action + ".");
+            else if (jqXHR.status === 401) showMessage("Bạn chưa đăng nhập.");
+            else showMessage("Lỗi khi " + action + ": " + jqXHR.status);
         }
 
         function loadAllDepartments() {
@@ -93,8 +134,7 @@
                     if (response.success && Array.isArray(response.data)) {
                         renderTable(response.data);
                     } else {
-                        const msg = response.message || "Không có dữ liệu hoặc bạn không có quyền truy cập.";
-                        showMessage(msg);
+                        showMessage(response.message || "Không có dữ liệu.");
                     }
                 })
                 .fail(function (jqXHR) {
@@ -105,24 +145,105 @@
 
         function searchDepartmentById(id) {
             showLoading(true);
-            $.ajax({
-                url: '/dept/GetByIdDataSet?id=' + id,
-                type: 'GET'
-            })
-            .done(function (response) {
-                showLoading(false);
-                if (response.success && response.data.length > 0) {
-                    renderTable(response.data);
-                } else {
-                    const msg = response.message || ("Không tìm thấy phòng ban với mã: " + id);
-                    showMessage(msg);
-                }
-            })
-            .fail(function (jqXHR) {
-                showLoading(false);
-                handleError(jqXHR, "tìm phòng");
-            });
+            $.get('/dept/GetByIdDataSet?id=' + id)
+                .done(function (response) {
+                    showLoading(false);
+                    if (response.success && response.data.length > 0) {
+                        renderTable(response.data);
+                    } else {
+                        showMessage(response.message || "Không tìm thấy phòng ban có mã: " + id);
+                    }
+                })
+                .fail(function (jqXHR) {
+                    showLoading(false);
+                    handleError(jqXHR, "tìm phòng");
+                });
         }
+
+        $('#departmentTable').on('click', '.deleteBtn', function () {
+            const id = $(this).data('id');
+            if (!confirm("Bạn có chắc muốn xóa phòng ban có mã " + id + "?")) return;
+
+            $.post('/dept/delete?maphg=' + id)
+                .done(function (response) {
+                    if (response.data.success) {
+                        showAlert("Xóa thành công!");
+                        loadAllDepartments();
+                    } else {
+                        showAlert(response.data.message || "Xóa thất bại.", "danger");
+                    }
+                })
+                .fail(function (jqXHR) {
+                    handleError(jqXHR, "xóa phòng ban");
+                });
+        });
+
+        $('#departmentTable').on('click', '.editBtn', function () {
+            const maphg = $(this).data('id');
+            const tenphg = $(this).data('ten');
+            const trphg = $(this).data('trg');
+            const ngnhc = $(this).data('ngay')?.split('T')[0] || "";
+
+            const form = $('#addDeptForm');
+            $('#formTitle').text("Cập nhật phòng ban");
+            $('#addDeptFormWrapper').slideDown().attr('data-mode', 'edit').attr('data-id', maphg);
+            form.find('[name="MAPHG"]').val(maphg).prop('disabled', true);
+            form.find('[name="TENPHG"]').val(tenphg);
+            form.find('[name="TRPHG"]').val(trphg);
+            form.find('[name="NG_NHANCHUC"]').val(ngnhc);
+        });
+
+        $('#addDeptBtn').click(function () {
+            $('#formTitle').text("Thêm phòng ban");
+            $('#addDeptFormWrapper').slideDown().attr('data-mode', 'add').attr('data-id', '');
+            $('#addDeptForm')[0].reset();
+            $('#addDeptForm').find('[name="MAPHG"]').prop('disabled', false);
+        });
+
+        $('#cancelAddDept').click(function () {
+            $('#addDeptFormWrapper').slideUp().attr('data-mode', 'add').attr('data-id', '');
+            $('#addDeptForm')[0].reset();
+            $('#addDeptForm').find('[name="MAPHG"]').prop('disabled', false);
+        });
+
+        $('#addDeptForm').submit(function (e) {
+            e.preventDefault();
+
+            const wrapper = $('#addDeptFormWrapper');
+            const isEdit = wrapper.attr('data-mode') === 'edit';
+            const maphg = isEdit ? parseInt(wrapper.attr('data-id')) : parseInt($(this).find('[name="MAPHG"]').val());
+
+            const formData = {
+                MAPHG: maphg,
+                TENPHG: $(this).find('[name="TENPHG"]').val(),
+                TRPHG: $(this).find('[name="TRPHG"]').val(),
+                NG_NHANCHUC: $(this).find('[name="NG_NHANCHUC"]').val()
+            };
+
+            const url = isEdit ? '/dept/update' : '/dept/create';
+            const action = isEdit ? 'sửa' : 'thêm';
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function (response) {
+                    console.log(response)
+                    if (response.data.success) {
+                        $('#addDeptFormWrapper').slideUp();
+                        showAlert(response.data.message || `${action} thành công!`);
+                        loadAllDepartments();
+                    } else {
+                        showAlert(response.data.message || `${action} thất bại!`, "danger");
+                    }
+                },
+                error: function (jqXHR) {
+                    handleError(jqXHR, `${action} phòng ban`);
+                    showAlert(`Lỗi khi ${action} phòng ban!`, "danger");
+                }
+            });
+        });
 
         $('#searchBtn').click(function () {
             const id = $('#searchIdInput').val();

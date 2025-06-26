@@ -15,7 +15,7 @@ namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+
     public class Dep1Controller : ControllerBase
     {
         private readonly ICDepartmentDataProvider1 _departmentService;
@@ -61,7 +61,53 @@ namespace WebApi.Controllers
             }
         }
 
-       
+        [HttpPost("Create")]
+     
+        public IActionResult Create(Department department)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion("Dep1Controller", "Create");
+                return Ok(_departmentService.Create(department));
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return BadRequest();
+            }
+        }
+
+
+        [HttpDelete("Delete")]
+
+        public IActionResult Delete(string maphg)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion("Dep1Controller", "Delete");
+                return Ok(_departmentService.Delete(maphg));
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return BadRequest();
+            }
+        }
+        [HttpPut("update")]
+        public IActionResult update(Department department)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion("Dep1Controller", "update");
+                return Ok(_departmentService.Update(department));
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return BadRequest();
+            }
+        }
+
 
     }
 }

@@ -26,6 +26,11 @@ namespace CoreLib.config
         public const string sp_getpassword_users = "sp_get_user_password";
         public const string sp_update_users = "sp_update_user_info";
         public const string sp_get_permission_users = "get_all_permission";
+        public const string sp_create_dept = "inser_dept";
+        public const string sp_delete_dept = "delete_dept";
+        public const string sp_update_dept = "update_dept";
+
+        
     }
 
 }

@@ -28,6 +28,124 @@ namespace DataServiceLib.Implementations1
             _connectString = configuration.GetConnectionString("OracleDb");
             _errorHandler = errorHandler;
         }
+        public async Task<CResponseMessage1> Update(Department department)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(CDepartmentDataProvider1), nameof(Update));
+
+                IDbDataParameter[] parameters = new IDbDataParameter[]
+                {
+                    new OracleParameter("v_tenphg", OracleDbType.NVarchar2) { Value = department.TENPHG },
+                    new OracleParameter("v_maphg", OracleDbType.Decimal) { Value = department.MAPHG },
+                    new OracleParameter("v_trgphg", OracleDbType.NVarchar2) { Value = department.TRPHG },
+                    new OracleParameter("v_ng_nhanchuc", OracleDbType.Date) { Value = department.NG_NHANCHUC },
+                };
+
+                var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_update_dept, parameters, _connectString);
+                if (result.code == "200")
+                {
+                    result.Success = true;
+                }
+                if (result.code != "200")
+                {
+                    result.Success = false;
+
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                _errorHandler.WriteStringToFuncion(nameof(CDepartmentDataProvider1), nameof(Update));
+
+                return new CResponseMessage1
+                {
+                    code = "500",
+                    message = ex.Message,
+                    Success = false,
+                };
+            }
+        }
+        public async Task<CResponseMessage1> Create(Department department)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(CDepartmentDataProvider1), nameof(Create));
+
+                IDbDataParameter[] parameters = new IDbDataParameter[]
+                {
+                    new OracleParameter("v_tenphg", OracleDbType.NVarchar2) { Value = department.TENPHG },
+                    new OracleParameter("v_maphg", OracleDbType.Decimal) { Value = department.MAPHG },
+                    new OracleParameter("v_trgphg", OracleDbType.NVarchar2) { Value = department.TRPHG },
+                    new OracleParameter("v_ng_nhanchuc", OracleDbType.Date) { Value = department.NG_NHANCHUC },
+                };
+
+                var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_create_dept, parameters, _connectString);
+                if (result.code == "200")
+                {
+                    result.Success = true;
+                }
+                if (result.code != "200")
+                {
+                    result.Success =false;
+
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                _errorHandler.WriteStringToFuncion(nameof(CDepartmentDataProvider1), nameof(Create));
+
+                return new CResponseMessage1
+                {
+                    code = "500",
+                    message = ex.Message,
+                    Success= false,
+                };
+            }
+        }
+
+        public async Task<CResponseMessage1> Delete(string maphg)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(CDepartmentDataProvider1), nameof(Delete));
+
+                IDbDataParameter[] parameters = new IDbDataParameter[]
+                {
+                
+                    new OracleParameter("v_maphg", OracleDbType.Decimal) { Value = maphg },
+                 
+                };
+
+                var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_delete_dept, parameters, _connectString);
+                if (result.code == "200")
+                {
+                    result.Success = true;
+                }
+                if (result.code != "200")
+                {
+                    result.Success = false;
+
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                _errorHandler.WriteStringToFuncion(nameof(CDepartmentDataProvider1), nameof(Create));
+
+                return new CResponseMessage1
+                {
+                    code = "500",
+                    message = ex.Message,
+                    Success = false,
+                };
+            }
+        }
+
 
         public async Task<DataTable> GetAll()
         {

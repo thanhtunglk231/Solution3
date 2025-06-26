@@ -8,5 +8,6 @@ namespace WebBrowser.Services.Interfaces
         Task<CResponseMessage1> AddJob(Addjob emp);
         Task<CResponseMessage1> DeleteJob(string manv);
         Task<List<Job>> GetAllFromDataSet();
+        Task<CResponseMessage1> Update(Job job);
     }
 }
