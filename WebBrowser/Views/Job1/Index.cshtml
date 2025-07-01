@@ -1,23 +1,26 @@
 ﻿@{
-    ViewData["Title"] = "Quản lý Job";
+    ViewData["Title"] = "Quản lý Công việc (Job)";
 }
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 @await Html.PartialAsync("_AlertMessage")
 
-<div class="container mt-4">
-    <h2 class="mb-4">Quản lý Công việc (Job)</h2>
+<div class="container py-4">
+    <h3 class="text-center mb-4 text-primary">
+        <i class="bi bi-briefcase-fill"></i> Quản lý Công việc
+    </h3>
 
-    <div class="d-flex justify-content-between mb-3">
-        <button class="btn btn-primary" id="btnShowForm">+ Thêm mới</button>
-        <button class="btn btn-success" id="btnLoad">Tải lại</button>
+    <div class="d-flex flex-wrap gap-2 justify-content-between mb-3">
+        <button class="btn btn-primary" id="btnShowForm">
+            <i class="bi bi-plus-circle"></i> Thêm mới
+        </button>
+        <button class="btn btn-success" id="btnLoad">
+            <i class="bi bi-arrow-clockwise"></i> Tải lại
+        </button>
     </div>
 
-    <div id="formContainer" class="card mb-4 d-none">
-        <div class="card-header" id="formHeader">Thêm Công việc</div>
+    <!-- Form thêm/sửa -->
+    <div id="formContainer" class="card shadow-sm mb-4 d-none">
+        <div class="card-header fw-semibold" id="formHeader">Thêm Công việc</div>
         <div class="card-body">
             <form id="jobForm">
                 <input type="hidden" id="isUpdateMode" value="false" />
@@ -29,191 +32,173 @@
                     <label for="tenjob" class="form-label">Tên Job</label>
                     <input type="text" class="form-control" id="tenjob" name="tenjob" required />
                 </div>
-                <button type="submit" class="btn btn-primary" id="btnSubmit">Thêm</button>
-                <button type="button" class="btn btn-secondary" id="btnCancel">Hủy</button>
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary" id="btnSubmit">Thêm</button>
+                    <button type="button" class="btn btn-secondary" id="btnCancel">Hủy</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <div id="loader" class="text-center my-3" style="display:none;">
+    <!-- Loader -->
+    <div id="loader" class="text-center my-3 d-none">
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
 
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>Mã Job</th>
-                <th>Tên Job</th>
-                <th>Thao tác</th>
-            </tr>
-        </thead>
-        <tbody id="jobTableBody"></tbody>
-    </table>
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Mã Job</th>
+                    <th>Tên Job</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="jobTableBody">
+                <!-- JS render -->
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<script>
-    function showMessage(message) {
-        $('#jobTableBody').html(`<tr><td colspan="3" class="text-center text-danger">${message}</td></tr>`);
-    }
+@section Scripts {
+    <script>
+        const showMessage = (msg) => {
+            $('#jobTableBody').html(`<tr><td colspan="3" class="text-danger">${msg}</td></tr>`);
+        };
 
-    function showLoading(show) {
-        $("#loader").toggle(show);
-    }
+        const showLoading = (show) => {
+            $('#loader').toggleClass('d-none', !show);
+        };
 
-    function loadJobs() {
-        showLoading(true);
-        console.log("[DEBUG] Đang tải danh sách công việc...");
+        const resetForm = () => {
+            $('#jobForm')[0].reset();
+            $('#majob').prop('readonly', false);
+            $('#isUpdateMode').val("false");
+            $('#btnSubmit').text("Thêm");
+            $('#formHeader').text("Thêm Công việc");
+        };
 
-        $.get('/Job1/getall')
-            .done(function (res) {
-                showLoading(false);
-                console.log("[DEBUG] Dữ liệu nhận được:", res);
-
-                if (res.success && Array.isArray(res.data)) {
-                    let rows = '';
-                    res.data.forEach(job => {
-                        rows += `
+        const loadJobs = () => {
+            showLoading(true);
+            $.get('/Job1/getall')
+                .done(res => {
+                    showLoading(false);
+                    if (res.success && Array.isArray(res.data)) {
+                        let rows = res.data.map(job => `
                             <tr>
                                 <td>${job.majob}</td>
                                 <td>${job.tenjob}</td>
                                 <td>
-                                    <button class="btn btn-warning btn-sm btnEdit" data-id="${job.majob}" data-name="${job.tenjob}">Sửa</button>
-                                    <button class="btn btn-danger btn-sm btnDelete" data-id="${job.majob}">Xóa</button>
+                                    <button class="btn btn-warning btn-sm btnEdit" data-id="${job.majob}" data-name="${job.tenjob}">
+                                        <i class="bi bi-pencil-square"></i> Sửa
+                                    </button>
+                                    <button class="btn btn-danger btn-sm btnDelete" data-id="${job.majob}">
+                                        <i class="bi bi-trash"></i> Xóa
+                                    </button>
                                 </td>
-                            </tr>`;
-                    });
-                    $('#jobTableBody').html(rows);
-                } else {
-                    console.warn("[WARN] Không có dữ liệu hoặc lỗi:", res.message);
-                    showMessage(res.message || "Không có dữ liệu hoặc bạn không có quyền truy cập.");
-                }
-            })
-            .fail(function (jqXHR) {
-                showLoading(false);
-                const msg = jqXHR.responseJSON?.message || "Lỗi khi tải danh sách: " + jqXHR.status;
-                console.error("[ERROR] Lỗi khi tải danh sách:", jqXHR);
-                showMessage(msg);
-            });
-    }
-
-    // Submit thêm/cập nhật
-    $('#jobForm').submit(function (e) {
-        e.preventDefault();
-
-        const isUpdate = $('#isUpdateMode').val() === 'true';
-        const formData = {
-            majob: $('#majob').val(),
-            tenjob: $('#tenjob').val()
+                            </tr>
+                        `).join("");
+                        $('#jobTableBody').html(rows);
+                    } else {
+                        showMessage(res.message || "Không có dữ liệu hoặc bạn không có quyền.");
+                    }
+                })
+                .fail(err => {
+                    showLoading(false);
+                    console.error("[ERROR]", err);
+                    showMessage("Lỗi khi tải dữ liệu công việc.");
+                });
         };
 
-        console.log(`[DEBUG] Gửi yêu cầu ${isUpdate ? 'Cập nhật' : 'Thêm'} với dữ liệu:`, formData);
+        // Gửi form thêm / cập nhật
+        $('#jobForm').submit(function (e) {
+            e.preventDefault();
+            const isUpdate = $('#isUpdateMode').val() === "true";
+            const payload = {
+                majob: $('#majob').val(),
+                tenjob: $('#tenjob').val()
+            };
+            const url = isUpdate ? '/Job1/Update' : '/Job1/Add';
 
-        showLoading(true);
-        const url = isUpdate ? '/Job1/Update' : '/Job1/Add';
-
-        $.ajax({
-            url: url,
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(formData),
-            success: function (res) {
-                showLoading(false);
-                console.log("[DEBUG] Kết quả trả về:", res);
-                if (res.success) {
-                    alert(res.message || (isUpdate ? "Cập nhật thành công!" : "Thêm thành công!"));
-                    $('#jobForm')[0].reset();
-                    $('#formContainer').addClass('d-none');
-                    $('#isUpdateMode').val("false");
-                    $('#btnSubmit').text("Thêm");
-                    $('#formHeader').text("Thêm Công việc");
-                    loadJobs();
-                    $('html, body').animate({ scrollTop: 0 }, 'slow');
-                } else {
-                    alert(res.message || (isUpdate ? "Cập nhật thất bại!" : "Thêm thất bại!"));
+            showLoading(true);
+            $.ajax({
+                url: url,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                success: function (res) {
+                    showLoading(false);
+                    if (res.success) {
+                        alert(res.message || "Thành công!");
+                        $('#formContainer').addClass('d-none');
+                        resetForm();
+                        loadJobs();
+                    } else {
+                        alert(res.message || "Lỗi không xác định.");
+                    }
+                },
+                error: function () {
+                    showLoading(false);
+                    alert("Lỗi gửi dữ liệu.");
                 }
-            },
-            error: function (err) {
-                showLoading(false);
-                console.error("[ERROR] Lỗi khi xử lý:", err);
-                alert("Lỗi xử lý!");
+            });
+        });
+
+        // Sửa
+        $(document).on('click', '.btnEdit', function () {
+            $('#formContainer').removeClass('d-none');
+            $('#formHeader').text("Cập nhật Công việc");
+            $('#btnSubmit').text("Cập nhật");
+            $('#isUpdateMode').val("true");
+
+            $('#majob').val($(this).data('id')).prop('readonly', true);
+            $('#tenjob').val($(this).data('name'));
+            $('html, body').animate({ scrollTop: $('#formContainer').offset().top }, 'slow');
+        });
+
+        // Xóa
+        $(document).on('click', '.btnDelete', function () {
+            const majob = $(this).data('id');
+            if (confirm(`Bạn có chắc muốn xóa Job "${majob}"?`)) {
+                showLoading(true);
+                $.post('/Job1/Delete', { majob }, function (res) {
+                    showLoading(false);
+                    if (res.success) {
+                        alert(res.message || "Đã xóa thành công.");
+                        loadJobs();
+                    } else {
+                        alert(res.message || "Không thể xóa.");
+                    }
+                }).fail(function () {
+                    showLoading(false);
+                    alert("Lỗi khi gửi yêu cầu xóa.");
+                });
             }
         });
-    });
 
-    // Nút sửa
-    $(document).on('click', '.btnEdit', function () {
-        const majob = $(this).data('id');
-        const tenjob = $(this).data('name');
+        // Nút thêm mới
+        $('#btnShowForm').click(function () {
+            resetForm();
+            $('#formContainer').toggleClass('d-none');
+            if (!$('#formContainer').hasClass('d-none')) {
+                $('html, body').animate({ scrollTop: $('#formContainer').offset().top }, 'slow');
+            }
+        });
 
-        console.log("[DEBUG] Click nút Sửa với:", { majob, tenjob });
+        // Hủy
+        $('#btnCancel').click(function () {
+            $('#formContainer').addClass('d-none');
+            resetForm();
+        });
 
-        $('#majob').val(majob).prop('readonly', true);
-        $('#tenjob').val(tenjob);
-        $('#formContainer').removeClass('d-none');
-        $('#formHeader').text("Cập nhật Công việc");
-        $('#btnSubmit').text("Cập nhật");
-        $('#isUpdateMode').val("true");
+        // Tải lại
+        $('#btnLoad').click(loadJobs);
 
-        $('html, body').animate({ scrollTop: $('#formContainer').offset().top }, 'slow');
-    });
-
-    // Nút xóa
-    $(document).on('click', '.btnDelete', function () {
-        const majob = $(this).data('id');
-        if (confirm(`Bạn có chắc muốn xóa Job "${majob}"?`)) {
-            showLoading(true);
-            console.log("[DEBUG] Gửi yêu cầu xóa Job:", majob);
-            $.post('/Job1/Delete', { majob }, function (res) {
-                showLoading(false);
-                console.log("[DEBUG] Kết quả xóa:", res);
-                if (res.success) {
-                    alert(res.message || "Xóa thành công!");
-                    loadJobs();
-                } else {
-                    alert(res.message || "Xóa thất bại!");
-                }
-            }).fail(function (err) {
-                showLoading(false);
-                console.error("[ERROR] Lỗi khi xóa:", err);
-                alert("Lỗi khi xóa công việc.");
-            });
-        }
-    });
-
-    // Nút thêm mới
-    $('#btnShowForm').click(function () {
-        console.log("[DEBUG] Click nút Thêm mới");
-        $('#jobForm')[0].reset();
-        $('#majob').prop('readonly', false);
-        $('#isUpdateMode').val("false");
-        $('#formHeader').text("Thêm Công việc");
-        $('#btnSubmit').text("Thêm");
-        $('#formContainer').toggleClass('d-none');
-        if (!$('#formContainer').hasClass('d-none')) {
-            $('html, body').animate({ scrollTop: $('#formContainer').offset().top }, 'slow');
-        }
-    });
-
-    // Nút hủy
-    $('#btnCancel').click(function () {
-        console.log("[DEBUG] Click nút Hủy");
-        $('#formContainer').addClass('d-none');
-        $('#jobForm')[0].reset();
-        $('#majob').prop('readonly', false);
-        $('#isUpdateMode').val("false");
-    });
-
-    // Nút tải lại
-    $('#btnLoad').click(function () {
-        console.log("[DEBUG] Click nút Tải lại");
-        loadJobs();
-    });
-
-    // Tải dữ liệu khi trang vừa load
-    $(document).ready(function () {
-        console.log("[DEBUG] Tải trang -> gọi loadJobs()");
-        loadJobs();
-    });
-</script>
+        // Khi trang load
+        $(document).ready(loadJobs);
+    </script>
+}

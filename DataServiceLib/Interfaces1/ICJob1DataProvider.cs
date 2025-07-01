@@ -8,7 +8,7 @@ namespace DataServiceLib.Interfaces1
     {
         Task<CResponseMessage1> Addjob(Addjob addjob);
         Task<CResponseMessage1> Deletejob(string manv);
-        DataSet GetAll();
+        Task<DataSet> GetAll();
         Task<CResponseMessage1> Update(Job job);
     }
 }

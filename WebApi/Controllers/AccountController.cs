@@ -1,7 +1,6 @@
 ﻿using CommonLib.Handles;
 using CoreLib.Dtos;
 using CoreLib.Models;
-using DataServiceLib.Implementations1;
 using DataServiceLib.Interfaces1;
 using DataServiceLib.unuse.Implementations;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +13,7 @@ namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
+    [Authorize]
     public class AccountController : ControllerBase
     {
         private readonly ICAccountDataProvider _accountDataProvider;
@@ -72,9 +71,9 @@ namespace WebApi.Controllers
 
         [HttpGet("getall")]
         [CustomAuthorize("admin,user", View =true)]
-        public IActionResult getall()
+        public async Task<IActionResult> getall()
         {
-            var (data, res) = _accountDataProvider.getall();
+            var (data, res) = await _accountDataProvider.getall();
             return Ok(
                 new
                 {
@@ -89,9 +88,9 @@ namespace WebApi.Controllers
 
         [HttpGet("getUser")]
         [CustomAuthorize("admin,user", View = true)]
-        public IActionResult getUer()
+        public async Task<IActionResult> getUer()
         {
-            var (data, res) = _accountDataProvider.getall_userName();
+            var (data, res) = await _accountDataProvider.getall_userName();
             return Ok(
                 new
                 {

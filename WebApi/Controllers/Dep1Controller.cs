@@ -15,7 +15,7 @@ namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
+    [Authorize]
     public class Dep1Controller : ControllerBase
     {
         private readonly ICDepartmentDataProvider1 _departmentService;
@@ -32,12 +32,12 @@ namespace WebApi.Controllers
       
         [HttpGet("getalldataset")]
         [CustomAuthorize("admin , user",View = true)]
-        public DataSet GetDataSet()
+        public async Task< DataSet> GetDataSet()
         {
             try
             {
                 _errorHandler.WriteStringToFuncion("Dep1Controller", "GetDataSet");
-                return _departmentService.GetDataSet();
+                return await _departmentService.GetDataSet();
             }
             catch (Exception ex) { 
             
@@ -47,12 +47,12 @@ namespace WebApi.Controllers
         }
         [HttpGet("getbyiddataset/{id}")]
         [CustomAuthorize("admin", View = true)]
-        public DataSet GetDataSetByid(int id)
+        public async Task< DataSet> GetDataSetByid(int id)
         {
             try
             {
                 _errorHandler.WriteStringToFuncion("Dep1Controller", "GetDataSetByid");
-                return _departmentService.GetbyidDataset(id);
+                return await _departmentService.GetbyidDataset(id);
             }
             catch(Exception ex)
             {

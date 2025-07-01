@@ -129,133 +129,133 @@ namespace DataServiceLib.Implementations1
             }
         }
 
-        public async Task<CResponseMessage1> Getall()
-        {
-            try
-            {
-                _errorHandler.WriteStringToFuncion(nameof(CLoginProvider), nameof(Getall));
+        //public async Task<CResponseMessage1> Getall()
+        //{
+        //    try
+        //    {
+        //        _errorHandler.WriteStringToFuncion(nameof(CLoginProvider), nameof(Getall));
 
-                var parameters = new IDbDataParameter[]
-                {
-                    new OracleParameter("p_result", OracleDbType.RefCursor) { Direction = ParameterDirection.Output },
-                    new OracleParameter("o_code", OracleDbType.Varchar2, 10) { Direction = ParameterDirection.Output },
-                    new OracleParameter("o_message", OracleDbType.Varchar2, 200) { Direction = ParameterDirection.Output }
-                };
+        //        var parameters = new IDbDataParameter[]
+        //        {
+        //            new OracleParameter("p_result", OracleDbType.RefCursor) { Direction = ParameterDirection.Output },
+        //            new OracleParameter("o_code", OracleDbType.Varchar2, 10) { Direction = ParameterDirection.Output },
+        //            new OracleParameter("o_message", OracleDbType.Varchar2, 200) { Direction = ParameterDirection.Output }
+        //        };
 
-                var ds = _dataProvider.GetDatasetFromSP("sp_get_all_users", parameters, _connectString);
-                var data = new List<Dictionary<string, object>>();
+        //        var ds = _dataProvider.GetDatasetFromSP("sp_get_all_users", parameters, _connectString);
+        //        var data = new List<Dictionary<string, object>>();
 
-                if (ds.Tables.Count > 0)
-                {
-                    foreach (DataRow row in ds.Tables[0].Rows)
-                    {
-                        var dict = row.Table.Columns.Cast<DataColumn>()
-                            .ToDictionary(col => col.ColumnName, col => row[col]);
-                        data.Add(dict);
-                    }
-                }
+        //        if (ds.Tables.Count > 0)
+        //        {
+        //            foreach (DataRow row in ds.Tables[0].Rows)
+        //            {
+        //                var dict = row.Table.Columns.Cast<DataColumn>()
+        //                    .ToDictionary(col => col.ColumnName, col => row[col]);
+        //                data.Add(dict);
+        //            }
+        //        }
 
-                return new CResponseMessage1
-                {
-                    code = parameters[1].Value?.ToString(),
-                    message = parameters[2].Value?.ToString(),
-                    Success = parameters[1].Value?.ToString() == "200",
-                    Data = data
-                };
-            }
-            catch (Exception ex)
-            {
-                _errorHandler.WriteToFile(ex);
-                return new CResponseMessage1
-                {
-                    code = "500",
-                    message = "Lỗi hệ thống khi lấy danh sách người dùng",
-                    Success = false
-                };
-            }
-        }
+        //        return new CResponseMessage1
+        //        {
+        //            code = parameters[1].Value?.ToString(),
+        //            message = parameters[2].Value?.ToString(),
+        //            Success = parameters[1].Value?.ToString() == "200",
+        //            Data = data
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _errorHandler.WriteToFile(ex);
+        //        return new CResponseMessage1
+        //        {
+        //            code = "500",
+        //            message = "Lỗi hệ thống khi lấy danh sách người dùng",
+        //            Success = false
+        //        };
+        //    }
+        //}
 
-        public async Task<(List<Dictionary<string, object>> data, CResponseMessage1 response)> GetPermission()
-        {
-            var response = new CResponseMessage1();
-            var data = new List<Dictionary<string, object>>();
+        //public async Task<(List<Dictionary<string, object>> data, CResponseMessage1 response)> GetPermission()
+        //{
+        //    var response = new CResponseMessage1();
+        //    var data = new List<Dictionary<string, object>>();
 
-            try
-            {
-                _errorHandler.WriteStringToFuncion(nameof(CLoginProvider), nameof(GetPermission));
+        //    try
+        //    {
+        //        _errorHandler.WriteStringToFuncion(nameof(CLoginProvider), nameof(GetPermission));
 
-                var parameters = new IDbDataParameter[]
-                {
-            new OracleParameter("v_cursor", OracleDbType.RefCursor) { Direction = ParameterDirection.Output },
-            new OracleParameter("o_code", OracleDbType.Varchar2, 10) { Direction = ParameterDirection.Output },
-            new OracleParameter("o_message", OracleDbType.Varchar2, 200) { Direction = ParameterDirection.Output }
-                };
+        //        var parameters = new IDbDataParameter[]
+        //        {
+        //    new OracleParameter("v_cursor", OracleDbType.RefCursor) { Direction = ParameterDirection.Output },
+        //    new OracleParameter("o_code", OracleDbType.Varchar2, 10) { Direction = ParameterDirection.Output },
+        //    new OracleParameter("o_message", OracleDbType.Varchar2, 200) { Direction = ParameterDirection.Output }
+        //        };
 
-                var ds = _dataProvider.GetDatasetFromSP(SpRoute.sp_get_permission_users, parameters, _connectString);
+        //        var ds = _dataProvider.GetDatasetFromSP(SpRoute.sp_get_permission_users, parameters, _connectString);
 
-                if (ds.Tables.Count > 0)
-                {
-                    foreach (DataRow row in ds.Tables[0].Rows)
-                    {
-                        var dict = row.Table.Columns.Cast<DataColumn>()
-                            .ToDictionary(col => col.ColumnName, col => row[col]);
-                        data.Add(dict);
-                    }
-                }
+        //        if (ds.Tables.Count > 0)
+        //        {
+        //            foreach (DataRow row in ds.Tables[0].Rows)
+        //            {
+        //                var dict = row.Table.Columns.Cast<DataColumn>()
+        //                    .ToDictionary(col => col.ColumnName, col => row[col]);
+        //                data.Add(dict);
+        //            }
+        //        }
 
-                response.code = parameters[1].Value?.ToString();
-                response.message = parameters[2].Value?.ToString();
-                response.Success = response.code == "200";
-            }
-            catch (Exception ex)
-            {
-                _errorHandler.WriteToFile(ex);
-                response = new CResponseMessage1
-                {
-                    code = "500",
-                    message = "Lỗi hệ thống khi lấy quyền người dùng",
-                    Success = false
-                };
-            }
+        //        response.code = parameters[1].Value?.ToString();
+        //        response.message = parameters[2].Value?.ToString();
+        //        response.Success = response.code == "200";
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _errorHandler.WriteToFile(ex);
+        //        response = new CResponseMessage1
+        //        {
+        //            code = "500",
+        //            message = "Lỗi hệ thống khi lấy quyền người dùng",
+        //            Success = false
+        //        };
+        //    }
 
-            return (data, response);
-        }
+        //    return (data, response);
+        //}
 
 
-        public async Task<CResponseMessage1> UpdateUserInfo(string username, string newPassword, string newRole, string newManv)
-        {
-            try
-            {
-                _errorHandler.WriteStringToFuncion(nameof(CLoginProvider), nameof(UpdateUserInfo));
+        //public async Task<CResponseMessage1> UpdateUserInfo(string username, string newPassword, string newRole, string newManv)
+        //{
+        //    try
+        //    {
+        //        _errorHandler.WriteStringToFuncion(nameof(CLoginProvider), nameof(UpdateUserInfo));
 
-                var hashedPassword = BCrypt.Net.BCrypt.HashPassword(newPassword);
-                var para = new IDbDataParameter[]
-                {
-                    new OracleParameter("p_username", OracleDbType.Varchar2) { Value = username },
-                    new OracleParameter("p_new_password", OracleDbType.Varchar2) { Value = hashedPassword },
-                    new OracleParameter("p_new_role", OracleDbType.Varchar2) { Value = newRole },
-                    new OracleParameter("p_new_manv", OracleDbType.Varchar2) { Value = newManv }
-                };
+        //        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        //        var para = new IDbDataParameter[]
+        //        {
+        //            new OracleParameter("p_username", OracleDbType.Varchar2) { Value = username },
+        //            new OracleParameter("p_new_password", OracleDbType.Varchar2) { Value = hashedPassword },
+        //            new OracleParameter("p_new_role", OracleDbType.Varchar2) { Value = newRole },
+        //            new OracleParameter("p_new_manv", OracleDbType.Varchar2) { Value = newManv }
+        //        };
 
-                var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_update_users, para, _connectString);
+        //        var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_update_users, para, _connectString);
 
-                return new CResponseMessage1
-                {
-                    code = result.code,
-                    message = result.message,
-                    Success = result.code == "200"
-                };
-            }
-            catch (Exception ex)
-            {
-                _errorHandler.WriteToFile(ex);
-                return new CResponseMessage1
-                {
-                    code = "500",
-                    message = "Lỗi hệ thống khi cập nhật thông tin người dùng",
-                    Success = false
-                };
-            }
-        }
+        //        return new CResponseMessage1
+        //        {
+        //            code = result.code,
+        //            message = result.message,
+        //            Success = result.code == "200"
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _errorHandler.WriteToFile(ex);
+        //        return new CResponseMessage1
+        //        {
+        //            code = "500",
+        //            message = "Lỗi hệ thống khi cập nhật thông tin người dùng",
+        //            Success = false
+        //        };
+        //    }
+        //}
     }
 }

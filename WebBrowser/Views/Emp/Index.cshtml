@@ -2,232 +2,197 @@
     ViewData["Title"] = "Danh sách nhân viên";
 }
 
-<h2>Danh sách nhân viên</h2>
+<div class="container py-4">
+    <h2 class="mb-4 text-center text-primary"><i class="bi bi-people-fill me-2"></i>Danh sách nhân viên</h2>
 
-<!-- Loading -->
-<div id="loading" style="display:none; text-align:center;">
-    <p>Đang tải dữ liệu...</p>
+    <!-- Loading spinner -->
+    <div id="loading" class="text-center text-muted my-3" style="display:none;">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2">Đang tải dữ liệu...</p>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start mb-3 gap-2">
+        <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-success" onclick="showAddForm()">
+                <i class="bi bi-plus-circle"></i> Thêm mới
+            </button>
+            <button class="btn btn-primary" onclick="updateSalary()">
+                <i class="bi bi-currency-dollar"></i> Cập nhật lương
+            </button>
+        </div>
+    </div>
+
+    <!-- Employee table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle" id="empTable">
+            <thead class="table-light text-center">
+                <tr>
+                    <th>Mã NV</th>
+                    <th>Họ tên</th>
+                    <th>Ngày sinh</th>
+                    <th>Địa chỉ</th>
+                    <th>Phái</th>
+                    <th>Lương</th>
+                    <th>Mã NQL</th>
+                    <th>Phòng</th>
+                    <th>Ngày vào</th>
+                    <th>Hoa hồng</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 </div>
-
-<!-- Actions -->
-<div class="mb-3">
-    <button class="btn btn-success" onclick="showAddForm()">Thêm mới</button>
-    <button class="btn btn-primary" onclick="updateSalary()">Cập nhật lương</button>
-</div>
-
-<!-- Table -->
-<table class="table table-bordered" id="empTable">
-    <thead>
-        <tr>
-            <th>Mã NV</th>
-            <th>Họ tên</th>
-            <th>Ngày sinh</th>
-            <th>Địa chỉ</th>
-            <th>Phái</th>
-            <th>Lương</th>
-            <th>Mã NQL</th>
-            <th>Phòng</th>
-            <th>Ngày vào</th>
-            <th>Hoa hồng</th>
-            <th>Hành động</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
 
 <!-- Modal -->
-<div class="modal fade" id="empModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+<div class="modal fade" id="empModal" tabindex="-1" aria-labelledby="empModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Thông tin nhân viên</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="empModalLabel">Thông tin nhân viên</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
             </div>
             <div class="modal-body" id="modalContent">
-                <!-- Dynamic content -->
+                <!-- Nội dung động -->
             </div>
         </div>
     </div>
 </div>
 
-<!-- Scripts -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 @await Html.PartialAsync("_AlertMessage")
 
-<script>
-    const modal = new bootstrap.Modal(document.getElementById('empModal'));
+@section Scripts {
+    <script>
+        const modal = new bootstrap.Modal(document.getElementById('empModal'));
 
-    $(document).ready(function () {
-        loadEmp();
-    });
-
-    function loadEmp() {
-        $("#loading").show();
-        $.get('/emp/getall', function (res) {
-            $("#loading").hide();
-            let html = '';
-            res.data?.forEach(e => {
-                html += `<tr>
-                    <td>${e.manv?.trim() || ''}</td>
-                    <td>${e.hO_TEN}</td>
-                    <td>${formatDate(e.ngsinh)}</td>
-                    <td>${e.dchi}</td>
-                    <td>${e.phai}</td>
-                    <td>${e.luong}</td>
-                    <td>${e.mA_NQL}</td>
-                    <td>${e.maphg}</td>
-                    <td>${formatDate(e.ngaY_VAO)}</td>
-                    <td>${e.hoahong}</td>
-                    <td>
-                        <button class="btn btn-info btn-sm" onclick="showHistory('${e.manv?.trim()}')">Lịch sử</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteEmp('${e.manv?.trim()}')">Xóa</button>
-                        <button class="btn btn-warning btn-sm" onclick="updateCommission('${e.manv?.trim()}')">+Hoa hồng</button>
-                    </td>
-                </tr>`;
-            });
-            $('#empTable tbody').html(html);
-        }).fail(function (xhr) {
-            $("#loading").hide();
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                alert(xhr.responseJSON.message);
-            } else if (xhr.status === 403) {
-                alert("Bạn không có quyền xem danh sách nhân viên.");
-            } else {
-                alert("Lỗi khi tải dữ liệu nhân viên.");
-            }
+        $(document).ready(function () {
+            loadEmp();
         });
-    }
 
-    function formatDate(date) {
-        try {
+        function loadEmp() {
+            $("#loading").show();
+            $.get('/emp/getall', function (res) {
+                $("#loading").hide();
+                let html = '';
+                res.data?.forEach(e => {
+                    html += `<tr>
+                        <td>${e.manv?.trim() || ''}</td>
+                        <td>${e.hO_TEN}</td>
+                        <td>${formatDate(e.ngsinh)}</td>
+                        <td>${e.dchi}</td>
+                        <td>${e.phai}</td>
+                        <td>${e.luong}</td>
+                        <td>${e.mA_NQL}</td>
+                        <td>${e.maphg}</td>
+                        <td>${formatDate(e.ngaY_VAO)}</td>
+                        <td>${e.hoahong}</td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-1">
+                                <button class="btn btn-info btn-sm" onclick="showHistory('${e.manv?.trim()}')">
+                                    <i class="bi bi-clock-history"></i> Lịch sử
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteEmp('${e.manv?.trim()}')">
+                                    <i class="bi bi-trash"></i> Xóa
+                                </button>
+                                <button class="btn btn-warning btn-sm" onclick="updateCommission('${e.manv?.trim()}')">
+                                    <i class="bi bi-cash-coin"></i> Hoa hồng
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+                $('#empTable tbody').html(html);
+            }).fail(handleAjaxError);
+        }
+
+        function formatDate(date) {
             if (!date) return '';
             const d = new Date(date);
             return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
-        } catch (ex) {
-            return '';
         }
-    }
 
-    function showHistory(manv) {
-        $.get(`/emp/gethistory?manv=${manv}`, function (res) {
-            if (res.success && res.data) {
-                let html = `<h5>Lịch sử công việc</h5><ul class="list-group">`;
-                res.data.forEach(r => {
-                    html += `
-                        <li class="list-group-item">
-                            <strong>${r.tenda}</strong>
-                            <span class="text-muted">(Số DA: ${r.soda})</span>
-                        </li>`;
-                });
-                html += `</ul>`;
-                $('#modalContent').html(html);
-                modal.show();
-            } else {
-                alert(res.message || "Không có dữ liệu lịch sử");
-            }
-        }).fail(function (xhr) {
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                alert(xhr.responseJSON.message);
-            } else if (xhr.status === 403) {
-                alert("Bạn không có quyền xem lịch sử công việc.");
-            } else {
-                alert("Không thể tải lịch sử công việc.");
-            }
-        });
-    }
+        function handleAjaxError(xhr) {
+            $("#loading").hide();
+            const msg = xhr.responseJSON?.message || (xhr.status === 403 ? "Bạn không có quyền." : "Đã xảy ra lỗi.");
+            alert(msg);
+        }
 
-    function deleteEmp(manv) {
-        if (confirm("Xóa nhân viên?")) {
-            $.post('/emp/delete', { manv }, function (res) {
-                if (res.success) {
-                    alert("Đã xóa");
+        function showHistory(manv) {
+            $.get(`/emp/gethistory?manv=${manv}`, function (res) {
+                if (res.success && res.data) {
+                    let html = `<h5>Lịch sử công việc</h5><ul class="list-group">`;
+                    res.data.forEach(r => {
+                        html += `<li class="list-group-item"><strong>${r.tenda}</strong> <span class="text-muted">(Số DA: ${r.soda})</span></li>`;
+                    });
+                    html += `</ul>`;
+                    $('#modalContent').html(html);
+                    modal.show();
+                } else {
+                    alert(res.message || "Không có lịch sử.");
+                }
+            }).fail(handleAjaxError);
+        }
+
+        function deleteEmp(manv) {
+            if (confirm("Xóa nhân viên?")) {
+                $.post('/emp/delete', { manv }, function (res) {
+                    alert(res.message || "Đã xóa.");
                     loadEmp();
-                } else {
-                    alert(res.message || "Lỗi xóa");
-                }
-            }).fail(function (xhr) {
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    alert(xhr.responseJSON.message);
-                } else if (xhr.status === 403) {
-                    alert("Bạn không có quyền xóa nhân viên.");
-                } else {
-                    alert("Không thể xóa nhân viên.");
-                }
-            });
-        }
-    }
-
-    function updateSalary() {
-        if (confirm("Cập nhật lương toàn bộ?")) {
-            $.post('/emp/updatesalary', {}, function (res) {
-                alert(res.message || "Cập nhật xong");
-                loadEmp();
-            }).fail(function (xhr) {
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    alert(xhr.responseJSON.message);
-                } else if (xhr.status === 403) {
-                    alert("Bạn không có quyền cập nhật lương.");
-                } else {
-                    alert("Không thể cập nhật lương.");
-                }
-            });
-        }
-    }
-
-    function updateCommission(manv) {
-        $.post('/emp/updatecommission', { manv }, function (res) {
-            alert(res.message || "Đã cập nhật hoa hồng");
-            loadEmp();
-        }).fail(function (xhr) {
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                alert(xhr.responseJSON.message);
-            } else if (xhr.status === 403) {
-                alert("Bạn không có quyền cập nhật hoa hồng.");
-            } else {
-                alert("Không thể cập nhật hoa hồng.");
+                }).fail(handleAjaxError);
             }
-        });
-    }
+        }
 
-    function showAddForm() {
-        const html = `
-            <form id="addForm">
-                <div class="mb-2"><label>Họ tên</label><input name="HO_TEN" class="form-control" required /></div>
-                <div class="mb-2"><label>Mã NV</label><input name="MANV" class="form-control" required /></div>
-                <div class="mb-2"><label>Ngày sinh</label><input type="date" name="NGSINH" class="form-control" required /></div>
-                <div class="mb-2"><label>Địa chỉ</label><input name="DCHI" class="form-control" /></div>
-                <div class="mb-2"><label>Phái</label><input name="PHAI" class="form-control" /></div>
-                <div class="mb-2"><label>Lương</label><input type="number" name="LUONG" class="form-control" /></div>
-                <div class="mb-2"><label>Mã NQL</label><input name="MA_NQL" class="form-control" /></div>
-                <div class="mb-2"><label>Phòng</label><input name="MAPHG" class="form-control" /></div>
-                <div class="mb-2"><label>Ngày vào</label><input type="date" name="NGAY_VAO" class="form-control" /></div>
-                <div class="mb-2"><label>Hoa hồng</label><input name="HOAHONG" type="number" class="form-control" /></div>
-                <div class="mb-2"><label>Mã job</label><input name="MAJOB" class="form-control" /></div>
-                <button type="submit" class="btn btn-success">Thêm</button>
-            </form>
-        `;
-        $('#modalContent').html(html);
-        modal.show();
+        function updateSalary() {
+            if (confirm("Cập nhật lương toàn bộ?")) {
+                $.post('/emp/updatesalary', {}, function (res) {
+                    alert(res.message || "Đã cập nhật.");
+                    loadEmp();
+                }).fail(handleAjaxError);
+            }
+        }
 
-        $('#addForm').submit(function (e) {
-            e.preventDefault();
-            const formData = $(this).serialize();
-
-            $.post('/emp/add', formData, function (res) {
-                alert(res.message || (res.success ? "Thêm thành công" : "Lỗi"));
-                modal.hide();
+        function updateCommission(manv) {
+            $.post('/emp/updatecommission', { manv }, function (res) {
+                alert(res.message || "Đã cộng hoa hồng.");
                 loadEmp();
-            }).fail(function (xhr) {
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    alert(xhr.responseJSON.message);
-                } else if (xhr.status === 403) {
-                    alert("Bạn không có quyền thêm nhân viên.");
-                } else {
-                    alert("Không thể thêm nhân viên.");
-                }
+            }).fail(handleAjaxError);
+        }
+
+        function showAddForm() {
+            const html = `
+                <form id="addForm">
+                    <div class="row g-3">
+                        <div class="col-md-6"><label>Họ tên</label><input name="HO_TEN" class="form-control" required /></div>
+                        <div class="col-md-6"><label>Mã NV</label><input name="MANV" class="form-control" required /></div>
+                        <div class="col-md-6"><label>Ngày sinh</label><input type="date" name="NGSINH" class="form-control" required /></div>
+                        <div class="col-md-6"><label>Địa chỉ</label><input name="DCHI" class="form-control" /></div>
+                        <div class="col-md-6"><label>Phái</label><input name="PHAI" class="form-control" /></div>
+                        <div class="col-md-6"><label>Lương</label><input type="number" name="LUONG" class="form-control" /></div>
+                        <div class="col-md-6"><label>Mã NQL</label><input name="MA_NQL" class="form-control" /></div>
+                        <div class="col-md-6"><label>Phòng</label><input name="MAPHG" class="form-control" /></div>
+                        <div class="col-md-6"><label>Ngày vào</label><input type="date" name="NGAY_VAO" class="form-control" /></div>
+                        <div class="col-md-6"><label>Hoa hồng</label><input type="number" name="HOAHONG" class="form-control" /></div>
+                        <div class="col-md-6"><label>Mã job</label><input name="MAJOB" class="form-control" /></div>
+                    </div>
+                    <div class="mt-3 text-end">
+                        <button type="submit" class="btn btn-success">Thêm</button>
+                    </div>
+                </form>
+            `;
+            $('#modalContent').html(html);
+            modal.show();
+
+            $('#addForm').submit(function (e) {
+                e.preventDefault();
+                const formData = $(this).serialize();
+                $.post('/emp/add', formData, function (res) {
+                    alert(res.message || "Thêm thành công.");
+                    modal.hide();
+                    loadEmp();
+                }).fail(handleAjaxError);
             });
-        });
-    }
-</script>
+        }
+    </script>
+}

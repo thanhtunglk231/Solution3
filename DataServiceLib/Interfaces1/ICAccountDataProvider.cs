@@ -6,9 +6,9 @@ namespace DataServiceLib.Interfaces1
 {
     public interface ICAccountDataProvider
     {
-        (DataSet data, CResponseMessage1 response) getall();
-        (DataSet data, CResponseMessage1 response) getall_userName();
-        Task<CResponseMessage1> UpdatePermission(UserPermissionDto permissionDto);
         Task<CResponseMessage1> DeletePermission(UserPermissionDto permissionDto);
+        Task<(DataSet data, CResponseMessage1 response)> getall();
+        Task<(DataSet data, CResponseMessage1 response)> getall_userName();
+        Task<CResponseMessage1> UpdatePermission(UserPermissionDto permissionDto);
     }
 }

@@ -2,20 +2,91 @@
     ViewData["Title"] = "Trang chủ";
 }
 
+<style>
+    body {
+        background: url('https://images.unsplash.com/photo-1522075469751-3a6694fb2f61') no-repeat center center fixed;
+        background-size: cover;
+        min-height: 100vh;
+        font-family: 'Segoe UI', sans-serif;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    .home-card {
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 1rem;
+        box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        animation: fadeInUp 0.8s ease-in-out;
+    }
+
+    .home-btn {
+        min-width: 220px;
+        margin: 0.5rem;
+        font-weight: 500;
+        transition: transform 0.2s ease-in-out;
+    }
+
+        .home-btn:hover {
+            transform: scale(1.05);
+        }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    
+
+    body.dark-mode {
+        background-color: #121212 !important;
+        background-image: none !important;
+        color: #f8f9fa;
+    }
+
+    .dark-mode .home-card {
+        background-color: rgba(30, 30, 30, 0.9);
+        color: #fff;
+    }
+
+    .dark-mode .btn-outline-primary,
+    .dark-mode .btn-outline-success {
+        color: #f8f9fa;
+        border-color: #999;
+    }
+
+        .dark-mode .btn-outline-primary:hover {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .dark-mode .btn-outline-success:hover {
+            background-color: #198754;
+            border-color: #198754;
+        }
+</style>
+
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-8 text-center p-5 bg-light rounded shadow">
-            <h1 class="display-4 mb-3 text-primary">
-                <i class="bi bi-house-door-fill"></i> Welcome
+        <div class="col-lg-8 col-md-10 text-center p-5 home-card">
+            <h1 class="display-5 text-primary mb-3">
+                <i class="bi bi-house-door-fill"></i> Chào mừng bạn
             </h1>
-            <p class="lead">Vui lòng chọn một chương trình để bắt đầu</p>
+            <p class="lead text-secondary">Vui lòng chọn một chức năng để bắt đầu</p>
 
-            <div class="mt-4">
-                <a href="/Employee/getall" class="btn btn-outline-primary btn-lg me-3">
-                    <i class="bi bi-person-lines-fill"></i> Quản lý nhân viên
+            <div class="d-flex flex-column flex-sm-row justify-content-center mt-4">
+                <a href="/Emp/Index" class="btn btn-outline-primary btn-lg home-btn">
+                    <i class="bi bi-people-fill me-2"></i> Quản lý nhân viên
                 </a>
-                <a href="/Project/Index" class="btn btn-outline-success btn-lg">
-                    <i class="bi bi-folder2-open"></i> Quản lý dự án
+                <a href="/Job1/Index" class="btn btn-outline-success btn-lg home-btn">
+                    <i class="bi bi-kanban-fill me-2"></i> Quản lý dự án
                 </a>
             </div>
         </div>

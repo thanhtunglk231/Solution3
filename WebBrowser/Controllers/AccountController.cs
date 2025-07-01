@@ -92,7 +92,7 @@ namespace WebBrowser.Controllers
                 var result = await _accountService.deletePermission(userPermissionDto);
 
 
-                return Json(result); // Nếu là object thì ok
+                return Json(result); 
             }
             catch (Exception ex)
             {

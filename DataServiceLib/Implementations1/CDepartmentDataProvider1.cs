@@ -16,17 +16,19 @@ namespace DataServiceLib.Implementations1
         private readonly ICBaseDataProvider1 _dataProvider;
         private readonly string _connectString;
         private readonly IErrorHandler _errorHandler;
-
+        private readonly IRedisService _redisService;
         public CDepartmentDataProvider1(
             ICBaseDataProvider1 cBaseDataProvider1,
             IConfiguration configuration,
             ISerilogProvider logger,
-            IErrorHandler errorHandler)
+            IErrorHandler errorHandler,
+            IRedisService redisService)
             : base(logger)
         {
             _dataProvider = cBaseDataProvider1;
             _connectString = configuration.GetConnectionString("OracleDb");
             _errorHandler = errorHandler;
+            _redisService = redisService;
         }
         public async Task<CResponseMessage1> Update(Department department)
         {
@@ -36,22 +38,20 @@ namespace DataServiceLib.Implementations1
 
                 IDbDataParameter[] parameters = new IDbDataParameter[]
                 {
-                    new OracleParameter("v_tenphg", OracleDbType.NVarchar2) { Value = department.TENPHG },
-                    new OracleParameter("v_maphg", OracleDbType.Decimal) { Value = department.MAPHG },
-                    new OracleParameter("v_trgphg", OracleDbType.NVarchar2) { Value = department.TRPHG },
-                    new OracleParameter("v_ng_nhanchuc", OracleDbType.Date) { Value = department.NG_NHANCHUC },
+            new OracleParameter("v_tenphg", OracleDbType.NVarchar2) { Value = department.TENPHG },
+            new OracleParameter("v_maphg", OracleDbType.Decimal) { Value = department.MAPHG },
+            new OracleParameter("v_trgphg", OracleDbType.NVarchar2) { Value = department.TRPHG },
+            new OracleParameter("v_ng_nhanchuc", OracleDbType.Date) { Value = department.NG_NHANCHUC },
                 };
 
                 var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_update_dept, parameters, _connectString);
-                if (result.code == "200")
-                {
-                    result.Success = true;
-                }
-                if (result.code != "200")
-                {
-                    result.Success = false;
+                result.Success = result.code == "200";
 
+                if (result.Success)
+                {
+                    await _redisService.DeleteAsync("Dep:all");
                 }
+
                 return result;
             }
             catch (Exception ex)
@@ -59,14 +59,10 @@ namespace DataServiceLib.Implementations1
                 _errorHandler.WriteToFile(ex);
                 _errorHandler.WriteStringToFuncion(nameof(CDepartmentDataProvider1), nameof(Update));
 
-                return new CResponseMessage1
-                {
-                    code = "500",
-                    message = ex.Message,
-                    Success = false,
-                };
+                return new CResponseMessage1 { code = "500", message = ex.Message, Success = false };
             }
         }
+
         public async Task<CResponseMessage1> Create(Department department)
         {
             try
@@ -75,22 +71,20 @@ namespace DataServiceLib.Implementations1
 
                 IDbDataParameter[] parameters = new IDbDataParameter[]
                 {
-                    new OracleParameter("v_tenphg", OracleDbType.NVarchar2) { Value = department.TENPHG },
-                    new OracleParameter("v_maphg", OracleDbType.Decimal) { Value = department.MAPHG },
-                    new OracleParameter("v_trgphg", OracleDbType.NVarchar2) { Value = department.TRPHG },
-                    new OracleParameter("v_ng_nhanchuc", OracleDbType.Date) { Value = department.NG_NHANCHUC },
+            new OracleParameter("v_tenphg", OracleDbType.NVarchar2) { Value = department.TENPHG },
+            new OracleParameter("v_maphg", OracleDbType.Decimal) { Value = department.MAPHG },
+            new OracleParameter("v_trgphg", OracleDbType.NVarchar2) { Value = department.TRPHG },
+            new OracleParameter("v_ng_nhanchuc", OracleDbType.Date) { Value = department.NG_NHANCHUC },
                 };
 
                 var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_create_dept, parameters, _connectString);
-                if (result.code == "200")
-                {
-                    result.Success = true;
-                }
-                if (result.code != "200")
-                {
-                    result.Success =false;
+                result.Success = result.code == "200";
 
+                if (result.Success)
+                {
+                    await _redisService.DeleteAsync("Dep:all");
                 }
+
                 return result;
             }
             catch (Exception ex)
@@ -98,12 +92,7 @@ namespace DataServiceLib.Implementations1
                 _errorHandler.WriteToFile(ex);
                 _errorHandler.WriteStringToFuncion(nameof(CDepartmentDataProvider1), nameof(Create));
 
-                return new CResponseMessage1
-                {
-                    code = "500",
-                    message = ex.Message,
-                    Success= false,
-                };
+                return new CResponseMessage1 { code = "500", message = ex.Message, Success = false };
             }
         }
 
@@ -115,37 +104,27 @@ namespace DataServiceLib.Implementations1
 
                 IDbDataParameter[] parameters = new IDbDataParameter[]
                 {
-                
-                    new OracleParameter("v_maphg", OracleDbType.Decimal) { Value = maphg },
-                 
+            new OracleParameter("v_maphg", OracleDbType.Decimal) { Value = maphg }
                 };
 
                 var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_delete_dept, parameters, _connectString);
-                if (result.code == "200")
-                {
-                    result.Success = true;
-                }
-                if (result.code != "200")
-                {
-                    result.Success = false;
+                result.Success = result.code == "200";
 
+                if (result.Success)
+                {
+                    await _redisService.DeleteAsync("Dep:all");
                 }
+
                 return result;
             }
             catch (Exception ex)
             {
                 _errorHandler.WriteToFile(ex);
-                _errorHandler.WriteStringToFuncion(nameof(CDepartmentDataProvider1), nameof(Create));
+                _errorHandler.WriteStringToFuncion(nameof(CDepartmentDataProvider1), nameof(Delete));
 
-                return new CResponseMessage1
-                {
-                    code = "500",
-                    message = ex.Message,
-                    Success = false,
-                };
+                return new CResponseMessage1 { code = "500", message = ex.Message, Success = false };
             }
         }
-
 
         public async Task<DataTable> GetAll()
         {
@@ -171,20 +150,30 @@ namespace DataServiceLib.Implementations1
             }
         }
 
-        public DataSet GetDataSet()
+        public async Task<DataSet> GetDataSet()
         {
             try
             {
                 _errorHandler.WriteStringToFuncion(nameof(CDepartmentDataProvider1), nameof(GetDataSet));
+                var cacheKey = "Dep:all";
+
+                var cacheData = await _redisService.GetDataSetAsync(cacheKey);
+                if (cacheData != null)
+                {
+                    return cacheData;
+                }
 
                 IDbDataParameter[] parameters = new IDbDataParameter[]
                 {
-                    new OracleParameter("o_dept", OracleDbType.RefCursor) { Direction = ParameterDirection.Output },
-                    new OracleParameter("o_code", OracleDbType.Varchar2, 10) { Direction = ParameterDirection.Output },
-                    new OracleParameter("o_message", OracleDbType.Varchar2, 200) { Direction = ParameterDirection.Output }
+            new OracleParameter("o_dept", OracleDbType.RefCursor) { Direction = ParameterDirection.Output },
+            new OracleParameter("o_code", OracleDbType.Varchar2, 10) { Direction = ParameterDirection.Output },
+            new OracleParameter("o_message", OracleDbType.Varchar2, 200) { Direction = ParameterDirection.Output }
                 };
 
-                return _dataProvider.GetDatasetFromSP(SpRoute.sp_get_dept, parameters, _connectString);
+                var dataset = _dataProvider.GetDatasetFromSP(SpRoute.sp_get_dept, parameters, _connectString);
+
+                await _redisService.SetDataSetAsync(cacheKey, dataset, TimeSpan.FromMinutes(10)); // ✅ Cache lại
+                return dataset;
             }
             catch (Exception ex)
             {
@@ -193,20 +182,32 @@ namespace DataServiceLib.Implementations1
                 return new DataSet();
             }
         }
-
-        public DataSet GetbyidDataset(int id)
+        public async Task<DataSet> GetbyidDataset(int id)
         {
             try
             {
                 _errorHandler.WriteStringToFuncion(nameof(CDepartmentDataProvider1), nameof(GetbyidDataset));
 
+                var cacheKey = $"Dep:id:{id}";
+
+                var cacheData = await _redisService.GetDataSetAsync(cacheKey);
+                if (cacheData != null)
+                {
+                    return cacheData;
+                }
+
                 IDbDataParameter[] parameters = new IDbDataParameter[]
                 {
-                    new OracleParameter("v_maphg", OracleDbType.Int32) { Value = id },
-                    new OracleParameter("o_cursor", OracleDbType.RefCursor) { Direction = ParameterDirection.Output }
+            new OracleParameter("v_maphg", OracleDbType.Int32) { Value = id },
+            new OracleParameter("o_cursor", OracleDbType.RefCursor) { Direction = ParameterDirection.Output }
                 };
 
-                return _dataProvider.GetDatasetFromSP(SpRoute.sp_dept_info, parameters, _connectString);
+                var result = _dataProvider.GetDatasetFromSP(SpRoute.sp_dept_info, parameters, _connectString);
+
+
+                await _redisService.SetDataSetAsync(cacheKey, result, TimeSpan.FromMinutes(10));
+
+                return result;
             }
             catch (Exception ex)
             {

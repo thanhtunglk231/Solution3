@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using DataServiceLib.unuse.Implementations;
 using DataServiceLib.unuse.Interfaces.unuse;
 using CommonLib.unuse;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,13 +55,24 @@ builder.Services.AddControllers()
         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
     });
 
+// ------------------ Redis ------------------
+// Register IConnectionMultiplexer as Singleton
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var config = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
+    return ConnectionMultiplexer.Connect(config);
+});
+
+// RedisService nên dùng IConnectionMultiplexer.GetDatabase()
+builder.Services.AddScoped<IRedisService, RedisService>();
+
 // ------------------ Swagger ------------------
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // ------------------ DI Services ------------------
 builder.Services.AddScoped<ICEmpDataProvider, CEmpDataProvider>();
-builder.Services.AddScoped<ICAccountDataProvider,CAccountDataProvider>();
+builder.Services.AddScoped<ICAccountDataProvider, CAccountDataProvider>();
 builder.Services.AddScoped<ICBaseDataProvider, CBaseDataProvider>();
 builder.Services.AddScoped<ICBaseDataProvider1, CBaseDataProvider1>();
 builder.Services.AddScoped<IDataConvertHelper, DataConvertHelper>();

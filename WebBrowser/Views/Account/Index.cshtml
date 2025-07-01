@@ -1,199 +1,182 @@
 ﻿@{
     ViewData["Title"] = "Quản lý quyền người dùng";
 }
+@await Html.PartialAsync("_AlertMessage")
 
-<h2 class="mt-4 mb-3">Phân quyền người dùng</h2>
+<div class="container py-4">
+    <h3 class="text-center mb-4 text-primary"><i class="bi bi-person-lock"></i> Phân quyền người dùng</h3>
 
-<div class="table-responsive">
-    <table class="table table-bordered table-hover align-middle">
-        <thead class="table-dark">
-            <tr>
-                <th>Username</th>
-                <th>Quyền hiện tại</th>
-                <th>Chọn quyền mới</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody id="userPermissionTable">
-            <!-- Dữ liệu sẽ được render bằng JS -->
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Tên người dùng</th>
+                    <th>Quyền hiện tại</th>
+                    <th>Chọn quyền mới</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="userPermissionTable">
+                <!-- JS sẽ render -->
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<!-- Modal hiển thị danh sách quyền -->
+<!-- Modal: Danh sách quyền -->
 <div class="modal fade" id="permissionModal" tabindex="-1" aria-labelledby="permissionModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="permissionModalLabel">Danh sách quyền</h5>
+                <h5 class="modal-title" id="permissionModalLabel"><i class="bi bi-shield-lock"></i> Danh sách quyền</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
             </div>
             <div class="modal-body" id="permissionList">
-                <!-- Nội dung danh sách quyền -->
+                <!-- Nội dung động -->
             </div>
         </div>
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+@section Scripts {
+    <script>
+        let allPermissions = [];
+        let currentUserPermissions = {};
 
-<script>
-    let allPermissions = [];
-    let currentUserPermissions = {};
-
-    $(document).ready(function () {
-        $.get('/Account/getall', function (res) {
-            console.log("GET /Account/getall result:", res);
-            if (res.code === 200) {
-                allPermissions = res.data;
-                loadUsersWithPermissions();
-            } else {
-                alert("Không thể tải danh sách quyền: " + res.message);
-            }
+        $(function () {
+            $.get('/Account/getall', function (res) {
+                if (res.code === 200) {
+                    allPermissions = res.data;
+                    loadUsersWithPermissions();
+                } else {
+                    alert("Không thể tải danh sách quyền: " + res.message);
+                }
+            });
         });
-    });
 
-    function loadUsersWithPermissions() {
-        $.get('/Account/getuser', function (res) {
-            console.log("GET /Account/getuser result:", res);
-            if (res.code === 200) {
-                const users = res.data;
-                const tableBody = $('#userPermissionTable');
-                tableBody.empty();
+        function loadUsersWithPermissions() {
+            $.get('/Account/getuser', function (res) {
+                if (res.code === 200) {
+                    const users = res.data;
+                    const tableBody = $('#userPermissionTable');
+                    tableBody.empty();
 
-                const grouped = {};
-                users.forEach(item => {
-                    if (!grouped[item.username]) grouped[item.username] = [];
-                    grouped[item.username].push(item.permission_Code);
-                });
+                    const grouped = {};
+                    users.forEach(u => {
+                        if (!grouped[u.username]) grouped[u.username] = [];
+                        grouped[u.username].push(u.permission_Code);
+                    });
 
-                currentUserPermissions = grouped;
+                    currentUserPermissions = grouped;
 
-                Object.keys(grouped).forEach(username => {
-                    const currentPermissions = grouped[username] || [];
-                    const dropdownOptions = allPermissions.map(p => `
-                        <option value="${p.permission_Code}">${p.permission_Code}</option>
-                    `).join("");
+                    Object.entries(grouped).forEach(([username, perms]) => {
+                        const options = allPermissions.map(p => `<option value="${p.permission_Code}">${p.permission_Code}</option>`).join("");
 
-                    const row = `
-                        <tr>
-                            <td>${username}</td>
-                            <td>
-                                <button class="btn btn-info btn-sm" onclick="showPermissions('${username}')">
-                                    Xem (${currentPermissions.length})
-                                </button>
-                            </td>
-                            <td>
-                                <select class="form-select" id="select-${username}">
-                                    ${dropdownOptions}
-                                </select>
-                            </td>
-                            <td>
-                                <button class="btn btn-primary btn-sm" onclick="updatePermission('${username}')">Thêm quyền</button>
-                            </td>
-                        </tr>
-                    `;
-                    tableBody.append(row);
-                });
-            } else {
-                alert("Không thể tải người dùng: " + res.message);
-            }
-        });
-    }
-
-    function showPermissions(username) {
-        const permissions = currentUserPermissions[username] || [];
-        const container = $('#permissionList');
-        container.empty();
-
-        if (permissions.length === 0) {
-            container.append(`<p>Không có quyền nào.</p>`);
-        } else {
-            permissions.forEach(p => {
-                const item = $(`
-                    <div class="d-flex justify-content-between align-items-center border p-2 mb-2 rounded bg-light">
-                        <span>${p}</span>
-                        <button class="btn btn-danger btn-sm" onclick="removePermission('${username}', '${p}')">Gỡ</button>
-                    </div>
-                `);
-                container.append(item);
+                        const row = `
+                            <tr>
+                                <td>${username}</td>
+                                <td>
+                                    <button class="btn btn-info btn-sm" onclick="showPermissions('${username}')">
+                                        <i class="bi bi-eye"></i> Xem (${perms.length})
+                                    </button>
+                                </td>
+                                <td>
+                                    <select class="form-select" id="select-${username}">
+                                        ${options}
+                                    </select>
+                                </td>
+                                <td>
+                                    <button class="btn btn-success btn-sm" onclick="updatePermission('${username}')">
+                                        <i class="bi bi-plus-circle"></i> Thêm quyền
+                                    </button>
+                                </td>
+                            </tr>`;
+                        tableBody.append(row);
+                    });
+                } else {
+                    alert("Không thể tải người dùng: " + res.message);
+                }
             });
         }
 
-        const modal = new bootstrap.Modal(document.getElementById('permissionModal'));
-        modal.show();
-    }
+        function showPermissions(username) {
+            const permissions = currentUserPermissions[username] || [];
+            const container = $('#permissionList').empty();
 
-    function updatePermission(username) {
-        const newPermission = $(`#select-${username}`).val();
-        const payload = {
-            username: username,
-            Permission_Code: newPermission
-        };
-
-        console.log("Sending updatePermission payload:", payload);
-
-        $.ajax({
-            url: '/Account/updateUserPermission',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(payload),
-            success: function (res) {
-                console.log("Response from updateUserPermission:", res);
-
-                if (res.code === "200" || res.success === true) {
-                    alert(res.message || "Cập nhật thành công!");
-                    loadUsersWithPermissions();
-                    }else if (res.code === "403") {
-                    alert("Không có quyền cập nhật!");
-                }
-                    else {
-                    alert("Cập nhật thất bại: " + (res.message || "Không rõ lỗi"));
-                }
-            },
-            error: function (xhr, status, err) {
-                console.error("Error calling updateUserPermission:", xhr.responseText || err);
-                alert("Lỗi khi gửi yêu cầu cập nhật quyền.");
+            if (!permissions.length) {
+                container.append(`<p class="text-muted">Không có quyền nào.</p>`);
+            } else {
+                permissions.forEach(p => {
+                    const html = `
+                        <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2 bg-light">
+                            <span>${p}</span>
+                            <button class="btn btn-danger btn-sm" onclick="removePermission('${username}', '${p}')">
+                                <i class="bi bi-trash"></i> Gỡ
+                            </button>
+                        </div>`;
+                    container.append(html);
+                });
             }
-        });
-    }
 
-    function removePermission(username, permission_Code) {
-        if (!confirm(`Bạn có chắc muốn gỡ quyền "${permission_Code}" cho user "${username}"?`)) return;
+            const modal = new bootstrap.Modal(document.getElementById('permissionModal'));
+            modal.show();
+        }
 
-        const payload = {
-            username,
-            Permission_Code: permission_Code
-        };
+        function updatePermission(username) {
+            const permission = $(`#select-${username}`).val();
+            const payload = { username, Permission_Code: permission };
 
-        console.debug("Sending removePermission payload:", payload);
-
-        $.ajax({
-            url: '/Account/DeleteUserPermission',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(payload),
-            success: function (res) {
-                console.debug("Response from remove-user-permission:", res);
-
-                if (res.code === "200" || res.success === true) {
-                    alert(res.message || "Đã gỡ quyền!");
-                    loadUsersWithPermissions();
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('permissionModal'));
-                    modal.hide();
-                }
-                    else if (res.code === "403") {
-                        alert("Không có quyền cập nhật!");
+            $.ajax({
+                url: '/Account/updateUserPermission',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                success: function (res) {
+                    console.log(res)
+                    if (res.code === "200" || res.success === true) {
+                        alert(res.message || "Thêm quyền thành công.");
+                        loadUsersWithPermissions();
+                    } 
+                    else if(res.code=="403"){
+                        alert( "Không có quyền ");
                     }
-                else {
-                    alert("Gỡ quyền thất bại: " + (res.message || "Không rõ lỗi"));
+                    else {
+                        alert(res.message || "Cập nhật thất bại.");
+                    }
+                },
+                error: function () {
+                    alert("Lỗi khi gửi yêu cầu cập nhật quyền.");
                 }
-            },
-            error: function (xhr, status, err) {
-                console.error("Error calling remove-user-permission:", xhr.responseText || err);
-                alert("Lỗi khi gửi yêu cầu gỡ quyền.");
-            }
-        });
-    }
-</script>
+            });
+        }
+
+        function removePermission(username, permission_Code) {
+            if (!confirm(`Xác nhận gỡ quyền "${permission_Code}" của "${username}"?`)) return;
+
+            $.ajax({
+                url: '/Account/DeleteUserPermission',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ username, Permission_Code: permission_Code }),
+                success: function (res) {
+                    console.log(res)
+                    if (res.code === "200" || res.success === true) {
+                        alert(res.message || "Gỡ quyền thành công.");
+                        loadUsersWithPermissions();
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('permissionModal'));
+                        modal.hide();
+                    }
+                    else if(res.code=="403"){
+                        alert( "Không có quyền ");
+                    }
+                    else {
+                        alert(res.message || "Gỡ quyền thất bại.");
+                    }
+                },
+                error: function () {
+                    alert("Lỗi khi gửi yêu cầu gỡ quyền.");
+                }
+            });
+        }
+    </script>
+}

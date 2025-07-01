@@ -17,17 +17,22 @@ namespace DataServiceLib.Implementations1
         private readonly ICBaseDataProvider1 _dataProvider;
         private readonly string _connectString;
         private readonly IErrorHandler _errorHandler;
+        private readonly IRedisService _redisService;
+
+        private const string CACHE_KEY_ALL = "Job:all";
 
         public CJob1DataProvider(
             ICBaseDataProvider1 cBaseDataProvider1,
             IConfiguration configuration,
             ISerilogProvider logger,
-            IErrorHandler errorHandler)
+            IErrorHandler errorHandler,
+            IRedisService redisService)
             : base(logger)
         {
             _dataProvider = cBaseDataProvider1;
             _connectString = configuration.GetConnectionString("OracleDb");
             _errorHandler = errorHandler;
+            _redisService = redisService;
         }
 
         public async Task<CResponseMessage1> Update(Job job)
@@ -46,6 +51,12 @@ namespace DataServiceLib.Implementations1
 
                 var result = _dataProvider.GetResponseFromExecutedSP("update_job", para, _connectString);
                 result.Success = result.code == "200";
+
+                if (result.Success)
+                {
+                    await _redisService.DeleteAsync("Dep:all");
+                }
+
                 return await Task.FromResult(result);
             }
             catch (Exception ex)
@@ -70,6 +81,12 @@ namespace DataServiceLib.Implementations1
 
                 var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_add_hob, para, _connectString);
                 result.Success = result.code == "200";
+
+                if (result.Success)
+                {
+                    await _redisService.DeleteAsync("Dep:all");
+                }
+
                 return await Task.FromResult(result);
             }
             catch (Exception ex)
@@ -93,6 +110,11 @@ namespace DataServiceLib.Implementations1
 
                 var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_delete_job, para, _connectString);
                 result.Success = result.code == "200";
+
+                if (result.Success)
+                {
+                    await _redisService.DeleteAsync("Dep:all");
+                }
                 return await Task.FromResult(result);
             }
             catch (Exception ex)
@@ -103,11 +125,18 @@ namespace DataServiceLib.Implementations1
             }
         }
 
-        public  DataSet GetAll()
+        public async Task<DataSet> GetAll()
         {
             try
             {
                 _errorHandler.WriteStringToFuncion(nameof(CJob1DataProvider), nameof(GetAll));
+
+               
+                var cachedData = await _redisService.GetDataSetAsync(CACHE_KEY_ALL);
+                if (cachedData != null)
+                {
+                    return cachedData;
+                }
 
                 var para = new OracleParameter[]
                 {
@@ -117,6 +146,10 @@ namespace DataServiceLib.Implementations1
                 };
 
                 var result = _dataProvider.GetDatasetFromSP(SpRoute.sp_getall_job, para, _connectString);
+
+           
+                await _redisService.SetDataSetAsync(CACHE_KEY_ALL, result, TimeSpan.FromMinutes(10));
+
                 return result;
             }
             catch (Exception ex)

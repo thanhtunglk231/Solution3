@@ -4,15 +4,18 @@ using CommonLib.Interfaces;
 using CoreLib.Dtos;
 using CoreLib.Models;
 using DataServiceLib.Interfaces1;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Data;
 using System.Threading.Tasks;
+using WebApi.Attributes;
 
 namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class Job1Controller : ControllerBase
     {
         private readonly ICJob1DataProvider _jobservice;
@@ -30,12 +33,13 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("getall")]
-        public DataSet GetAll()
+        [CustomAuthorize("admin,user", View = true)]
+        public async Task<DataSet> GetAll()
         {
             try
             {
                 _errorHandler.WriteStringToFuncion(nameof(Job1Controller), nameof(GetAll));
-                var ds = _jobservice.GetAll(); 
+                var ds = await _jobservice.GetAll(); 
                 return ds;
             }
             catch (Exception ex)
@@ -46,6 +50,7 @@ namespace WebApi.Controllers
         }
 
         [HttpDelete("delete/{majob}")]
+        [CustomAuthorize("admin", Delete = true)]
         public IActionResult Delete(string majob)
         {
             try
@@ -62,6 +67,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("add")]
+        [CustomAuthorize("admin,user",Add =true)]
         public IActionResult Add([FromBody] Addjob addjob)
         {
             try
@@ -78,6 +84,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("update")]
+        [CustomAuthorize("admin,user", Add = true)]
         public IActionResult Update([FromBody] Job job)
         {
             try

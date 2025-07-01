@@ -12,7 +12,7 @@ namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
+    [Authorize]
     public class EmpController : ControllerBase
     {
         private readonly ICEmpDataProvider _empService;
@@ -27,18 +27,19 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("getall")]
-        [CustomAuthorize("admin, user", View = true)]
-        public DataSet Getall()
+        //[CustomAuthorize("admin, user", View = true)]
+        public async Task<DataSet> Getall()
         {
             try
             {
                 _errorHandler.WriteStringToFuncion("EmpController", "Getall");
-                return _empService.GetAll();
+                return await _empService.GetAll();
             }
             catch (Exception ex)
             {
                 _errorHandler.WriteToFile(ex);
-                return new DataSet();
+                _errorHandler.WriteStringToFuncion("EmpController", "Getall - Exception");
+                return await Task.FromResult(new DataSet());
             }
         }
 
@@ -104,7 +105,7 @@ namespace WebApi.Controllers
                 return Ok(result);
             }
             catch (Exception ex)
-            {
+            {    
                 _errorHandler.WriteToFile(ex);
                 return StatusCode(500, "Lỗi server khi cập nhật hoa hồng");
             }
@@ -112,12 +113,12 @@ namespace WebApi.Controllers
 
         [HttpGet("history/{manv}")]
         [CustomAuthorize("admin, user", View = true)]
-        public DataSet GetHistory(string manv)
+        public async Task< DataSet> GetHistory(string manv)
         {
             try
             {
                 _errorHandler.WriteStringToFuncion("EmpController", "GetHistory");
-                return _empService.GetHistoryByManv(manv);
+                return await _empService.GetHistoryByManv(manv);
             }
             catch (Exception ex)
             {

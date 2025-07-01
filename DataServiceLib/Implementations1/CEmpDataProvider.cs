@@ -16,17 +16,19 @@ namespace DataServiceLib.Implementations1
         private readonly ICBaseDataProvider1 _dataProvider;
         private readonly string _connectString;
         private readonly IErrorHandler _errorHandler;
-
+        private readonly IRedisService _redisService;
         public CEmpDataProvider(
             ICBaseDataProvider1 cBaseDataProvider1,
             IConfiguration configuration,
             ISerilogProvider logger,
-            IErrorHandler errorHandler)
+            IErrorHandler errorHandler,
+            IRedisService redisService  )
             : base(logger)
         {
             _dataProvider = cBaseDataProvider1;
             _connectString = configuration.GetConnectionString("OracleDb");
             _errorHandler = errorHandler;
+            _redisService = redisService;
         }
 
         public async Task<CResponseMessage1> AddEmp(Employee emp)
@@ -52,6 +54,10 @@ namespace DataServiceLib.Implementations1
 
                 var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_add_emp, para, _connectString);
                 result.Success = result.code == "200";
+                if (result.Success)
+                {
+                    await _redisService.DeleteAsync("emp:all");
+                }
                 return await Task.FromResult(result);
             }
             catch (Exception ex)
@@ -75,6 +81,11 @@ namespace DataServiceLib.Implementations1
 
                 var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_delete_em, para, _connectString);
                 result.Success = result.code == "200";
+                if (result.Success)
+                {
+                    await _redisService.DeleteAsync("emp:all");
+                    await _redisService.DeleteAsync($"emp:history:{manv}");
+                }
                 return await Task.FromResult(result);
             }
             catch (Exception ex)
@@ -93,6 +104,10 @@ namespace DataServiceLib.Implementations1
 
                 var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_update_emsala, null, _connectString);
                 result.Success = result.code == "200";
+                if (result.Success)
+                {
+                    await _redisService.DeleteAsync("emp:all");
+                }
                 return await Task.FromResult(result);
             }
             catch (Exception ex)
@@ -116,7 +131,12 @@ namespace DataServiceLib.Implementations1
 
                 var result = _dataProvider.GetResponseFromExecutedSP(SpRoute.sp_update_commision, para, _connectString);
                 result.Success = result.code == "200";
+                if (result.Success)
+                {
+                    await _redisService.DeleteAsync("emp:all");
+                }
                 return await Task.FromResult(result);
+
             }
             catch (Exception ex)
             {
@@ -126,12 +146,21 @@ namespace DataServiceLib.Implementations1
             }
         }
 
-        public DataSet GetAll()
+        public async Task<DataSet> GetAll()
         {
             try
             {
                 _errorHandler.WriteStringToFuncion(nameof(CEmpDataProvider), nameof(GetAll));
+                var cacheKey = "emp:all";
 
+               
+                var cachedData = await _redisService.GetDataSetAsync(cacheKey);
+                if (cachedData != null)
+                {
+                    return cachedData;
+                }
+
+              
                 var para = new OracleParameter[]
                 {
                     new OracleParameter("p_cursor", OracleDbType.RefCursor) { Direction = ParameterDirection.Output },
@@ -139,7 +168,12 @@ namespace DataServiceLib.Implementations1
                     new OracleParameter("o_message", OracleDbType.Varchar2, 200) { Direction = ParameterDirection.Output }
                 };
 
-                return _dataProvider.GetDatasetFromSP(SpRoute.sp_getall_emp, para, _connectString);
+                var ds = _dataProvider.GetDatasetFromSP(SpRoute.sp_getall_emp, para, _connectString);
+
+                // Cache lại Redis
+                await _redisService.SetDataSetAsync(cacheKey, ds, TimeSpan.FromMinutes(10));
+
+                return ds;
             }
             catch (Exception ex)
             {
@@ -149,11 +183,18 @@ namespace DataServiceLib.Implementations1
             }
         }
 
-        public DataSet GetHistoryByManv(string manv)
+
+        public async Task<DataSet> GetHistoryByManv(string manv)
         {
             try
             {
                 _errorHandler.WriteStringToFuncion(nameof(CEmpDataProvider), nameof(GetHistoryByManv));
+                var cacheKey = $"emp:history:{manv}";
+                var cachedData = await _redisService.GetDataSetAsync(cacheKey);
+                if (cachedData != null)
+                {
+                    return cachedData;
+                }
 
                 var para = new OracleParameter[]
                 {
@@ -163,7 +204,12 @@ namespace DataServiceLib.Implementations1
                     new OracleParameter("o_message", OracleDbType.Varchar2, 200) { Direction = ParameterDirection.Output }
                 };
 
-                return _dataProvider.GetDatasetFromSP("job_his", para, _connectString);
+                var ds = _dataProvider.GetDatasetFromSP("job_his", para, _connectString);
+
+                
+                await _redisService.SetDataSetAsync(cacheKey, ds, TimeSpan.FromMinutes(10));
+
+                return ds;
             }
             catch (Exception ex)
             {
@@ -172,5 +218,7 @@ namespace DataServiceLib.Implementations1
                 return new DataSet();
             }
         }
+
+
     }
 }

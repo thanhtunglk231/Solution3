@@ -399,7 +399,6 @@ namespace WebBrowser.Services.ApiServices
                     };
                 }
 
-                Console.WriteLine($"[DEBUG] Kết quả trả về từ API: Success={result.Success}, Code={result.code}, Message={result.message}");
                 return result;
             }
             catch (Exception ex)
