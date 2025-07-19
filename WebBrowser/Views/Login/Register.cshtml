@@ -1,0 +1,28 @@
+﻿@model WebBrowser.Models.ViewModels.LoginViewModel
+
+@{
+    ViewBag.Title = "Đăng ký tài khoản";
+}
+
+<h2 class="mb-3 text-primary"> Đăng ký</h2>
+
+@if (Model.Response != null && !string.IsNullOrWhiteSpace(Model.Response.Message))
+{
+    var alertClass = Model.Response.Success ? "alert-success" : "alert-danger";
+    <div class="alert @alertClass alert-dismissible fade show" role="alert">
+        @Model.Response.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form asp-action="Register" method="post">
+    <div class="mb-3">
+        <label asp-for="Username" class="form-label">Tên đăng nhập</label>
+        <input asp-for="Username" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label">Mật khẩu</label>
+        <input asp-for="Password" type="password" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Đăng ký</button>
+</form>

@@ -1,0 +1,248 @@
+﻿    @{
+        ViewData["Title"] = "Danh sách phòng ban";
+    }
+    @await Html.PartialAsync("_AlertMessage")
+    <style></style>
+    <div class="container py-4">
+        <h3 class="mb-3 text-center text-primary"><i class="bi bi-building"></i> Quản lý phòng ban</h3>
+
+        <!-- Alert -->
+        <div id="alertBox" class="alert d-none" role="alert"></div>
+
+        <!-- Form tìm kiếm và thêm -->
+        <div class="row g-2 mb-3">
+            <div class="col-md-3">
+                <input type="number" class="form-control" id="searchIdInput" placeholder="Nhập mã phòng..." />
+            </div>
+            <div class="col-md-auto">
+                <button class="btn btn-primary" id="searchBtn"><i class="bi bi-search"></i> Tìm</button>
+            </div>
+            <div class="col-md-auto">
+                <button class="btn btn-secondary" id="resetBtn"><i class="bi bi-arrow-repeat"></i> Reset</button>
+            </div>
+            <div class="col-md-auto">
+                <button class="btn btn-success" id="addDeptBtn"><i class="bi bi-plus-circle"></i> Thêm phòng</button>
+            </div>
+        </div>
+
+        <!-- Form thêm/sửa -->
+        <div id="addDeptFormWrapper" class="card p-3 mb-4 d-none" data-mode="add" data-id="">
+            <h5 id="formTitle">Thêm phòng ban</h5>
+            <form id="addDeptForm">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Mã phòng</label>
+                        <input type="number" class="form-control" name="MAPHG" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Tên phòng</label>
+                        <input type="text" class="form-control" name="TENPHG" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Trưởng phòng</label>
+                        <input type="text" class="form-control" name="TRPHG" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Ngày nhận chức</label>
+                        <input type="date" class="form-control" name="NG_NHANCHUC" />
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-success"><i class="bi bi-check-circle"></i> Lưu</button>
+                    <button type="button" class="btn btn-secondary" id="cancelAddDept">Hủy</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="text-center text-muted my-3 d-none">
+            <div class="spinner-border text-info" role="status"></div>
+            <p class="mt-2">Đang tải dữ liệu...</p>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table id="departmentTable" class="table table-bordered table-striped align-middle text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Mã phòng</th>
+                        <th>Tên phòng</th>
+                        <th>Trưởng phòng</th>
+                        <th>Ngày nhận chức</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    @section Scripts {
+    <script>
+        $(function () {
+            function showLoading(show) {
+                $("#loading").toggleClass("d-none", !show);
+            }
+
+            function showAlert(message, type = 'success') {
+                const box = $("#alertBox");
+                box.removeClass().addClass(`alert alert-${type}`).text(message).removeClass("d-none");
+                setTimeout(() => box.addClass("d-none"), 3000);
+            }
+
+            function showMessage(message) {
+                $('#departmentTable tbody').html(`<tr><td colspan="5" class="text-danger">${message}</td></tr>`);
+            }
+
+            function formatDate(dateString) {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                return `${date.getDate().toString().padStart(2, '0')}/` +
+                       `${(date.getMonth() + 1).toString().padStart(2, '0')}/` +
+                       `${date.getFullYear()}`;
+            }
+
+            function renderTable(data) {
+                const rows = data.map(item => `
+                    <tr>
+                        <td>${item.maphg}</td>
+                        <td>${item.tenphg}</td>
+                        <td>${item.trphg}</td>
+                        <td>${formatDate(item.nG_NHANCHUC)}</td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-1 flex-wrap">
+                                <button class="btn btn-sm btn-primary editBtn" data-id="${item.maphg}" data-ten="${item.tenphg}" data-trg="${item.trphg}" data-ngay="${item.nG_NHANCHUC}"><i class="bi bi-pencil-square"> Sửa</i></button>
+                                <button class="btn btn-sm btn-danger deleteBtn" data-id="${item.maphg}"><i class="bi bi-trash">Xóa</i></button>
+                            </div>
+                        </td>
+                    </tr>`);
+                $('#departmentTable tbody').html(rows.join(''));
+            }
+
+            function handleError(jqXHR, action) {
+                const msg = jqXHR.responseJSON?.message || (jqXHR.status === 403 ? `Không có quyền ${action}.` : "Đã xảy ra lỗi.");
+                showMessage(msg);
+            }
+
+            function loadAllDepartments() {
+                showLoading(true);
+                $.getJSON('/dept/getalldataset')
+                    .done(res => {
+                        showLoading(false);
+                        if (res.success) renderTable(res.data);
+                        else showMessage(res.message || "Không có dữ liệu.");
+                    }).fail(jqXHR => {
+                        showLoading(false);
+                        handleError(jqXHR, "tải danh sách");
+                    });
+            }
+
+            function searchDepartmentById(id) {
+                showLoading(true);
+                $.get('/dept/GetByIdDataSet?id=' + id)
+                    .done(res => {
+                        showLoading(false);
+                        if (res.success && res.data.length) renderTable(res.data);
+                        else showMessage("Không tìm thấy phòng ban có mã: " + id);
+                    }).fail(jqXHR => {
+                        showLoading(false);
+                        handleError(jqXHR, "tìm phòng");
+                    });
+            }
+
+            $('#departmentTable').on('click', '.deleteBtn', function () {
+                const id = $(this).data('id');
+                if (!confirm("Bạn chắc chắn muốn xóa phòng ban có mã " + id + "?")) return;
+
+                $.post('/dept/delete?maphg=' + id)
+                    .done(res => {
+                        if (res.data?.success) {
+                            showAlert("Xóa thành công!");
+                            loadAllDepartments();
+                        } else {
+                            showAlert(res.data?.message || "Xóa thất bại", "danger");
+                        }
+                    }).fail(jqXHR => {
+                        handleError(jqXHR, "xóa phòng ban");
+                    });
+            });
+
+            $('#departmentTable').on('click', '.editBtn', function () {
+                const maphg = $(this).data('id');
+                const tenphg = $(this).data('ten');
+                const trphg = $(this).data('trg');
+                const ngay = $(this).data('ngay')?.split('T')[0] || "";
+
+                $('#formTitle').text("Cập nhật phòng ban");
+                $('#addDeptFormWrapper').removeClass('d-none').attr('data-mode', 'edit').attr('data-id', maphg);
+                $('#addDeptForm').find('[name="MAPHG"]').val(maphg).prop('disabled', true);
+                $('#addDeptForm').find('[name="TENPHG"]').val(tenphg);
+                $('#addDeptForm').find('[name="TRPHG"]').val(trphg);
+                $('#addDeptForm').find('[name="NG_NHANCHUC"]').val(ngay);
+            });
+
+            $('#addDeptBtn').click(function () {
+                $('#formTitle').text("Thêm phòng ban");
+                $('#addDeptFormWrapper').removeClass('d-none').attr('data-mode', 'add').attr('data-id', '');
+                $('#addDeptForm')[0].reset();
+                $('#addDeptForm').find('[name="MAPHG"]').prop('disabled', false);
+            });
+
+            $('#cancelAddDept').click(function () {
+                $('#addDeptFormWrapper').addClass('d-none').attr('data-mode', 'add').attr('data-id', '');
+                $('#addDeptForm')[0].reset();
+                $('#addDeptForm').find('[name="MAPHG"]').prop('disabled', false);
+            });
+
+            $('#addDeptForm').submit(function (e) {
+                e.preventDefault();
+                const wrapper = $('#addDeptFormWrapper');
+                const isEdit = wrapper.attr('data-mode') === 'edit';
+                const maphg = isEdit ? parseInt(wrapper.attr('data-id')) : parseInt($(this).find('[name="MAPHG"]').val());
+                const formData = {
+                    MAPHG: maphg,
+                    TENPHG: $(this).find('[name="TENPHG"]').val(),
+                    TRPHG: $(this).find('[name="TRPHG"]').val(),
+                    NG_NHANCHUC: $(this).find('[name="NG_NHANCHUC"]').val()
+                };
+                const url = isEdit ? '/dept/update' : '/dept/create';
+                const action = isEdit ? 'sửa' : 'thêm';
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function (res) {
+                        if (res.data?.success) {
+                            $('#addDeptFormWrapper').addClass('d-none');
+                            showAlert(`${action} thành công!`);
+                            loadAllDepartments();
+                        } else {
+                            showAlert(res.data?.message || `${action} thất bại`, "danger");
+                        }
+                    },
+                    error: function (jqXHR) {
+                        handleError(jqXHR, `${action} phòng ban`);
+                        showAlert(`Lỗi khi ${action} phòng ban`, "danger");
+                    }
+                });
+            });
+
+            $('#searchBtn').click(() => {
+                const id = $('#searchIdInput').val();
+                if (!id) return alert("Vui lòng nhập mã phòng.");
+                searchDepartmentById(id);
+            });
+
+            $('#resetBtn').click(() => {
+                $('#searchIdInput').val('');
+                loadAllDepartments();
+            });
+
+          
+            loadAllDepartments();
+        });
+    </script>
+
+    }
