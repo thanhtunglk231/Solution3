@@ -65,7 +65,7 @@ namespace WebBrowser.Controllers
 
 
 
-        [HttpPost]
+       
         public async Task<IActionResult> Delete(string maphg)
         {
             try

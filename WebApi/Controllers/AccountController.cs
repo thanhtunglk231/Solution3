@@ -24,15 +24,14 @@ namespace WebApi.Controllers
             _errorHandler = errorHandler;
         }
         [HttpDelete("deletePremis")]
-        [CustomAuthorize("admin", Edit =true)]
-        public IActionResult Delete([FromBody] UserPermissionDto userPermissionDto)
+        [CustomAuthorize("admin", Edit = true)]
+        public async Task<IActionResult> Delete([FromBody] UserPermissionDto userPermissionDto)
         {
             try
             {
-                var result = _accountDataProvider.DeletePermission(userPermissionDto);
+                var result = await _accountDataProvider.DeletePermission(userPermissionDto); 
 
-                return Ok(result
-                );
+                return Ok(result); 
             }
             catch (Exception ex)
             {
@@ -45,16 +44,17 @@ namespace WebApi.Controllers
                 });
             }
         }
+
 
         [HttpPost("updatePermis")]
         [CustomAuthorize("admin", Edit = true)]
-        public IActionResult update([FromBody] UserPermissionDto userPermissionDto)
+        public async Task<IActionResult> Update([FromBody] UserPermissionDto userPermissionDto)
         {
             try
             {
-                var result = _accountDataProvider.UpdatePermission(userPermissionDto);
+                var result = await _accountDataProvider.UpdatePermission(userPermissionDto); 
 
-                return Ok( result);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -67,6 +67,7 @@ namespace WebApi.Controllers
                 });
             }
         }
+
 
 
         [HttpGet("getall")]

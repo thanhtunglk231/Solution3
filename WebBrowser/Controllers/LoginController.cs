@@ -65,16 +65,121 @@ namespace WebBrowser.Controllers
             }
         }
 
-       
+
+        
+        public async Task<IActionResult> Send([FromBody] InputStringDto input)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion("LoginController", "Send");
+                Console.WriteLine($"[DEBUG] Bắt đầu Send OTP với input: {input}");
+
+                var result = await _loginService.SendOtp(input);
+
+                Console.WriteLine($"[DEBUG] Kết quả từ SendOtp: Success = {result?.Success}, Message = {result?.Message}, Email = {result?.email}");
+
+                if (result != null && result.Success)
+                {
+                    if (!string.IsNullOrWhiteSpace(result.email))
+                    {
+                        HttpContext.Session.SetString("email", result.email);
+                        Console.WriteLine($"[DEBUG] Đã lưu email vào session: {result.email}");
+                    }
+
+                    return Json(new
+                    {
+                        success = true,
+                        message = result.Message,
+                        email = result.email
+                    });
+                }
+
+                return Json(new
+                {
+                    success = false,
+                    message = result?.Message ?? "Không thể gửi OTP."
+                });
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                Console.WriteLine($"[ERROR] Lỗi trong Send OTP: {ex.Message}");
+                return Json(new
+                {
+                    success = false,
+                    message = "Lỗi hệ thống khi gửi OTP: " + ex.Message
+                });
+            }
+        }
 
 
-       
-        public async Task<IActionResult> RegisterJson([FromBody] LoginViewModel model)
+
+        // Xác thực OTP
+
+   
+        public async Task<IActionResult> Verify([FromBody] VerifyOtpRequest loginRequest)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion("LoginController", "Verify");
+                Console.WriteLine($"[DEBUG] Bắt đầu Verify OTP với email: {loginRequest.email}, otp: {loginRequest.otp}");
+
+                var result = await _loginService.VerifyOtp(loginRequest);
+
+                Console.WriteLine($"[DEBUG] Kết quả VerifyOtp: Success = {result?.Success}, Token = {result?.Token}, Message = {result?.Message}");
+
+                if (result != null && result.Success && !string.IsNullOrEmpty(result.Token))
+                {
+                    HttpContext.Session.SetString("JWToken", result.Token);
+                    HttpContext.Session.SetString("Username", result.Username ?? "");
+                    HttpContext.Session.SetString("Role", result.Role ?? "");
+                    HttpContext.Session.SetString("email", result.email ?? "");
+                    HttpContext.Session.SetString("manv", result.Manv ?? "");
+
+                    Console.WriteLine("[DEBUG] Lưu session thành công");
+
+                    return Json(new
+                    {
+                        success = true,
+                        message = result.Message,
+                        token = result.Token,
+                        username = result.Username,
+                        role = result.Role,
+                        manv = result.Manv,
+                        email = result.email
+                    });
+                }
+
+                return Json(new
+                {
+                    success = false,
+                    message = result?.Message ?? "Xác thực OTP thất bại."
+                });
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                Console.WriteLine($"[ERROR] Lỗi trong Verify OTP: {ex.Message}");
+                return Json(new
+                {
+                    success = false,
+                    message = "Lỗi hệ thống: " + ex.Message
+                });
+            }
+        }
+
+
+
+
+
+
+        public async Task<IActionResult> RegisterJson([FromBody] RegisterDto model)
         {
             try
             {
                 _errorHandler.WriteStringToFuncion("LoginController", "RegisterJson");
-                var result = await _loginService.Register(model.Username, model.Password);
+
+                var result = await _loginService.Register(model);
 
                 if (result.Success)
                 {
@@ -82,7 +187,8 @@ namespace WebBrowser.Controllers
                     {
                         success = true,
                         message = result.Message,
-                        username = model.Username
+                        username = model.username,
+                        email = model.email
                     });
                 }
 
@@ -104,6 +210,7 @@ namespace WebBrowser.Controllers
         }
 
 
+
         #region
         // Cập nhật người dùng (chỉ Admin mới được phép)
         //[HttpPost]
@@ -122,7 +229,7 @@ namespace WebBrowser.Controllers
         #endregion
 
         // Đăng xuất
-        [HttpPost]
+
         [ValidateAntiForgeryToken]
         public IActionResult Logout(LoginViewModel model)
         {

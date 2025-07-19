@@ -1,4 +1,5 @@
-﻿using CoreLib.Models;
+﻿using CoreLib.Dtos;
+using CoreLib.Models;
 
 namespace DataServiceLib.Interfaces1
 {
@@ -7,7 +8,9 @@ namespace DataServiceLib.Interfaces1
         
      
         Task<CResponseMessage1> Login(string username, string password);
-        Task<CResponseMessage1> Register(string username, string password);
-      
+        Task<CResponseMessage1> Register(RegisterDto dto);
+        Task<CResponseMessage1> GetEmail(string input);
+
+
     }
 }

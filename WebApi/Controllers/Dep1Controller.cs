@@ -45,9 +45,9 @@ namespace WebApi.Controllers
                 return new DataSet();
             }
         }
-        [HttpGet("getbyiddataset/{id}")]
+        [HttpGet("getbyiddataset")]
         [CustomAuthorize("admin", View = true)]
-        public async Task< DataSet> GetDataSetByid(int id)
+        public async Task< DataSet> GetDataSetByid([FromQuery]int id)
         {
             try
             {
@@ -61,31 +61,17 @@ namespace WebApi.Controllers
             }
         }
 
-        [HttpPost("Create")]
-     
-        public IActionResult Create(Department department)
-        {
-            try
-            {
-                _errorHandler.WriteStringToFuncion("Dep1Controller", "Create");
-                return Ok(_departmentService.Create(department));
-            }
-            catch (Exception ex)
-            {
-                _errorHandler.WriteToFile(ex);
-                return BadRequest();
-            }
-        }
-
 
         [HttpDelete("Delete")]
-
-        public IActionResult Delete(string maphg)
+        public async Task<IActionResult> Delete(string maphg)
         {
             try
             {
                 _errorHandler.WriteStringToFuncion("Dep1Controller", "Delete");
-                return Ok(_departmentService.Delete(maphg));
+
+                var result = await _departmentService.Delete(maphg); 
+
+                return Ok(result); 
             }
             catch (Exception ex)
             {
@@ -93,13 +79,17 @@ namespace WebApi.Controllers
                 return BadRequest();
             }
         }
-        [HttpPut("update")]
-        public IActionResult update(Department department)
+
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create(Department department)
         {
             try
             {
-                _errorHandler.WriteStringToFuncion("Dep1Controller", "update");
-                return Ok(_departmentService.Update(department));
+                _errorHandler.WriteStringToFuncion("Dep1Controller", "Create");
+
+                var result = await _departmentService.Create(department); 
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -107,6 +97,25 @@ namespace WebApi.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpPut("update")]
+        public async Task<IActionResult> Update(Department department)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion("Dep1Controller", "Update");
+
+                var result = await _departmentService.Update(department); 
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return BadRequest();
+            }
+        }
+
 
 
     }

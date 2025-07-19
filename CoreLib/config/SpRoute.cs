@@ -20,7 +20,7 @@ namespace CoreLib.config
         public const string sp_getall_job = "job_get_all";
         public const string sp_add_job = "sp_add_job";
         public const string sp_delete_job = "del_job";
-        public const string sp_login = "sp_login_user";
+        public const string sp_login = "sp_user_login";
         public const string sp_resgis = "sp_regis_user";
         public const string sp_getall_users = "sp_get_all_users";
         public const string sp_getpassword_users = "sp_get_user_password";
@@ -30,7 +30,7 @@ namespace CoreLib.config
         public const string sp_delete_dept = "delete_dept";
         public const string sp_update_dept = "update_dept";
 
-        
+        public const string sp_get_email_username = "sp_get_email_by_username_or_email";
     }
 
 }

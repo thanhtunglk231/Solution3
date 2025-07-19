@@ -2,7 +2,6 @@
 using CommonLib.Helpers;
 using DataServiceLib.Interfaces1;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using WebApi.Attributes;
@@ -27,93 +26,92 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("getall")]
-        //[CustomAuthorize("admin, user", View = true)]
-        public async Task<DataSet> Getall()
+        [CustomAuthorize("admin, user", View = true)]
+        public async Task<DataSet> GetAll()
         {
             try
             {
-                _errorHandler.WriteStringToFuncion("EmpController", "Getall");
+                _errorHandler.WriteStringToFuncion("EmpController", "GetAll");
                 return await _empService.GetAll();
             }
             catch (Exception ex)
             {
                 _errorHandler.WriteToFile(ex);
-                _errorHandler.WriteStringToFuncion("EmpController", "Getall - Exception");
-                return await Task.FromResult(new DataSet());
+                return new DataSet();
             }
         }
 
         [HttpPost("add")]
         [CustomAuthorize("admin", Add = true)]
-        public IActionResult AddEmployee([FromBody] Employee emp)
+        public async Task<IActionResult> AddEmployee([FromBody] Employee emp)
         {
             try
             {
-                _errorHandler.WriteStringToFuncion("EmpController", "Add");
-                var result = _empService.AddEmp(emp);
+                _errorHandler.WriteStringToFuncion("EmpController", "AddEmployee");
+                var result = await _empService.AddEmp(emp);
                 return Ok(result);
             }
             catch (Exception ex)
             {
                 _errorHandler.WriteToFile(ex);
-                return StatusCode(500, "Lỗi server khi thêm nhân viên");
+                return StatusCode(500, new CResponseMessage1 { code = "500", message = "Lỗi server khi thêm nhân viên" });
             }
         }
 
-        [HttpDelete("delete/{manv}")]
+        [HttpDelete("delete")]
         [CustomAuthorize("admin", Delete = true)]
-        public IActionResult DeleteEmployee(string manv)
+        public async Task<IActionResult> DeleteEmployee([FromQuery] string manv)
         {
             try
             {
-                _errorHandler.WriteStringToFuncion("EmpController", "Delete");
-                var result = _empService.DeleteEmp(manv);
+                _errorHandler.WriteStringToFuncion("EmpController", "DeleteEmployee");
+                var result = await _empService.DeleteEmp(manv);
                 return Ok(result);
             }
             catch (Exception ex)
             {
                 _errorHandler.WriteToFile(ex);
-                return StatusCode(500, "Lỗi server khi xóa nhân viên");
+                return StatusCode(500, new CResponseMessage1 { code = "500", message = "Lỗi server khi xóa nhân viên" });
             }
         }
 
         [HttpPut("update-salary")]
         [CustomAuthorize("admin", Edit = true)]
-        public IActionResult UpdateSalary()
+        public async Task<IActionResult> UpdateSalary()
         {
             try
             {
                 _errorHandler.WriteStringToFuncion("EmpController", "UpdateSalary");
-                var result =  _empService.UpdateSalary();
+                var result = await _empService.UpdateSalary();
                 return Ok(result);
             }
             catch (Exception ex)
             {
                 _errorHandler.WriteToFile(ex);
-                return StatusCode(500, "Lỗi server khi cập nhật lương");
+                return StatusCode(500, new CResponseMessage1 { code = "500", message = "Lỗi server khi cập nhật lương" });
             }
         }
 
-        [HttpPut("update-commission/{manv}")]
-       
-        public IActionResult UpdateCommission(string manv)
+        [HttpPut("update-commission")]
+        [CustomAuthorize("admin", Add = true)]
+        public async Task<IActionResult> UpdateCommission([FromQuery]string manv)
         {
             try
             {
                 _errorHandler.WriteStringToFuncion("EmpController", "UpdateCommission");
-                var result = _empService.UpdateCommission(manv);
+                var result = await _empService.UpdateCommission(manv);
                 return Ok(result);
             }
             catch (Exception ex)
-            {    
+            {
                 _errorHandler.WriteToFile(ex);
-                return StatusCode(500, "Lỗi server khi cập nhật hoa hồng");
+                return StatusCode(500, new CResponseMessage1 { code = "500", message = "Lỗi server khi cập nhật hoa hồng" });
             }
         }
 
-        [HttpGet("history/{manv}")]
+        [HttpGet("history")]
         [CustomAuthorize("admin, user", View = true)]
-        public async Task< DataSet> GetHistory(string manv)
+        public async Task<DataSet> GetHistory([FromQuery] string manv)
         {
             try
             {

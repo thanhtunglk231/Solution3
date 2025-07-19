@@ -84,9 +84,13 @@
 
         const loadJobs = () => {
             showLoading(true);
+            console.log("[DEBUG] Gọi API: /Job1/getall");
+
             $.get('/Job1/getall')
                 .done(res => {
                     showLoading(false);
+                    console.log("[DEBUG] Kết quả trả về:", res);
+
                     if (res.success && Array.isArray(res.data)) {
                         let rows = res.data.map(job => `
                             <tr>
@@ -109,12 +113,11 @@
                 })
                 .fail(err => {
                     showLoading(false);
-                    console.error("[ERROR]", err);
+                    console.error("[ERROR] Khi gọi /Job1/getall:", err);
                     showMessage("Lỗi khi tải dữ liệu công việc.");
                 });
         };
 
-        // Gửi form thêm / cập nhật
         $('#jobForm').submit(function (e) {
             e.preventDefault();
             const isUpdate = $('#isUpdateMode').val() === "true";
@@ -124,6 +127,8 @@
             };
             const url = isUpdate ? '/Job1/Update' : '/Job1/Add';
 
+            console.log("[DEBUG] Submit form:", { url, isUpdate, payload });
+
             showLoading(true);
             $.ajax({
                 url: url,
@@ -132,6 +137,8 @@
                 data: JSON.stringify(payload),
                 success: function (res) {
                     showLoading(false);
+                    console.log("[DEBUG] Kết quả response:", res);
+
                     if (res.success) {
                         alert(res.message || "Thành công!");
                         $('#formContainer').addClass('d-none');
@@ -141,46 +148,53 @@
                         alert(res.message || "Lỗi không xác định.");
                     }
                 },
-                error: function () {
+                error: function (err) {
                     showLoading(false);
+                    console.error("[ERROR] Submit lỗi:", err);
                     alert("Lỗi gửi dữ liệu.");
                 }
             });
         });
 
-        // Sửa
         $(document).on('click', '.btnEdit', function () {
             $('#formContainer').removeClass('d-none');
             $('#formHeader').text("Cập nhật Công việc");
             $('#btnSubmit').text("Cập nhật");
             $('#isUpdateMode').val("true");
 
-            $('#majob').val($(this).data('id')).prop('readonly', true);
-            $('#tenjob').val($(this).data('name'));
+            const majob = $(this).data('id');
+            const tenjob = $(this).data('name');
+            console.log("[DEBUG] Click Sửa:", { majob, tenjob });
+
+            $('#majob').val(majob).prop('readonly', true);
+            $('#tenjob').val(tenjob);
             $('html, body').animate({ scrollTop: $('#formContainer').offset().top }, 'slow');
         });
 
-        // Xóa
         $(document).on('click', '.btnDelete', function () {
             const majob = $(this).data('id');
             if (confirm(`Bạn có chắc muốn xóa Job "${majob}"?`)) {
                 showLoading(true);
+                console.log("[DEBUG] Gửi yêu cầu xóa Job:", majob);
+
                 $.post('/Job1/Delete', { majob }, function (res) {
                     showLoading(false);
+                    console.log("[DEBUG] Kết quả xóa Job:", res);
+
                     if (res.success) {
                         alert(res.message || "Đã xóa thành công.");
                         loadJobs();
                     } else {
                         alert(res.message || "Không thể xóa.");
                     }
-                }).fail(function () {
+                }).fail(function (err) {
                     showLoading(false);
+                    console.error("[ERROR] Xóa thất bại:", err);
                     alert("Lỗi khi gửi yêu cầu xóa.");
                 });
             }
         });
 
-        // Nút thêm mới
         $('#btnShowForm').click(function () {
             resetForm();
             $('#formContainer').toggleClass('d-none');
@@ -189,16 +203,13 @@
             }
         });
 
-        // Hủy
         $('#btnCancel').click(function () {
             $('#formContainer').addClass('d-none');
             resetForm();
         });
 
-        // Tải lại
         $('#btnLoad').click(loadJobs);
 
-        // Khi trang load
         $(document).ready(loadJobs);
     </script>
 }

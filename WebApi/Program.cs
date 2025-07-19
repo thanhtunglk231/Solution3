@@ -15,6 +15,7 @@ using DataServiceLib.unuse.Implementations;
 using DataServiceLib.unuse.Interfaces.unuse;
 using CommonLib.unuse;
 using StackExchange.Redis;
+using CoreLib.Dtos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,16 +55,17 @@ builder.Services.AddControllers()
         options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.None;
         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
     });
+// ------------------ SMTP ------------------
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
 // ------------------ Redis ------------------
-// Register IConnectionMultiplexer as Singleton
+
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
     var config = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
     return ConnectionMultiplexer.Connect(config);
 });
 
-// RedisService nên dùng IConnectionMultiplexer.GetDatabase()
 builder.Services.AddScoped<IRedisService, RedisService>();
 
 // ------------------ Swagger ------------------
@@ -71,6 +73,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // ------------------ DI Services ------------------
+builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<ICEmpDataProvider, CEmpDataProvider>();
 builder.Services.AddScoped<ICAccountDataProvider, CAccountDataProvider>();
 builder.Services.AddScoped<ICBaseDataProvider, CBaseDataProvider>();

@@ -147,7 +147,6 @@ namespace DataServiceLib.Implementations1
 
                 var result = _dataProvider.GetDatasetFromSP(SpRoute.sp_getall_job, para, _connectString);
 
-           
                 await _redisService.SetDataSetAsync(CACHE_KEY_ALL, result, TimeSpan.FromMinutes(10));
 
                 return result;

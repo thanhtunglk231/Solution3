@@ -12,5 +12,8 @@ namespace CommonLib.Interfaces
         Task<bool> SetIfNotExistsAsync<T>(string key, T value, TimeSpan? expire = null);
         Task SetDataSetAsync(string key, DataSet value, TimeSpan? expire = null);
         Task<DataSet?> GetDataSetAsync(string key);
+        Task<TimeSpan?> GetTTLAsync(string key);
+        Task<bool> ExpireAsync(string key, TimeSpan expire);
+
     }
 }

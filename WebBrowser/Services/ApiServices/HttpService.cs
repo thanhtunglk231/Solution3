@@ -113,8 +113,6 @@ namespace WebBrowser.Services.ApiServices
         }
         public async Task<T> PostAsync<T>(string url, object data)
         {
-            var startTime = DateTime.Now;
-
             try
             {
                 _errorHandler.WriteStringToFuncion(nameof(PostAsync), url);
@@ -124,46 +122,21 @@ namespace WebBrowser.Services.ApiServices
                 var jsonContent = CreateJsonContent(data);
                 var response = await _client.PostAsync(url, jsonContent);
 
-                var endTime = DateTime.Now;
-          
-
                 _errorHandler.WriteStringToFile("Response Status", response.StatusCode.ToString());
-              
 
                 var json = await response.Content.ReadAsStringAsync();
                 _errorHandler.WriteStringToFile("Response Content", json);
 
-                // Nếu API trả về object chứa "result"
-                if (typeof(T) == typeof(CResponseMessage1))
+                
+                var result = JsonConvert.DeserializeObject<T>(json);
+
+               
+                if (result is LoginResponse loginResp)
                 {
-                    var rootObj = JsonConvert.DeserializeObject<dynamic>(json);
-                    var resultToken = rootObj?.result;
-
-                    if (resultToken != null)
-                    {
-                        var resultStr = JsonConvert.SerializeObject(resultToken);
-                        var resultObj = JsonConvert.DeserializeObject<CResponseMessage1>(resultStr);
-
-                        resultObj.code ??= ((int)response.StatusCode).ToString();
-                        resultObj.Success = response.IsSuccessStatusCode;
-                        return (T)(object)resultObj;
-                    }
-
-                    return (T)(object)new CResponseMessage1
-                    {
-                        Success = false,
-                        code = ((int)response.StatusCode).ToString(),
-                        message = "Phản hồi không chứa result"
-                    };
+                    loginResp.Success = response.IsSuccessStatusCode;
                 }
 
-           
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception($"Lỗi gọi API: {response.StatusCode} - {json}");
-                }
-
-                return JsonConvert.DeserializeObject<T>(json);
+                return result;
             }
             catch (Exception ex)
             {
@@ -182,6 +155,8 @@ namespace WebBrowser.Services.ApiServices
                 return default;
             }
         }
+
+
 
 
         public async Task<string> GetRawJsonAsync(string url)
@@ -221,15 +196,11 @@ namespace WebBrowser.Services.ApiServices
 
             return new DataSet();
         }
-
         public async Task<CResponseMessage1> PutResponseAsync(string url, object data)
         {
             _errorHandler.WriteStringToFuncion("HttpService", nameof(PutResponseAsync));
             _errorHandler.WriteStringToFile("Put_URL", url);
             _errorHandler.WriteStringToFile("Put_Data", data);
-
-            Console.WriteLine($"[DEBUG] Calling PUT to URL: {url}");
-            Console.WriteLine($"[DEBUG] Data object: {JsonConvert.SerializeObject(data)}");
 
             AddBearerToken();
 
@@ -237,22 +208,14 @@ namespace WebBrowser.Services.ApiServices
             {
                 var jsonContent = CreateJsonContent(data ?? new { });
 
-                string jsonBody = await jsonContent.ReadAsStringAsync();
-                _errorHandler.WriteStringToFile("Put_JsonBody", jsonBody);
-                
-
                 var response = await _client.PutAsync(url, jsonContent);
-
-                string json = await response.Content.ReadAsStringAsync();
+                var json = await response.Content.ReadAsStringAsync();
 
                 _errorHandler.WriteStringToFile("Put_ResponseCode", ((int)response.StatusCode).ToString());
                 _errorHandler.WriteStringToFile("Put_ResponseBody", json);
 
-                
-
                 if (!response.IsSuccessStatusCode)
                 {
-                  
                     return new CResponseMessage1
                     {
                         Success = false,
@@ -261,24 +224,19 @@ namespace WebBrowser.Services.ApiServices
                     };
                 }
 
-                var wrapper = JsonConvert.DeserializeObject<ApiResponseWrapper<CResponseMessage1>>(json);
-                var result = wrapper?.result ?? new CResponseMessage1
+    
+                var result = JsonConvert.DeserializeObject<CResponseMessage1>(json);
+
+                return result ?? new CResponseMessage1
                 {
                     Success = false,
                     code = "500",
                     message = "Không đọc được dữ liệu kết quả từ API"
                 };
-
-           
-                return result;
-
-
             }
             catch (Exception ex)
             {
                 _errorHandler.WriteToFile(ex);
-               
-
                 return new CResponseMessage1
                 {
                     Success = false,
@@ -287,6 +245,7 @@ namespace WebBrowser.Services.ApiServices
                 };
             }
         }
+
 
 
         public async Task<List<T>> GetTableFromCResponseAsync<T>(string url)
@@ -301,7 +260,6 @@ namespace WebBrowser.Services.ApiServices
                 if (response?.Data == null)
                     return new List<T>();
 
-                // Convert object Data => JSON string => deserialize lại thành table object
                 var json = JsonConvert.SerializeObject(response.Data);
                 var wrapper = JsonConvert.DeserializeObject<TableWrapper<T>>(json);
 
@@ -366,13 +324,11 @@ namespace WebBrowser.Services.ApiServices
 
             try
             {
-                Console.WriteLine($"[DEBUG] Gửi yêu cầu DELETE đến: {url}");
+            
 
                 var response = await _client.DeleteAsync(url);
-                Console.WriteLine($"[DEBUG] Status code trả về: {(int)response.StatusCode}");
-
                 var json = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"[DEBUG] Nội dung JSON trả về:\n{json}");
+           
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -390,7 +346,7 @@ namespace WebBrowser.Services.ApiServices
 
                 if (result == null)
                 {
-                    Console.WriteLine("[DEBUG] Không thể parse dữ liệu từ JSON (result == null)");
+             
                     return new CResponseMessage1
                     {
                         Success = false,
@@ -404,7 +360,7 @@ namespace WebBrowser.Services.ApiServices
             catch (Exception ex)
             {
                 _errorHandler.WriteToFile(ex);
-                Console.WriteLine($"[DEBUG] Exception xảy ra khi gọi DELETE API: {ex.Message}");
+            
 
                 return new CResponseMessage1
                 {

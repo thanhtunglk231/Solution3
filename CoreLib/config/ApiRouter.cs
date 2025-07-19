@@ -23,7 +23,7 @@ namespace CoreLib.config
 
         // ===================== Department =====================
         public const string GetAllDepartments = "dep1/getalldataset";
-        public const string GetDepartmentById = "dep1/getbyiddataset/";
+        public const string GetDepartmentById = "dep1/getbyiddataset";
 
         // ===================== User & Auth =====================
         public const string Login = "login";

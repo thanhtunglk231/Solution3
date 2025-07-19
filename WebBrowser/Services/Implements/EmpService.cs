@@ -59,7 +59,7 @@ namespace WebBrowser.Services.Implements
             try
             {
                 _errorHandler.WriteStringToFuncion("EmpService", "DeleteEmployee");
-                return await _httpService.DeleteResponseAsync($"{ApiRouter.DeleteEmployee}/{manv}");
+                return await _httpService.DeleteResponseAsync($"{ApiRouter.DeleteEmployee}?manv={manv}");
             }
             catch (Exception ex)
             {
@@ -89,7 +89,8 @@ namespace WebBrowser.Services.Implements
             try
             {
                 _errorHandler.WriteStringToFuncion("EmpService", "UpdateCommission");
-                return await _httpService.PutResponseAsync($"{ApiRouter.UpdateCommission}/{manv}", null);
+                var url = $"{ApiRouter.UpdateCommission}?manv={manv}";
+                return await _httpService.PutResponseAsync(url, null);
             }
             catch (Exception ex)
             {

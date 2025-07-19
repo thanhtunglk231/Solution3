@@ -3,6 +3,7 @@ using CoreLib.config;
 using CoreLib.Dtos;
 using CoreLib.Models;
 using Microsoft.Extensions.Configuration;
+using WebBrowser.Models;
 using WebBrowser.Services.ApiServices;
 using WebBrowser.Services.Interfaces;
 
@@ -51,21 +52,66 @@ namespace WebBrowser.Services.Implements
             }
         }
 
-        public async Task<LoginResponse?> Register(string username, string password)
+
+        public async Task<LoginResponse?> SendOtp(InputStringDto input)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(LoginService), nameof(SendOtp));
+
+                var url = _baseUrl + "login/send";
+
+              
+                var result = await _httpService.PostAsync<LoginResponse>(url, input);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return new LoginResponse
+                {
+                    Code = "500",
+                    Message = "Lỗi gửi OTP",
+                    Success = false
+                };
+            }
+        }
+        public async Task<LoginResponse?> VerifyOtp(VerifyOtpRequest verifyOtp)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(LoginService), nameof(VerifyOtp));
+
+                var url = _baseUrl + "login/verify-otp";
+
+             
+                var result = await _httpService.PostAsync<LoginResponse>(url, verifyOtp);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return new LoginResponse
+                {
+                    Code = "500",
+                    Message = "Lỗi xác thực OTP",
+                    Success = false
+                };
+            }
+        }
+
+
+        public async Task<LoginResponse?> Register(RegisterDto registerDto)
         {
             try
             {
                 _errorHandler.WriteStringToFuncion(nameof(LoginService), nameof(Register));
 
-                var request = new LoginRequest
-                {
-                    username = username,
-                    password = password
-                };
-
                 var url = _baseUrl + ApiRouter.Register;
 
-                var result = await _httpService.PostAsync<LoginResponse>(url, request);
+                var result = await _httpService.PostAsync<LoginResponse>(url, registerDto);
 
                 return result;
             }
@@ -80,5 +126,6 @@ namespace WebBrowser.Services.Implements
                 };
             }
         }
+
     }
 }

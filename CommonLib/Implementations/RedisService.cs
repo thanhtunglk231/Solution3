@@ -26,6 +26,7 @@ namespace CommonLib.Implementations
         {
             try
             {
+                _errorHandler.WriteStringToFuncion(nameof(RedisService), nameof(GetDataSetAsync));
                 var value = await _db.StringGetAsync(key);
                 return value.HasValue ? JsonConvert.DeserializeObject<DataSet>(value) : null;
             }
@@ -40,6 +41,7 @@ namespace CommonLib.Implementations
         {
             try
             {
+                _errorHandler.WriteStringToFuncion(nameof(RedisService), nameof(SetDataSetAsync));
                 var json = JsonConvert.SerializeObject(value);
                 await _db.StringSetAsync(key, json, expire);
             }
@@ -55,6 +57,7 @@ namespace CommonLib.Implementations
         {
             try
             {
+                _errorHandler.WriteStringToFuncion(nameof(RedisService), nameof(GetListAsync));
                 var value = await _db.StringGetAsync(key);
                 if (value.HasValue)
                 {
@@ -64,7 +67,7 @@ namespace CommonLib.Implementations
             catch (Exception ex)
             {
                 _errorHandler.WriteToFile(ex);
-                _errorHandler.WriteStringToFuncion(nameof(RedisService), nameof(GetListAsync));
+               
             }
 
             return null;
@@ -75,6 +78,7 @@ namespace CommonLib.Implementations
         {
             try
             {
+                _errorHandler.WriteStringToFuncion(nameof(RedisService), nameof(GetObjectAsync));
                 var value = await _db.StringGetAsync(key);
                 if (value.HasValue)
                 {
@@ -95,6 +99,7 @@ namespace CommonLib.Implementations
         {
             try
             {
+                _errorHandler.WriteStringToFuncion(nameof(RedisService), nameof(SetAsync));
                 var json = JsonConvert.SerializeObject(value);
                 await _db.StringSetAsync(key, json, expire);
             }
@@ -109,6 +114,7 @@ namespace CommonLib.Implementations
         {
             try
             {
+                _errorHandler.WriteStringToFuncion(nameof(RedisService), nameof(ExistsAsync));
                 return await _db.KeyExistsAsync(key);
             }
             catch (Exception ex)
@@ -123,6 +129,7 @@ namespace CommonLib.Implementations
         {
             try
             {
+                _errorHandler.WriteStringToFuncion(nameof(RedisService), nameof(SetIfNotExistsAsync));
                 var json = JsonConvert.SerializeObject(value);
                 return await _db.StringSetAsync(key, json, expire, When.NotExists);
             }
@@ -138,6 +145,7 @@ namespace CommonLib.Implementations
         {
             try
             {
+                _errorHandler.WriteStringToFuncion(nameof(RedisService), nameof(DeleteAsync));
                 await _db.KeyDeleteAsync(key);
             }
             catch (Exception ex)
@@ -146,5 +154,36 @@ namespace CommonLib.Implementations
                 _errorHandler.WriteStringToFuncion(nameof(RedisService), nameof(DeleteAsync));
             }
         }
+        // Lấy thời gian sống còn lại của key
+        public async Task<TimeSpan?> GetTTLAsync(string key)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(RedisService), nameof(GetTTLAsync));
+                var ttl = await _db.KeyTimeToLiveAsync(key);
+                return ttl;
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return null;
+            }
+        }
+
+        // Cập nhật thời gian sống cho một key
+        public async Task<bool> ExpireAsync(string key, TimeSpan expire)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(RedisService), nameof(ExpireAsync));
+                return await _db.KeyExpireAsync(key, expire);
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return false;
+            }
+        }
+
     }
 }

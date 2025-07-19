@@ -76,7 +76,7 @@ namespace WebBrowser.Services.Implementations
 
             try
             {
-                var dt = await _httpService.GetDataTableAsync($"{ApiRouter.GetDepartmentById}{id}");
+                var dt = await _httpService.GetDataTableAsync($"{ApiRouter.GetDepartmentById}?id={id}");
                 return _dataConvertHelper.ConvertToList<DepartmentDto>(dt);
             }
             catch (Exception ex)
