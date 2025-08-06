@@ -80,8 +80,12 @@ namespace WebBrowser.Services.Implements
         {
             try
             {
-                _errorHandler.WriteStringToFuncion("AccountService", nameof(getall));
-                return await _httpService.GetTableFromCResponseAsync<UserPermissionDto>("Account/getUser");
+                _errorHandler.WriteStringToFuncion("AccountService", nameof(getUSer));
+
+                var result = await _httpService.GetTableFromCResponseAsync<UserPermissionDto>("Account/getUser");
+
+                
+                return result;
             }
             catch (Exception ex)
             {
@@ -89,6 +93,7 @@ namespace WebBrowser.Services.Implements
                 return new List<UserPermissionDto>();
             }
         }
+
 
     }
 }

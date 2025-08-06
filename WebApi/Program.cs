@@ -2,20 +2,23 @@
 using CommonLib.Helpers;
 using CommonLib.Implementations;
 using CommonLib.Interfaces;
+using CommonLib.unuse;
+using CoreLib.Dtos;
+
+using DataServiceLib.Hubs;
 using DataServiceLib.Implementations;
 using DataServiceLib.Implementations1;
 using DataServiceLib.Interfaces;
 using DataServiceLib.Interfaces1;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Serilog;
-using System.Text;
-using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using DataServiceLib.unuse.Implementations;
 using DataServiceLib.unuse.Interfaces.unuse;
-using CommonLib.unuse;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
+using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using StackExchange.Redis;
-using CoreLib.Dtos;
+using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -90,6 +93,9 @@ builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IErrorHandler, ErrorHandler>();
 builder.Services.AddScoped<DataTableHelper>();
 builder.Services.AddSingleton<ISerilogProvider, SerilogProvider>();
+builder.Services.AddScoped<ICChat, CChat>();
+builder.Services.AddSignalR();
+
 
 // ------------------ Build & Run App ------------------
 var app = builder.Build();
@@ -101,10 +107,18 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
+
+app.UseRouting();             // ✅ Bắt buộc: Trước Auth
+app.UseAuthentication();      // ✅ JWT Auth
+app.UseAuthorization();       // ✅ Cho [Authorize]
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();             // ✅ Controller
+    endpoints.MapHub<ChatHub>("/chathub");  // ✅ SignalR
+});
 
 Log.Information("Phía backend...");
 
 app.Run();
+
