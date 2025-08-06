@@ -6,6 +6,7 @@ namespace WebBrowser.Services.ApiServices
     public interface IHttpService
     {
         Task<CResponseMessage1> DeleteResponseAsync(string url);
+        Task<T> GetAsync<T>(string url);
         Task<DataRow> GetDataRowAsync(string url);
         Task<DataSet> GetDataSetFromResponseAsync(string url);
         Task<DataTable> GetDataTableAsync(string url);

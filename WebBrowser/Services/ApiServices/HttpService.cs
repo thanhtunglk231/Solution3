@@ -88,62 +88,82 @@ namespace WebBrowser.Services.ApiServices
             return await PostAsync<CResponseMessage1>(url, data);
         }
 
-        private async Task<T> GetAsync<T>(string url)
+        public async Task<T> GetAsync<T>(string url)
         {
+            Console.WriteLine($"🟢 [HttpService] -> GetAsync called with URL: {url}");
             _errorHandler.WriteStringToFuncion("HttpService", nameof(GetAsync));
             AddBearerToken();
 
             try
             {
+                Console.WriteLine($"🔵 [HttpService] -> Sending GET request to: {url}");
                 var response = await _client.GetAsync(url);
+
+                Console.WriteLine($"🟡 [HttpService] -> Response Status: {response.StatusCode}");
+
                 var json = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"🟠 [HttpService] -> Response Content: {json}");
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    throw new Exception($"Lỗi API: {response.StatusCode} - {json}");
+                    var errorMsg = $"Lỗi API: {response.StatusCode} - {json}";
+                    Console.WriteLine($"🔴 [HttpService] -> Error: {errorMsg}");
+                    throw new Exception(errorMsg);
                 }
 
-                return JsonConvert.DeserializeObject<T>(json);
+                var result = JsonConvert.DeserializeObject<T>(json);
+                Console.WriteLine($"✅ [HttpService] -> Deserialized Result: {result}");
+
+                return result;
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"❌ [HttpService] -> Exception: {ex.Message}");
                 _errorHandler.WriteToFile(ex);
                 throw;
             }
         }
+
         public async Task<T> PostAsync<T>(string url, object data)
         {
             try
             {
+                Console.WriteLine($"🟢 [HttpService] -> PostAsync called with URL: {url}");
                 _errorHandler.WriteStringToFuncion(nameof(PostAsync), url);
                 _errorHandler.WriteStringToFile("POST Data", data);
+                Console.WriteLine($"📦 [HttpService] -> POST Body Data: {JsonConvert.SerializeObject(data)}");
+
                 AddBearerToken();
 
                 var jsonContent = CreateJsonContent(data);
                 var response = await _client.PostAsync(url, jsonContent);
 
+                Console.WriteLine($"🟡 [HttpService] -> Response Status: {response.StatusCode}");
                 _errorHandler.WriteStringToFile("Response Status", response.StatusCode.ToString());
 
                 var json = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"🟠 [HttpService] -> Response Content: {json}");
                 _errorHandler.WriteStringToFile("Response Content", json);
 
-                
                 var result = JsonConvert.DeserializeObject<T>(json);
+                Console.WriteLine($"✅ [HttpService] -> Deserialized Result Type: {typeof(T).Name}");
 
-               
                 if (result is LoginResponse loginResp)
                 {
                     loginResp.Success = response.IsSuccessStatusCode;
+                    Console.WriteLine($"🔐 [HttpService] -> LoginResponse Success = {loginResp.Success}");
                 }
 
                 return result;
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"❌ [HttpService] -> Exception: {ex.Message}");
                 _errorHandler.WriteToFile(ex);
 
                 if (typeof(T) == typeof(CResponseMessage1))
                 {
+                    Console.WriteLine("⚠️ [HttpService] -> Returning fallback CResponseMessage1 due to exception.");
                     return (T)(object)new CResponseMessage1
                     {
                         Success = false,
