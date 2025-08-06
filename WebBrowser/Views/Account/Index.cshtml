@@ -64,12 +64,15 @@
                     const grouped = {};
                     users.forEach(u => {
                         if (!grouped[u.username]) grouped[u.username] = [];
-                        grouped[u.username].push(u.permission_Code);
+                        if (u.permission_Code) grouped[u.username].push(u.permission_Code);
                     });
 
                     currentUserPermissions = grouped;
 
-                    Object.entries(grouped).forEach(([username, perms]) => {
+                    const allUsernames = [...new Set(users.map(u => u.username))];
+
+                    allUsernames.forEach(username => {
+                        const perms = grouped[username] || [];
                         const options = allPermissions.map(p => `<option value="${p.permission_Code}">${p.permission_Code}</option>`).join("");
 
                         const row = `
@@ -132,15 +135,12 @@
                 contentType: 'application/json',
                 data: JSON.stringify(payload),
                 success: function (res) {
-                    console.log(res)
                     if (res.code === "200" || res.success === true) {
                         alert(res.message || "Thêm quyền thành công.");
                         loadUsersWithPermissions();
-                    } 
-                    else if(res.code=="403"){
-                        alert( "Không có quyền ");
-                    }
-                    else {
+                    } else if (res.code === "403") {
+                        alert("Không có quyền.");
+                    } else {
                         alert(res.message || "Cập nhật thất bại.");
                     }
                 },
@@ -159,17 +159,14 @@
                 contentType: 'application/json',
                 data: JSON.stringify({ username, Permission_Code: permission_Code }),
                 success: function (res) {
-                    console.log(res)
                     if (res.code === "200" || res.success === true) {
                         alert(res.message || "Gỡ quyền thành công.");
                         loadUsersWithPermissions();
                         const modal = bootstrap.Modal.getInstance(document.getElementById('permissionModal'));
                         modal.hide();
-                    }
-                    else if(res.code=="403"){
-                        alert( "Không có quyền ");
-                    }
-                    else {
+                    } else if (res.code === "403") {
+                        alert("Không có quyền.");
+                    } else {
                         alert(res.message || "Gỡ quyền thất bại.");
                     }
                 },
