@@ -41,7 +41,7 @@ builder.Services.AddScoped<IEmpService, EmpService>();
 builder.Services.AddScoped<IJob1Service, Job1Service>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<ICBaseDataProvider1, CBaseDataProvider1>();
-
+builder.Services.AddScoped<IFileService, FileService>();
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {

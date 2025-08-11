@@ -19,8 +19,10 @@ namespace WebBrowser.Models
             public DateTime SentAt { get; set; }
 
             [JsonProperty("groupId")]
-            public string GroupId { get; set; } // nếu có
-        
+            public string GroupId { get; set; }
+
+        [JsonProperty("attachmenT_URL")] // thêm cột attachment_url
+        public string AttachmentUrl { get; set; }
 
     }
 }

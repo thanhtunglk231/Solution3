@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DataServiceLib.Implementations1
@@ -20,8 +19,6 @@ namespace DataServiceLib.Implementations1
         private readonly string _connectString;
         private readonly IErrorHandler _errorHandler;
         private readonly IRedisService _redisService;
-
-
 
         public CChat(
             ICBaseDataProvider1 cBaseDataProvider1,
@@ -41,14 +38,12 @@ namespace DataServiceLib.Implementations1
             {
                 _errorHandler.WriteStringToFuncion(nameof(CChat), nameof(get_messages_in_group));
 
-             
                 var p_group_id = new OracleParameter("p_group_id", OracleDbType.Varchar2)
                 {
                     Direction = ParameterDirection.Input,
                     Value = groupId.groupId
                 };
 
-                
                 var o_cursor = new OracleParameter("o_cursor", OracleDbType.RefCursor)
                 {
                     Direction = ParameterDirection.Output
@@ -64,12 +59,10 @@ namespace DataServiceLib.Implementations1
                     Direction = ParameterDirection.Output
                 };
 
-                // Gọi stored procedure
                 var parameters = new OracleParameter[] { p_group_id, o_cursor, o_code, o_message };
 
                 var dataset = _dataProvider.GetDatasetFromSP("sp_get_group_members", parameters, _connectString);
 
-                // Tạo kết quả trả về
                 var response = new CResponseMessage1
                 {
                     Data = dataset,
@@ -92,13 +85,11 @@ namespace DataServiceLib.Implementations1
             }
         }
 
-
         public async Task<CResponseMessage1> remove_user_from_group(addUserToGroup groupId)
         {
             try
             {
                 _errorHandler.WriteStringToFuncion(nameof(CChat), nameof(get_messages_in_group));
-
 
                 var p_group_id = new OracleParameter("p_group_id", OracleDbType.Varchar2)
                 {
@@ -111,9 +102,6 @@ namespace DataServiceLib.Implementations1
                     Value = groupId.username
                 };
 
-
-           
-
                 var o_code = new OracleParameter("o_code", OracleDbType.Varchar2, 10)
                 {
                     Direction = ParameterDirection.Output
@@ -124,12 +112,10 @@ namespace DataServiceLib.Implementations1
                     Direction = ParameterDirection.Output
                 };
 
-                // Gọi stored procedure
                 var parameters = new OracleParameter[] { p_group_id, p_username, o_code, o_message };
 
                 var dataset = _dataProvider.GetDatasetFromSP("sp_remove_user_from_group", parameters, _connectString);
 
-                // Tạo kết quả trả về
                 var response = new CResponseMessage1
                 {
                     Data = dataset,
@@ -158,14 +144,12 @@ namespace DataServiceLib.Implementations1
             {
                 _errorHandler.WriteStringToFuncion(nameof(CChat), nameof(get_messages_in_group));
 
-                // Khai báo tham số đầu vào
                 var p_group_id = new OracleParameter("p_group_id", OracleDbType.Varchar2)
                 {
                     Direction = ParameterDirection.Input,
                     Value = request.groupId
                 };
 
-                // Khai báo các tham số đầu ra
                 var o_cursor = new OracleParameter("o_cursor", OracleDbType.RefCursor)
                 {
                     Direction = ParameterDirection.Output
@@ -181,15 +165,63 @@ namespace DataServiceLib.Implementations1
                     Direction = ParameterDirection.Output
                 };
 
-                // Gọi stored procedure
                 var parameters = new OracleParameter[] { p_group_id, o_cursor, o_code, o_message };
 
                 var dataset = _dataProvider.GetDatasetFromSP("sp_get_messages_in_group", parameters, _connectString);
 
-                // Tạo kết quả trả về
                 var response = new CResponseMessage1
                 {
                     Data = dataset,
+                    code = o_code.Value?.ToString() ?? "400",
+                    message = o_message.Value?.ToString() ?? "Không lấy được phản hồi",
+                    Success = (o_code.Value?.ToString() == "200")
+                };
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return new CResponseMessage1
+                {
+                    Success = false,
+                    code = "500",
+                    message = "Lỗi server: " + ex.Message
+                };
+            }
+        }
+
+        public async Task<CResponseMessage1> Delete_Message(string message_Id)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(CChat), nameof(Delete_Message));
+
+                var p_message_id = new OracleParameter("p_message_id ", OracleDbType.Varchar2)
+                {
+                    Direction = ParameterDirection.Input,
+                    Value = message_Id
+                };
+
+              
+
+                var o_code = new OracleParameter("o_code", OracleDbType.Varchar2, 10)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                var o_message = new OracleParameter("o_message", OracleDbType.Varchar2, 4000)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                var parameters = new OracleParameter[] { p_message_id, o_code, o_message };
+
+                var dataset = _dataProvider.GetDatasetFromSP("sp_delete_chat_message", parameters, _connectString);
+
+                var response = new CResponseMessage1
+                {
+                    
                     code = o_code.Value?.ToString() ?? "400",
                     message = o_message.Value?.ToString() ?? "Không lấy được phản hồi",
                     Success = (o_code.Value?.ToString() == "200")
@@ -247,18 +279,21 @@ namespace DataServiceLib.Implementations1
             }
         }
 
-
         public async Task<CResponseMessage1> search_users_by_username(string username)
         {
             try
             {
                 _errorHandler.WriteStringToFuncion(nameof(CChat), nameof(search_users_by_username));
+
                 var p_username = new OracleParameter("p_username_pattern", OracleDbType.Varchar2) { Value = username };
                 var o_cursor = new OracleParameter("o_cursor", OracleDbType.RefCursor) { Direction = ParameterDirection.Output };
                 var o_code = new OracleParameter("o_code", OracleDbType.Varchar2, 10) { Direction = ParameterDirection.Output };
                 var o_message = new OracleParameter("o_message", OracleDbType.Varchar2, 4000) { Direction = ParameterDirection.Output };
+
                 var para = new OracleParameter[] { p_username, o_cursor, o_code, o_message };
+
                 var dataset = _dataProvider.GetDatasetFromSP("sp_search_users_by_username", para, _connectString);
+
                 var response = new CResponseMessage1
                 {
                     Data = dataset,
@@ -279,20 +314,23 @@ namespace DataServiceLib.Implementations1
                 };
             }
         }
-
 
         public async Task<CResponseMessage1> get_group_chat_by_user(GetGroupChatbyuserDto getGroupChatbyuserDto)
         {
             try
             {
                 _errorHandler.WriteStringToFile(nameof(CChat), nameof(get_group_chat_by_user));
+
                 var p_username = new OracleParameter("p_username", OracleDbType.Varchar2) { Value = getGroupChatbyuserDto.username };
                 var p_group_id = new OracleParameter("p_group_id", OracleDbType.Varchar2) { Value = getGroupChatbyuserDto.GroupID };
                 var o_cursor = new OracleParameter("o_cursor", OracleDbType.RefCursor) { Direction = ParameterDirection.Output };
                 var o_code = new OracleParameter("o_code", OracleDbType.Varchar2, 10) { Direction = ParameterDirection.Output };
                 var o_message = new OracleParameter("o_message", OracleDbType.Varchar2, 4000) { Direction = ParameterDirection.Output };
+
                 var para = new OracleParameter[] { p_username, p_group_id, o_cursor, o_code, o_message };
+
                 var dataset = _dataProvider.GetDatasetFromSP("sp_get_group_chat_by_user", para, _connectString);
+
                 var response = new CResponseMessage1
                 {
                     Data = dataset,
@@ -314,19 +352,21 @@ namespace DataServiceLib.Implementations1
             }
         }
 
-
-
         public async Task<CResponseMessage1> AddUsertoGroup(addUserToGroup addUserToGroup)
         {
             try
             {
                 _errorHandler.WriteStringToFile(nameof(CChat), nameof(create_chat_group));
+
                 var p_group_name = new OracleParameter("p_group_id", OracleDbType.Varchar2) { Value = addUserToGroup.groupId };
-                var o_group_id = new OracleParameter("p_username", OracleDbType.Varchar2) { Value=addUserToGroup.username };
+                var o_group_id = new OracleParameter("p_username", OracleDbType.Varchar2) { Value = addUserToGroup.username };
                 var o_code = new OracleParameter("o_code", OracleDbType.Varchar2, 10) { Direction = ParameterDirection.Output };
                 var o_message = new OracleParameter("o_message", OracleDbType.Varchar2, 4000) { Direction = ParameterDirection.Output };
+
                 var para = new OracleParameter[] { p_group_name, o_group_id, o_code, o_message };
+
                 var dataset = _dataProvider.GetDatasetFromSP("sp_add_user_to_group", para, _connectString);
+
                 var response = new CResponseMessage1
                 {
                     Data = dataset,
@@ -394,18 +434,21 @@ namespace DataServiceLib.Implementations1
             }
         }
 
-
         public async Task<CResponseMessage1> create_chat_group(CreateGroupChatDto createGroupChatDto)
         {
             try
             {
                 _errorHandler.WriteStringToFile(nameof(CChat), nameof(create_chat_group));
+
                 var p_group_name = new OracleParameter("p_group_name", OracleDbType.Varchar2) { Value = createGroupChatDto.groupName };
                 var o_group_id = new OracleParameter("o_group_id", OracleDbType.Varchar2) { Direction = ParameterDirection.Output };
                 var o_code = new OracleParameter("o_code", OracleDbType.Varchar2, 10) { Direction = ParameterDirection.Output };
                 var o_message = new OracleParameter("o_message", OracleDbType.Varchar2, 4000) { Direction = ParameterDirection.Output };
+
                 var para = new OracleParameter[] { p_group_name, o_group_id, o_code, o_message };
+
                 var dataset = _dataProvider.GetDatasetFromSP("sp_create_chat_group", para, _connectString);
+
                 var response = new CResponseMessage1
                 {
                     Data = dataset,
@@ -427,8 +470,6 @@ namespace DataServiceLib.Implementations1
                 };
             }
         }
-
-
 
         public async Task<CResponseMessage1> get_all_users_except(string username)
         {
@@ -440,8 +481,11 @@ namespace DataServiceLib.Implementations1
                 var o_cursor = new OracleParameter("o_cursor", OracleDbType.RefCursor) { Direction = ParameterDirection.Output };
                 var o_code = new OracleParameter("o_code", OracleDbType.Varchar2, 10) { Direction = ParameterDirection.Output };
                 var o_message = new OracleParameter("o_message", OracleDbType.Varchar2, 4000) { Direction = ParameterDirection.Output };
+
                 var para = new OracleParameter[] { p_current_username, o_cursor, o_code, o_message };
+
                 var dataset = _dataProvider.GetDatasetFromSP("sp_get_all_users_except_current", para, _connectString);
+
                 var response = new CResponseMessage1
                 {
                     Data = dataset,
@@ -451,7 +495,7 @@ namespace DataServiceLib.Implementations1
                 };
                 return response;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _errorHandler.WriteToFile(ex);
                 return new CResponseMessage1
@@ -463,7 +507,6 @@ namespace DataServiceLib.Implementations1
 
             }
         }
-
 
         public async Task<CResponseMessage1> GetGroupsByUser(string username)
         {
@@ -475,8 +518,11 @@ namespace DataServiceLib.Implementations1
                 var o_cursor = new OracleParameter("o_cursor", OracleDbType.RefCursor) { Direction = ParameterDirection.Output };
                 var o_code = new OracleParameter("o_code", OracleDbType.Varchar2, 10) { Direction = ParameterDirection.Output };
                 var o_message = new OracleParameter("o_message", OracleDbType.Varchar2, 4000) { Direction = ParameterDirection.Output };
+
                 var para = new OracleParameter[] { p_current_username, o_cursor, o_code, o_message };
+
                 var dataset = _dataProvider.GetDatasetFromSP("sp_get_groups_by_user", para, _connectString);
+
                 var response = new CResponseMessage1
                 {
                     Data = dataset,
@@ -486,7 +532,7 @@ namespace DataServiceLib.Implementations1
                 };
                 return response;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _errorHandler.WriteToFile(ex);
                 return new CResponseMessage1
@@ -498,42 +544,103 @@ namespace DataServiceLib.Implementations1
 
             }
         }
+
+        /// <summary>
+        /// Gọi sp_add_chat_message nhiều lần tương ứng số lượng URL.
+        /// - Nếu có property AttachmentUrls (IEnumerable&lt;string&gt;): lặp theo danh sách này.
+        /// - Nếu không có, dùng AttachmentUrl đơn lẻ.
+        /// - Nếu không có URL nào: gọi 1 lần với p_url = NULL.
+        /// </summary>
         public async Task<(bool success, string code, string message)> SaveMessageAsync(ChatMessageDto dto)
         {
             try
             {
                 _errorHandler.WriteStringToFuncion(nameof(CChat), nameof(SaveMessageAsync));
 
-                using var conn = new OracleConnection(_connectString);
-                using var cmd = new OracleCommand("sp_add_chat_message", conn)
+                // Gom danh sách URL một cách an toàn (hỗ trợ cả AttachmentUrl & AttachmentUrls nếu có)
+                var urls = new List<string>();
+
+                if (!string.IsNullOrWhiteSpace(dto?.AttachmentUrl))
+                    urls.Add(dto.AttachmentUrl);
+
+                // Dùng reflection để không phụ thuộc compile nếu DTO chưa có AttachmentUrls
+                var prop = dto?.GetType().GetProperty("AttachmentUrls");
+                if (prop != null)
                 {
-                    CommandType = CommandType.StoredProcedure
-                };
+                    var enumerable = prop.GetValue(dto) as System.Collections.IEnumerable;
+                    if (enumerable != null)
+                    {
+                        foreach (var item in enumerable)
+                        {
+                            var s = item?.ToString();
+                            if (!string.IsNullOrWhiteSpace(s)) urls.Add(s);
+                        }
+                    }
+                }
 
-                cmd.Parameters.Add("p_sender_username", OracleDbType.Varchar2).Value = dto.SenderUsername;
-                cmd.Parameters.Add("p_receiver_username", OracleDbType.Varchar2).Value = (object?)dto.ReceiverUsername ?? DBNull.Value;
-                cmd.Parameters.Add("p_group_id", OracleDbType.Varchar2).Value = (object?)dto.GroupId ?? DBNull.Value;
-                cmd.Parameters.Add("p_message_text", OracleDbType.Varchar2).Value = dto.MessageText;
+                bool allSuccess = true;
+                string lastCode = "200";
+                string lastMessage = "OK";
 
-                var o_code = new OracleParameter("o_code", OracleDbType.Varchar2, 10)
+                using (var conn = new OracleConnection(_connectString))
+                using (var cmd = new OracleCommand("sp_add_chat_message", conn) { CommandType = CommandType.StoredProcedure })
                 {
-                    Direction = ParameterDirection.Output
-                };
-                var o_message = new OracleParameter("o_message", OracleDbType.Varchar2, 4000)
-                {
-                    Direction = ParameterDirection.Output
-                };
+                    // Khai báo tham số 1 lần
+                    var pSender = cmd.Parameters.Add("p_sender_username", OracleDbType.Varchar2);
+                    var pReceiver = cmd.Parameters.Add("p_receiver_username", OracleDbType.Varchar2);
+                    var pGroupId = cmd.Parameters.Add("p_group_id", OracleDbType.Varchar2);
+                    var pText = cmd.Parameters.Add("p_message_text", OracleDbType.Varchar2);
+                    var pUrl = cmd.Parameters.Add("p_url", OracleDbType.Varchar2);
 
-                cmd.Parameters.Add(o_code);
-                cmd.Parameters.Add(o_message);
+                    var oCode = new OracleParameter("o_code", OracleDbType.Varchar2, 10) { Direction = ParameterDirection.Output };
+                    var oMessage = new OracleParameter("o_message", OracleDbType.Varchar2, 4000) { Direction = ParameterDirection.Output };
+                    cmd.Parameters.Add(oCode);
+                    cmd.Parameters.Add(oMessage);
 
-                await conn.OpenAsync();
-                await cmd.ExecuteNonQueryAsync();
+                    await conn.OpenAsync();
 
-                string code = o_code.Value?.ToString() ?? "500";
-                string message = o_message.Value?.ToString() ?? "Không lấy được phản hồi";
+                    // Hàm local để set & gọi
+                    async Task<(bool ok, string code, string msg)> ExecOnceAsync(string urlOrNull)
+                    {
+                        pSender.Value = dto?.SenderUsername ?? (object)DBNull.Value;
+                        pReceiver.Value = string.IsNullOrWhiteSpace(dto?.ReceiverUsername) ? (object)DBNull.Value : dto.ReceiverUsername;
+                        pGroupId.Value = string.IsNullOrWhiteSpace(dto?.GroupId) ? (object)DBNull.Value : dto.GroupId;
+                        pText.Value = dto?.MessageText ?? string.Empty;
+                        pUrl.Value = string.IsNullOrWhiteSpace(urlOrNull) ? (object)DBNull.Value : urlOrNull;
 
-                return (code == "200", code, message);
+                        // reset output buffer (Oracle driver sẽ set lại khi exec)
+                        oCode.Value = DBNull.Value;
+                        oMessage.Value = DBNull.Value;
+
+                        await cmd.ExecuteNonQueryAsync();
+
+                        var code = oCode.Value?.ToString() ?? "500";
+                        var msg = oMessage.Value?.ToString() ?? "Không lấy được phản hồi";
+                        return (code == "200", code, msg);
+                    }
+
+                    if (urls.Count == 0)
+                    {
+                        // Không có URL -> gọi 1 lần (url = null)
+                        var (ok, code, msg) = await ExecOnceAsync(null);
+                        allSuccess = ok;
+                        lastCode = code;
+                        lastMessage = msg;
+                    }
+                    else
+                    {
+                        // Có nhiều URL -> gọi lặp, mỗi lần 1 URL
+                        foreach (var u in urls)
+                        {
+                            var (ok, code, msg) = await ExecOnceAsync(u);
+                            if (!ok) allSuccess = false;
+                            lastCode = code;
+                            lastMessage = msg;
+                        }
+                    }
+                }
+
+                return (allSuccess, lastCode, lastMessage);
             }
             catch (Exception ex)
             {
@@ -541,6 +648,5 @@ namespace DataServiceLib.Implementations1
                 return (false, "500", "Lỗi khi gửi tin nhắn: " + ex.Message);
             }
         }
-
     }
 }

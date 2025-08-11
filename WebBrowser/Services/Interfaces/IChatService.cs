@@ -16,5 +16,6 @@ namespace WebBrowser.Services.Interfaces
         Task<ApiResponse123> getMessagesinGroup(getMessagesinGroup username);
         Task<ApiResponse123> GetGroupMenbers(GetGroupMembersRequest username);
         Task<ApiResponse123> RemoveGroupMembers(addUserToGroup dto);
+        Task<ApiResponse123> DeleteMessage(string MessageId);
     }
 }
