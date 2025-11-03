@@ -6,6 +6,7 @@ using CoreLib.Models;
 using DataServiceLib.Interfaces1;
 using Microsoft.Extensions.Configuration;
 using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Types;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -256,6 +257,188 @@ namespace DataServiceLib.Implementations1
             }
         }
 
+        public async Task<(bool IsEnabled, string SecretBase32, DateTimeOffset? LockedUntil)>
+  GetTotpInfoAsync(string username)
+        {
+            try
+            {
+                var p_user = new OracleParameter("p_username", OracleDbType.Varchar2)
+                {
+                    Direction = ParameterDirection.Input,
+                    Value = username
+                };
+
+                var o_is_enabled = new OracleParameter("o_is_enabled", OracleDbType.Decimal)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                var o_secret = new OracleParameter("o_secret", OracleDbType.Varchar2, 256)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                var o_locked_until = new OracleParameter("o_locked_until", OracleDbType.TimeStampTZ)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                var para = new IDbDataParameter[] { p_user, o_is_enabled, o_secret, o_locked_until };
+
+                var resp = _dataProvider.GetResponseFromExecutedSP("sp_get_totp_info", para, _connectString);
+                if ((resp.code ?? "").Trim() != "200")
+                    return (false, null, null);
+
+                // ✅ CHỖ GÂY LỖI: ép kiểu OracleDecimal trước khi lấy số
+                int enabledInt = 0;
+                if (o_is_enabled.Value != null && o_is_enabled.Value != DBNull.Value)
+                {
+                    var od = (OracleDecimal)o_is_enabled.Value;
+                    enabledInt = od.IsNull ? 0 : od.ToInt32();
+                }
+                bool enabled = (enabledInt == 1);
+
+                string secret = o_secret.Value?.ToString();
+
+                DateTimeOffset? locked = null;
+                if (o_locked_until.Value != null && o_locked_until.Value != DBNull.Value)
+                {
+                    var ts = (OracleTimeStampTZ)o_locked_until.Value;
+                    locked = ts.IsNull ? null : ts.Value;
+                }
+
+                return (enabled, secret, locked);
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return (false, null, null);
+            }
+        }
+
+
+
+
+        public async Task EnableTotpAsync(string username, string secretBase32)
+        {
+            try
+            {
+                var p_user = new OracleParameter("p_username", OracleDbType.Varchar2)
+                {
+                    Direction = ParameterDirection.Input,
+                    Value = username
+                };
+                var p_secret = new OracleParameter("p_secret", OracleDbType.Varchar2)
+                {
+                    Direction = ParameterDirection.Input,
+                    Value = secretBase32
+                };
+
+                var para = new IDbDataParameter[] { p_user, p_secret };
+
+                var resp = _dataProvider.GetResponseFromExecutedSP("sp_enable_totp", para, _connectString);
+
+                if ((resp.code ?? "").Trim() != "200")
+                    throw new Exception("Enable TOTP failed: " + (resp.message ?? ""));
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                throw;
+            }
+        }
+
+
+
+        public async Task TotpSuccessAsync(string username)
+        {
+            try
+            {
+                var p_user = new OracleParameter("p_username", OracleDbType.Varchar2)
+                {
+                    Direction = ParameterDirection.Input,
+                    Value = username
+                };
+
+                var para = new IDbDataParameter[] { p_user };
+
+                var resp = _dataProvider.GetResponseFromExecutedSP("sp_totp_success", para, _connectString);
+
+                var code = (resp.code ?? "").Trim();
+                var msg = (resp.message ?? "").Trim();
+
+                if (code != "200")
+                    _errorHandler.WriteStringToFuncion("sp_totp_success", msg);
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                throw;
+            }
+        }
+
+
+
+        public async Task<(int FailCount, DateTimeOffset? LockedUntil)>
+TotpFailIncreaseAsync(string username, int maxAttempts = 5, int lockMinutes = 10)
+        {
+            try
+            {
+                var p_user = new OracleParameter("p_username", OracleDbType.Varchar2)
+                {
+                    Direction = ParameterDirection.Input,
+                    Value = username
+                };
+
+                var p_max = new OracleParameter("p_max_attempts", OracleDbType.Int32)
+                {
+                    Direction = ParameterDirection.Input,
+                    Value = maxAttempts
+                };
+
+                var p_lock = new OracleParameter("p_lock_minutes", OracleDbType.Int32)
+                {
+                    Direction = ParameterDirection.Input,
+                    Value = lockMinutes
+                };
+
+                // ✅ dùng Decimal + đọc OracleDecimal
+                var o_fail = new OracleParameter("o_fail_count", OracleDbType.Decimal)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                var o_until = new OracleParameter("o_locked_until", OracleDbType.TimeStampTZ)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                var para = new IDbDataParameter[] { p_user, p_max, p_lock, o_fail, o_until };
+
+                var resp = _dataProvider.GetResponseFromExecutedSP("sp_mfa_fail_inc", para, _connectString);
+
+                int fc = 0;
+                if (o_fail.Value != null && o_fail.Value != DBNull.Value)
+                {
+                    var od = (OracleDecimal)o_fail.Value;
+                    fc = od.IsNull ? 0 : od.ToInt32();
+                }
+
+                DateTimeOffset? locked = null;
+                if (o_until.Value != null && o_until.Value != DBNull.Value)
+                {
+                    var ts = (OracleTimeStampTZ)o_until.Value;
+                    locked = ts.IsNull ? null : ts.Value;
+                }
+
+                return (fc, locked);
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return (0, null);
+            }
+        }
 
 
     }

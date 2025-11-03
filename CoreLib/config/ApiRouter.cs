@@ -30,7 +30,11 @@ namespace CoreLib.config
         public const string Register = "login/register";
         public const string GetAllUsers = "login/getall";
         public const string UpdateUser = "login/update";
-       
+
+        public const string TotpEnrollStart = "login/totp/enroll-start";   // POST
+        public const string TotpEnrollConfirm = "login/totp/enroll-confirm"; // POST
+        public const string TotpVerify = "login/totp/verify";
+
         // ===================== Acconut=====================
         public const string UserPermissions = "account/getall";
     }

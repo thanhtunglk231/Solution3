@@ -11,7 +11,9 @@ namespace WebBrowser.Services.Interfaces
         Task<LoginResponse?> SendOtp(InputStringDto input);
         Task<LoginResponse?> VerifyOtp(VerifyOtpRequest verifyOtp);
 
-
+        Task<LoginResponse?> TotpVerifyAsync(string username, string code);
+        Task<SimpleResponse?> TotpEnrollConfirmAsync(string username, string secretBase32, string code);
+        Task<TotpEnrollStartResponse?> TotpEnrollStartAsync(string username, string issuer = "MyWebApp");
         //Task<ApiResponse?> UpdateUserAsync(string username, string password, string role, string manv);
     }
 }

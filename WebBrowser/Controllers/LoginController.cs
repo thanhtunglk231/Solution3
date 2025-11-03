@@ -208,6 +208,108 @@ namespace WebBrowser.Controllers
                 });
             }
         }
+        // ===================== GOOGLE AUTHENTICATOR (TOTP) =====================
+
+        // 1️⃣ Bắt đầu đăng ký Google Authenticator (tạo QR)
+        [HttpPost]
+        public async Task<IActionResult> TotpEnrollStart([FromBody] TotpEnrollStartRequest model)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion("LoginController", "TotpEnrollStart");
+
+                var result = await _loginService.TotpEnrollStartAsync(model.username, model.issuer ?? "MyWebApp");
+
+                if (result != null && result.success)
+                {
+                    // Trả QR code dạng base64 cho FE hiển thị
+                    return Json(new
+                    {
+                        success = true,
+                        message = result.message,
+                        secretBase32 = result.secretBase32,
+                        otpauthUrl = result.otpauthUrl,
+                        qrPngBase64 = result.qrPngBase64
+                    });
+                }
+
+                return Json(new { success = false, message = result?.message ?? "Không thể tạo mã TOTP." });
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return Json(new { success = false, message = "Lỗi hệ thống khi tạo mã QR TOTP: " + ex.Message });
+            }
+        }
+
+
+        // 2️⃣ Xác nhận mã TOTP khi đăng ký (người dùng nhập mã 6 số từ app)
+        [HttpPost]
+        public async Task<IActionResult> TotpEnrollConfirm([FromBody] TotpEnrollConfirmRequest model)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion("LoginController", "TotpEnrollConfirm");
+
+                var result = await _loginService.TotpEnrollConfirmAsync(model.username, model.secretBase32, model.code);
+
+                if (result != null && result.success)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        message = result.message
+                    });
+                }
+
+                return Json(new { success = false, message = result?.message ?? "Xác nhận TOTP thất bại." });
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return Json(new { success = false, message = "Lỗi hệ thống khi xác nhận TOTP: " + ex.Message });
+            }
+        }
+
+
+        // 3️⃣ Xác minh mã TOTP khi đăng nhập (nhập mã 6 số)
+        [HttpPost]
+        public async Task<IActionResult> TotpVerify([FromBody] TotpVerifyRequest model)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion("LoginController", "TotpVerify");
+
+                var result = await _loginService.TotpVerifyAsync(model.username, model.code);
+
+                if (result != null && result.Success && !string.IsNullOrEmpty(result.Token))
+                {
+                    HttpContext.Session.SetString("JWToken", result.Token);
+                    HttpContext.Session.SetString("Username", result.Username ?? "");
+                    HttpContext.Session.SetString("Role", result.Role ?? "");
+                    HttpContext.Session.SetString("email", result.email ?? "");
+                    HttpContext.Session.SetString("manv", result.Manv ?? "");
+
+                    return Json(new
+                    {
+                        success = true,
+                        message = result.Message ?? "Xác thực thành công.",
+                        token = result.Token,
+                        username = result.Username,
+                        role = result.Role,
+                        manv = result.Manv,
+                        email = result.email
+                    });
+                }
+
+                return Json(new { success = false, message = result?.Message ?? "Xác thực TOTP thất bại." });
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return Json(new { success = false, message = "Lỗi hệ thống khi xác thực TOTP: " + ex.Message });
+            }
+        }
 
 
 

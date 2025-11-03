@@ -16,5 +16,8 @@ namespace CoreLib.Models
         public string? Role { get; set; }
         public string? Manv { get; set; }
         public string email { get; set; }
+
+        public bool? mfaRequired { get; set; }
+        public string[] methods { get; set; }
     }
 }

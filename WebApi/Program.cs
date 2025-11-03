@@ -92,7 +92,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // ------------------ DI Services ------------------
-
+//builder.Services.AddSingleton<TotpService>();
+builder.Services.AddSingleton<ITotpService, TotpService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<ICEmpDataProvider, CEmpDataProvider>();
 builder.Services.AddScoped<ICAccountDataProvider, CAccountDataProvider>();
