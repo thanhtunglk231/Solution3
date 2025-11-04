@@ -105,12 +105,11 @@ impdp C##USER02/toto@localhost:1521/xe   DIRECTORY=BACKUP_DIR   DUMPFILE=your_ba
 ---
 
 ### ✅ 4.4 Chạy hệ thống
-
-```bash
-cd Solution
+git clone https://github.com/thanhtunglk231/Solution3.git
+cd Solution3
 dotnet restore
 dotnet run
-```
+
 
 ---
 
@@ -156,10 +155,4 @@ dotnet run
 - ✅ Chat nhóm + Chat trực tiếp
 - ✅ Quản lý nhân viên & phân quyền
 
-## ✅ 9. Clone dự án về máy
-```bash
-git clone https://github.com/thanhtunglk231/Solution3.git
-cd Solution3
-dotnet restore
-dotnet run
-```
+
