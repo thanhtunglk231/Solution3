@@ -106,10 +106,12 @@ impdp C##USER02/toto@localhost:1521/xe   DIRECTORY=BACKUP_DIR   DUMPFILE=your_ba
 
 ### ✅ 4.4 Chạy hệ thống
 git clone https://github.com/thanhtunglk231/Solution3.git
-cd Solution3
-dotnet restore
-dotnet run
 
+cd Solution3
+
+dotnet restore
+
+dotnet run
 
 ---
 
