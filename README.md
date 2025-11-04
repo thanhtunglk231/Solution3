@@ -1,4 +1,4 @@
-# 📌 HỆ THỐNG QUẢN LÝ NHÂN VIÊN = + XÁC THỰC ĐA YẾU TỐ (MFA)
+# 📌Triển khai xác thực đa yếu tố (MFA) trong ứng dụng web – OTP qua email/SMS, Google Authenticator. 
 
 ## 📝 1. Giới thiệu
 
