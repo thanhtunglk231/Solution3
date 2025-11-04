@@ -119,7 +119,11 @@ namespace WebBrowser.Controllers
             var result = await _chatService.getMessagesinGroup(dto);
             return Json(result);
         }
-
+        public async Task<IActionResult> DeleteMessage([FromBody] string MessageId)
+        {
+            var result = await _chatService.DeleteMessage(MessageId);
+            return Json(result);
+        }
         public async Task<IActionResult> GetGroupChatsByUser([FromBody] GetGroupChatbyuserDto dto)
         {
             var result = await _chatService.GetGroupChatsByUserAsync(dto);

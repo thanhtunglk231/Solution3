@@ -1,6 +1,6 @@
-﻿```html
-<div id="chat-widget">
+﻿<div id="chat-widget">
     <button id="toggle-chat">💬</button>
+
     <div id="user-list-panel">
         <header>
             <div>
@@ -9,15 +9,28 @@
             </div>
             <button id="close-list">×</button>
         </header>
+
         <div id="users-content">
             <ul id="userList"></ul>
         </div>
-        <div id="groups-content" style="display: none;">
-            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                <input id="add-user-to-group" type="text" placeholder="Nhập tên người dùng...">
-                <button id="add-user-btn">Thêm</button>
+
+        <div id="groups-content" style="display:none;">
+            <button id="toggle-group-options" style="margin-bottom:12px;">Ẩn/Hiện tùy chọn nhóm</button>
+
+            <div id="group-options">
+                <div style="display:flex;gap:8px;margin-bottom:12px;">
+                    <input id="add-user-to-group" type="text" placeholder="Nhập tên người dùng...">
+                    <button id="add-user-btn">Thêm</button>
+                </div>
+                
+                <div style="display:flex;gap:8px;margin-bottom:12px;">
+                    <input id="create-group-name" type="text" placeholder="Nhập tên nhóm...">
+                    <button id="create-group-btn">Tạo nhóm</button>
+                </div>
+                
+                <button id="show-members-btn">Danh sách thành viên</button>
             </div>
-            <button id="show-members-btn">Danh sách thành viên</button>
+
             <ul id="groupList"></ul>
             <ul id="groupMembersList"></ul>
         </div>
@@ -25,12 +38,12 @@
 </div>
 
 <style>
-    /* CSS giữ nguyên từ mã gốc */
+    /* ===== Layout cơ bản ===== */
     #chat-widget {
         position: fixed;
         bottom: 20px;
         right: 20px;
-        z-index: 9999;
+        z-index: 9999
     }
 
     #toggle-chat {
@@ -38,17 +51,17 @@
         height: 60px;
         border-radius: 50%;
         background: #007bff;
-        color: white;
+        color: #fff;
         border: none;
         font-size: 24px;
         cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        transition: transform 0.2s, background 0.2s;
+        box-shadow: 0 4px 12px rgba(0,0,0,.2);
+        transition: transform .2s,background .2s
     }
 
         #toggle-chat:hover {
             transform: scale(1.1);
-            background: #0056b3;
+            background: #0056b3
         }
 
     #user-list-panel {
@@ -57,11 +70,11 @@
         height: 450px;
         background: #f8f9fa;
         border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 12px rgba(0,0,0,.15);
         position: fixed;
         bottom: 90px;
         right: 20px;
-        overflow: hidden;
+        overflow: hidden
     }
 
         #user-list-panel header {
@@ -70,54 +83,47 @@
             align-items: center;
             padding: 12px;
             background: #007bff;
-            color: white;
+            color: #fff;
             border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
+            border-top-right-radius: 10px
         }
 
     .tab-button {
         padding: 8px 12px;
         background: none;
         border: none;
-        color: white;
-        font-weight: normal;
+        color: #fff;
         cursor: pointer;
-        border-bottom: 2px solid transparent;
-        transition: border-bottom-color 0.2s;
+        border-bottom: 2px solid transparent
     }
 
         .tab-button.active {
-            font-weight: bold;
-            border-bottom-color: white;
+            font-weight: 700;
+            border-bottom-color: #fff
         }
 
         .tab-button:hover {
-            border-bottom-color: rgba(255,255,255,0.5);
+            border-bottom-color: rgba(255,255,255,.5)
         }
 
     #close-list {
         background: none;
         border: none;
-        color: white;
+        color: #fff;
         font-size: 18px;
-        cursor: pointer;
-        transition: color 0.2s;
+        cursor: pointer
     }
-
-        #close-list:hover {
-            color: #e0e0e0;
-        }
 
     #users-content, #groups-content {
         padding: 12px;
         overflow-y: auto;
-        height: 378px;
+        height: 378px
     }
 
         #users-content ul, #groups-content ul {
             list-style: none;
-            padding: 0;
             margin: 0;
+            padding: 0
         }
 
         #users-content li, #groups-content li {
@@ -127,16 +133,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background 0.2s;
+            transition: background .2s
         }
 
             #users-content li:hover, #groups-content li:hover {
-                background: #e9ecef;
+                background: #e9ecef
             }
 
             #users-content li.header, #groups-content li.header {
-                font-weight: bold;
-                cursor: default;
+                font-weight: 700;
+                cursor: default
             }
 
     .unread-count {
@@ -146,44 +152,49 @@
         width: 20px;
         height: 20px;
         background: #dc3545;
-        color: white;
+        color: #fff;
         border-radius: 50%;
         font-size: 12px;
-        font-weight: bold;
+        font-weight: 700
     }
 
-    #add-user-to-group {
+    #add-user-to-group, #create-group-name {
         flex: 1;
         padding: 8px;
         border: 1px solid #ddd;
         border-radius: 5px;
         outline: none;
-        font-size: 14px;
+        font-size: 14px
     }
 
-    #add-user-btn, #show-members-btn {
+    #add-user-btn, #create-group-btn, #toggle-group-options {
         padding: 8px 12px;
         background: #007bff;
-        color: white;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px
+    }
+
+        #add-user-btn:hover, #create-group-btn:hover, #toggle-group-options:hover {
+            background: #0056b3
+        }
+
+    #show-members-btn {
+        padding: 8px 12px;
+        background: #28a745;
+        color: #fff;
         border: none;
         border-radius: 5px;
         cursor: pointer;
         font-size: 14px;
-        transition: background 0.2s;
-    }
-
-        #add-user-btn:hover {
-            background: #0056b3;
-        }
-
-    #show-members-btn {
-        background: #28a745;
         margin-bottom: 12px;
-        display: none;
+        display: none
     }
 
         #show-members-btn:hover {
-            background: #218838;
+            background: #218838
         }
 
     #groupMembersList li {
@@ -191,1133 +202,1366 @@
         justify-content: space-between;
         align-items: center;
         padding: 8px;
-        border-radius: 5px;
+        border-radius: 5px
     }
 
         #groupMembersList li button {
             padding: 4px 8px;
             background: #dc3545;
-            color: white;
+            color: #fff;
             border: none;
             border-radius: 5px;
-            cursor: pointer;
             font-size: 12px;
-            transition: background 0.2s;
+            cursor: pointer
         }
 
             #groupMembersList li button:hover {
-                background: #c82333;
+                background: #c82333
             }
 
+    #group-options {
+        display: block
+    }
+
+    /* ===== Cửa sổ chat ===== */
     .chat-window {
         position: fixed;
         bottom: 80px;
         width: 300px;
-        height: 350px;
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        overflow: hidden;
+        height: 360px;
         max-width: 100%;
         box-sizing: border-box;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,.15);
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        overflow: hidden
     }
+
+        .chat-window.min {
+            height: 40px !important
+        }
 
     .chat-header {
         padding: 12px;
         background: #007bff;
-        color: white;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
+        color: #fff;
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: center
     }
 
         .chat-header span {
-            font-weight: bold;
+            font-weight: 700
         }
 
         .chat-header button {
             background: none;
             border: none;
-            color: white;
+            color: #fff;
             font-size: 16px;
-            cursor: pointer;
-            transition: color 0.2s;
+            cursor: pointer
         }
 
-            .chat-header button:hover {
-                color: #e0e0e0;
-            }
-
     .chat-box {
-        height: 250px;
+        min-height: 0;
         overflow-y: auto;
         padding: 12px;
         background: #f8f9fa;
+        display: block
     }
 
+    /* ===== Tin nhắn ===== */
     .chat-message {
-        margin-bottom: 10px;
+        margin: 0 0 10px 0;
         display: flex;
-        flex-direction: column;
+        flex-direction: column
     }
 
         .chat-message.sent {
-            align-items: flex-end;
+            align-items: flex-end
         }
 
         .chat-message.received {
-            align-items: flex-start;
+            align-items: flex-start
         }
 
-        .chat-message .message-content {
-            max-width: 70%;
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .chat-message.sent .message-content {
-            background: #007bff;
-            color: white;
-            border-bottom-right-radius: 2px;
-        }
-
-        .chat-message.received .message-content {
-            background: #e9ecef;
-            color: #333;
-            border-bottom-left-radius: 2px;
-        }
-
-        .chat-message .timestamp {
-            font-size: 12px;
-            color: #666;
-            margin-top: 2px;
-        }
-
-    .chat-footer {
+    /* hàng hiển thị 1 block (bubble/attach) + nút ⋯ kế bên */
+    .message-row {
         display: flex;
-        border-top: 1px solid #ddd;
-        background: #fff;
-        padding: 8px;
+        align-items: flex-start;
+        gap: 6px;
+        max-width: 100%
     }
 
-        .chat-footer input {
+    .chat-message.sent .message-row {
+        justify-content: flex-end
+    }
+
+    .chat-message.received .message-row {
+        justify-content: flex-start
+    }
+
+    .message-content {
+        max-width: 70%;
+        padding: 10px 12px;
+        border-radius: 12px;
+        font-size: 14px;
+        line-height: 1.45;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+        box-shadow: 0 1px 2px rgba(0,0,0,.06)
+    }
+
+    .chat-message.sent .message-content {
+        background: #007bff;
+        color: #fff;
+        border-bottom-right-radius: 4px
+    }
+
+    .chat-message.received .message-content {
+        background: #e9ecef;
+        color: #333;
+        border-bottom-left-radius: 4px
+    }
+
+    .timestamp {
+        font-size: 12px;
+        color: #68707a;
+        margin-top: 4px
+    }
+
+    /* ===== File đính kèm ===== */
+    .attach {
+        max-width: 70%;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 10px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        position: relative;
+        transition: background .2s,transform .2s;
+        box-shadow: 0 1px 2px rgba(0,0,0,.06)
+    }
+
+        .attach:hover {
+            background: #f8fafc;
+            transform: translateY(-1px)
+        }
+
+        .attach .icon {
+            font-size: 20px;
+            color: #4b5563
+        }
+
+        .attach .meta {
+            font-size: 13px;
+            color: #1f2937;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1
+        }
+
+        .attach img {
+            max-width: 100%;
+            border-radius: 8px;
+            display: block
+        }
+
+        .attach audio, .attach video {
+            width: 100%;
+            outline: none;
+            border-radius: 8px;
+            background: #000
+        }
+
+    /* ===== Nút ⋯ (đen) nằm BÊN CẠNH ===== */
+    .options-outer {
+        width: 24px;
+        height: 24px;
+        flex: 0 0 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center
+    }
+
+    .options-btn {
+        background: #000;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        width: 24px;
+
+        height: 24px;
+        border-radius: 999px;
+        font-size: 16px;
+        line-height: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,.2);
+        transition: transform .1s ease-in-out,opacity .15s
+    }
+
+        .options-btn:hover {
+            transform: scale(1.05);
+            opacity: .95
+        }
+
+    /* ===== Side panel (khung nhỏ) ===== */
+    .sidepanel {
+        position: absolute;
+        z-index: 99999;
+        width: 200px;
+        background: #fff;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        box-shadow: 0 12px 24px rgba(15,23,42,.10),0 4px 8px rgba(15,23,42,.06);
+        padding: 6px 0;
+        opacity: 0;
+        transform: translateY(-4px);
+        transition: opacity .12s ease,transform .12s ease
+    }
+
+        .sidepanel.show {
+            opacity: 1;
+            transform: translateY(0)
+        }
+
+        .sidepanel ul {
+            list-style: none;
+            margin: 0;
+            padding: 0
+        }
+
+        .sidepanel li {
+            padding: 9px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            gap: 8px;
+            align-items: center
+        }
+
+            .sidepanel li:hover {
+                background: #f3f4f6
+            }
+
+            .sidepanel li .i {
+                width: 18px;
+                text-align: center;
+                opacity: .85
+            }
+
+        .sidepanel::after {
+            content: "";
+            position: absolute;
+            top: 10px;
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border: 1px solid #d1d5db;
+            transform: rotate(45deg)
+        }
+
+        .sidepanel.right::after {
+            left: -6px;
+            border-right: none;
+            border-top: none;
+            box-shadow: -1px -1px 0 #d1d5db
+        }
+
+        .sidepanel.left::after {
+            right: -6px;
+            border-left: none;
+            border-bottom: none;
+            box-shadow: 1px 1px 0 #d1d5db
+        }
+
+    /* ===== Footer ===== */
+    .chat-footer {
+        border-top: 1px solid #e5e7eb;
+        background: #fff;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px
+    }
+
+    .chip-row {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        max-height: 96px;
+        overflow-y: auto;
+        padding-right: 4px
+    }
+
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 4px 8px;
+        max-width: 100%;
+        transition: background .2s
+    }
+
+        .chip:hover {
+            background: #e2e8f0
+        }
+
+        .chip .icon {
+            font-size: 16px;
+            color: #4b5563
+        }
+
+        .chip img {
+            height: 24px;
+            width: 24px;
+            object-fit: cover;
+            border-radius: 4px
+        }
+
+        .chip .name {
+            font-size: 12px;
+            color: #1f2937;
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .chip .remove {
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 14px
+        }
+
+            .chip .remove:hover {
+                color: #ef4444
+            }
+
+    .controls-row {
+        display: flex;
+        gap: 6px;
+        align-items: center
+    }
+
+        .controls-row input[type="text"] {
             flex: 1;
             padding: 8px;
             border: 1px solid #ddd;
-            border-radius: 5px 0 0 5px;
-            outline: none;
-            font-size: 14px;
+            border-radius: 6px;
+            font-size: 14px
         }
 
-        .chat-footer button {
+        .controls-row button {
             padding: 8px 12px;
             background: #007bff;
-            color: white;
+            color: #fff;
             border: none;
-            border-radius: 0 5px 5px 0;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
-            transition: background 0.2s;
+            font-size: 14px
         }
 
-            .chat-footer button:hover {
-                background: #0056b3;
+            .controls-row button:hover {
+                background: #0056b3
             }
+
+    .attach-btn {
+        width: 40px
+    }
+    
+    .sidepanel li.disabled {
+        opacity: .5;
+        cursor: not-allowed;
+    }
+
+        .sidepanel li.disabled:hover {
+            background: transparent;
+        }
+
+
 </style>
 
 <script>
-    let currentUser = '@ViewBag.Username' || 'anonymous';
-    let connection;
-    let connectionReady = null;
-    let openChatWindows = {};
-    let offset = 270;
-    let selectedGroupId = null;
-    let sentMessageIds = new Set();
-    let unreadMessages = {};
-    const sessionId = Math.random().toString(36).substr(2, 9);
-    const CACHE_LIMIT = 200;
+    (() => {
+      if (window.__chatWidgetLoaded) return; window.__chatWidgetLoaded = true;
 
-    // Hàm sanitization cải tiến
-    function sanitizeHTML(str) {
-        if (!str) return '';
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML.replace(/[<>"'&]/g, function (match) {
-            return {
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#x27;',
-                '&': '&amp;'
-            }[match];
+      /* ======= State ======= */
+      let currentUser='@ViewBag.Username' || 'anonymous';
+      let connection, connectionReady=null;
+      let openChatWindows={};
+      let offset=270;
+      let selectedGroupId=null, selectedGroupName=null;
+      let unreadMessages={};
+      const CACHE_LIMIT=200, MAX_FILES=10, MAX_SIZE_MB=50;
+
+      /* ======= Helpers ======= */
+      const sanitizeHTML = (str)=>{ if(!str) return ''; const d=document.createElement('div'); d.textContent=str; return d.innerHTML; };
+
+      const isImageUrl = u => /\.(png|jpe?g|webp|gif)$/i.test(u||'');
+      const isDocxUrl = u => /\.docx?$/i.test(u||'');
+      const isPdfUrl  = u => /\.pdf$/i.test(u||'');
+      const isAudioUrl= u => /\.(mp3|wav|ogg|m4a)$/i.test(u||'');
+      const isVideoUrl= u => /\.(mp4|webm|m4v|mov)$/i.test(u||'');
+
+      function getFileIcon(url){
+        if(isImageUrl(url)) return '';
+        if(isVideoUrl(url)) return '🎬';
+        if(isAudioUrl(url)) return '';
+        if(isPdfUrl(url))  return '📄';
+        if(isDocxUrl(url)) return '📝';
+        return '📎';
+      }
+        function buildAttachmentBlock(url/*, canOptions */) {
+        let fileName = (url || '').split('/').pop() || 'tệp đính kèm';
+        const icon = getFileIcon(url);
+
+        // Rút gọn tên file nếu dài quá 20 ký tự
+        const maxLength = 20;
+        if (fileName.length > maxLength) {
+            const ext = fileName.includes('.') ? '.' + fileName.split('.').pop() : '';
+            const baseName = fileName.replace(ext, '');
+            fileName = baseName.substring(0, maxLength - ext.length - 3) + '...' + ext;
+        }
+
+        if (isImageUrl(url)) {
+            return `
+                <div class="attach" data-url="${url}">
+                    <img src="${url}" alt="image">
+                </div>`;
+        }
+        if (isVideoUrl(url)) {
+            return `
+                <div class="attach" data-url="${url}">
+                    <video src="${url}" controls playsinline></video>
+                </div>`;
+        }
+        if (isAudioUrl(url)) {
+            return `
+                <div class="attach" data-url="${url}" style="width: 210px; height: auto;">
+                    <div class="meta">${sanitizeHTML(fileName)}</div>
+                    <audio src="${url}" controls></audio>
+                </div>`;
+        }
+        return `
+            <div class="attach" data-url="${url}">
+                <span class="icon">${icon}</span>
+                <div class="meta">${sanitizeHTML(fileName)}</div>
+            </div>`;
+    }
+
+
+
+      async function uploadFileAndGetUrl(file){
+        const form=new FormData(); form.append('file', file);
+        const res=await fetch('/File/UploadFromBrowser', { method:'POST', body:form });
+        if(!res.ok){ const txt=await res.text(); throw new Error(`Upload thất bại: ${txt}`); }
+        const json=await res.json(); return json.url;
+      }
+      async function uploadManyAndGetUrls(files){ return Promise.all(files.map(f=>uploadFileAndGetUrl(f))); }
+
+      function saveUserDisplayNamesToCache(users){ try{const dict={};(users||[]).forEach(u=>{dict[u.username]=u.displayName||u.username;});localStorage.setItem('userDisplayNames',JSON.stringify(dict));}catch{} }
+      function getUserDisplayNameFromCache(username){ try{const s=localStorage.getItem('userDisplayNames');if(!s) return username;const m=JSON.parse(s);return m[username]||username;}catch{return username;} }
+      async function getUserDisplayName(username){
+        const cached=getUserDisplayNameFromCache(username);
+        if (cached!==username) return cached;
+        try{
+          const res=await $.ajax({url:'/chat/getAllEx',method:'GET'});
+          if(res.data){ saveUserDisplayNamesToCache(res.data); const u=res.data.find(x=>x.username===username); return u?(u.displayName||u.username):username; }
+          return username;
+        }catch{ return username; }
+      }
+
+      function saveGroupNamesToCache(groups){ try{const dict={};(groups||[]).forEach(g=>{dict[g.grouP_ID]=g.grouP_NAME;});localStorage.setItem('groupNames',JSON.stringify(dict));}catch{} }
+      function getGroupNameFromCache(id){ try{const s=localStorage.getItem('groupNames'); if(!s) return null; const d=JSON.parse(s); return d[id]||null;}catch{return null;} }
+      async function getGroupName(id){
+        const c=getGroupNameFromCache(id); if(c) return c;
+        try{
+          const res=await $.ajax({url:'/chat/GetGroupUser',method:'GET'});
+          if(res.data){ saveGroupNamesToCache(res.data); const g=res.data.find(x=>x.grouP_ID===id); return g?g.grouP_NAME:`Group ${id}`; }
+          return `Group ${id}`;
+        }catch{ return `Group ${id}`; }
+      }
+
+      function loadUnreadMessages(){ try{ const s=localStorage.getItem('unreadMessages'); if(s) unreadMessages=JSON.parse(s)||{}; }catch{} }
+      function saveUnreadMessages(){ try{ localStorage.setItem('unreadMessages', JSON.stringify(unreadMessages)); }catch{} }
+
+      /* ======= Danh sách ======= */
+      function loadUsers(){
+        const userList=document.getElementById('userList');
+        userList.innerHTML='<li class="header">🔸 Người dùng</li>';
+        $.ajax({
+          url:'/chat/getAllEx', method:'GET',
+          success:data=>{
+            userList.innerHTML='<li class="header">🔸 Người dùng</li>';
+            (data.data||[]).forEach(user=>{
+              const li=document.createElement('li');
+              const key=`user:${user.username}`; const unread=unreadMessages[key]||0;
+              const displayName=user.displayName||user.username;
+              li.innerHTML=`<span>${sanitizeHTML(displayName)}</span>${unread>0?`<span class="unread-count">${unread}</span>`:''}`;
+              li.onclick=()=>{
+                openNewChatWindow('user', user.username, displayName);
+                unreadMessages[key]=0; saveUnreadMessages(); updateUserList(); saveChatState();
+              };
+              userList.appendChild(li);
+            });
+            saveUserDisplayNamesToCache(data.data||[]); saveChatState();
+          },
+          error:()=>{
+            userList.innerHTML='<li class="header">🔸 Người dùng</li><li style="color:red;">Lỗi khi tải dữ liệu!</li>';
+            saveChatState();
+          }
         });
-    }
+      }
 
-    // Lưu trữ tên hiển thị của người dùng
-    function saveUserDisplayNamesToCache(users) {
-        try {
-            const displayNames = {};
-            users.forEach(user => {
-                displayNames[user.username] = user.displayName || user.username;
+      function loadGroups(){
+        const groupList=document.getElementById('groupList');
+        groupList.innerHTML='<li class="header">👥 Nhóm</li>';
+        $.ajax({
+          url:'/chat/GetGroupUser', method:'GET',
+          success:data=>{
+            groupList.innerHTML='<li class="header">👥 Nhóm</li>';
+            document.getElementById('show-members-btn').style.display='none';
+            document.getElementById('groupMembersList').style.display='none';
+            (data.data||[]).forEach(group=>{
+              const li=document.createElement('li');
+              const key=`group:${group.grouP_ID}`; const unread=unreadMessages[key]||0;
+              li.innerHTML=`<span>${sanitizeHTML(group.grouP_NAME)}</span>${unread>0?`<span class="unread-count">${unread}</span>`:''}`;
+              li.onclick=()=>{
+                selectedGroupId=group.grouP_ID; selectedGroupName=group.grouP_NAME;
+                document.getElementById('show-members-btn').style.display='block';
+                openNewChatWindow('group', group.grouP_ID, group.grouP_NAME);
+                unreadMessages[key]=0; saveUnreadMessages(); updateGroupList(); saveChatState();
+              };
+              groupList.appendChild(li);
             });
-            localStorage.setItem('userDisplayNames', JSON.stringify(displayNames));
-        } catch (e) {
-            console.error('Error saving user display names to localStorage:', e.message);
-        }
-    }
+            saveGroupNamesToCache(data.data||[]); saveChatState();
+          },
+          error:()=>{
+            groupList.innerHTML='<li class="header">👥 Nhóm</li><li style="color:red;">Lỗi khi tải dữ liệu!</li>';
+            saveChatState();
+          }
+        });
+      }
 
-    // Lấy tên hiển thị từ cache
-    function getUserDisplayNameFromCache(username) {
-        try {
-            const cached = localStorage.getItem('userDisplayNames');
-            if (cached) {
-                const displayNames = JSON.parse(cached);
-                return displayNames[username] || username;
-            }
-            return username;
-        } catch (e) {
-            console.error('Error loading user display names from localStorage:', e.message);
-            return username;
-        }
-    }
-
-    // Lấy tên hiển thị từ server
-    async function getUserDisplayName(username) {
-        const cachedName = getUserDisplayNameFromCache(username);
-        if (cachedName !== username) {
-            return cachedName;
-        }
-        try {
-            const response = await $.ajax({
-                url: '/chat/getAllEx',
-                method: 'GET'
+      function updateUserList(){
+        const userList=document.getElementById('userList');
+        const header=userList.querySelector('.header');
+        $.ajax({
+          url:'/chat/getAllEx', method:'GET',
+          success:data=>{
+            userList.innerHTML=''; userList.appendChild(header);
+            (data.data||[]).forEach(user=>{
+              const li=document.createElement('li');
+              const key=`user:${user.username}`; const unread=unreadMessages[key]||0;
+              const displayName=user.displayName||user.username;
+              li.innerHTML=`<span>${sanitizeHTML(displayName)}</span>${unread>0?`<span class="unread-count">${unread}</span>`:''}`;
+              li.onclick=()=>{
+                openNewChatWindow('user', user.username, displayName);
+                unreadMessages[key]=0; saveUnreadMessages(); updateUserList(); saveChatState();
+              };
+              userList.appendChild(li);
             });
-            if (response.data) {
-                saveUserDisplayNamesToCache(response.data);
-                const user = response.data.find(u => u.username === username);
-                return user ? (user.displayName || user.username) : username;
-            }
-            return username;
-        } catch (error) {
-            console.error('Error fetching user display name:', error);
-            return username;
-        }
-    }
+          }
+        });
+      }
 
-    function saveChatState() {
-        const chatState = {
-            openChatWindows: {},
-            offset: offset,
-            selectedGroupId: selectedGroupId,
-            panelVisible: document.getElementById('user-list-panel')?.style.display === 'block',
-            activeTab: document.getElementById('tab-users')?.classList.contains('active') ? 'users' : 'groups'
+      function updateGroupList(){
+        const groupList=document.getElementById('groupList');
+        const header=groupList.querySelector('.header');
+        $.ajax({
+          url:'/chat/GetGroupUser', method:'GET',
+          success:data=>{
+            groupList.innerHTML=''; groupList.appendChild(header);
+            (data.data||[]).forEach(group=>{
+              const li=document.createElement('li');
+              const key=`group:${group.grouP_ID}`; const unread=unreadMessages[key]||0;
+              li.innerHTML=`<span>${sanitizeHTML(group.grouP_NAME)}</span>${unread>0?`<span class="unread-count">${unread}</span>`:''}`;
+              li.onclick=()=>{
+                selectedGroupId=group.grouP_ID; selectedGroupName=group.grouP_NAME;
+                openNewChatWindow('group', group.grouP_ID, group.grouP_NAME);
+                unreadMessages[key]=0; saveUnreadMessages(); updateGroupList(); saveChatState();
+              };
+              groupList.appendChild(li);
+            });
+          }
+        });
+      }
+
+      function loadGroupMembers(){
+        if(!selectedGroupId){ alert('❗ Vui lòng chọn nhóm trước!'); return; }
+        const list=document.getElementById('groupMembersList');
+        list.innerHTML='<li class="header">👤 Danh sách thành viên :</li>';
+        $.ajax({
+          url:'/chat/GetGroupMembers', method:'POST', contentType:'application/json', data: JSON.stringify({ groupId: selectedGroupId }),
+          success:data=>{
+            list.innerHTML=`<li class="header">👤 Danh sách thành viên : ${sanitizeHTML(selectedGroupName||'')}</li>`;
+            (data.data||[]).forEach(m=>{
+              const li=document.createElement('li');
+              const name=m.displayName||m.username;
+              li.innerHTML=`<span>${sanitizeHTML(name)}</span><button>Xóa</button>`;
+              li.querySelector('button').onclick=()=>removeMemberFromGroup(m.username);
+              list.appendChild(li);
+            });
+            list.style.display = (list.style.display==='block' ? 'none' : 'block');
+            saveChatState();
+          },
+          error: ()=>{
+            list.innerHTML='<li class="header">👤 Thành viên nhóm</li><li style="color:red;">Lỗi khi tải dữ liệu!</li>';
+            saveChatState();
+          }
+        });
+      }
+
+      function addUserToGroup(){
+        const username=document.getElementById('add-user-to-group').value.trim();
+        if(!username){ alert('⚠️ Vui lòng nhập tên người dùng!'); return; }
+        if(!selectedGroupId){ alert('⚠️ Vui lòng chọn một nhóm trước!'); return; }
+        $.ajax({
+          url:'/chat/AddUserToGroup', method:'POST', contentType:'application/json',
+          data: JSON.stringify({ groupId: selectedGroupId, username }),
+          success:r=>{
+            if(r.success){ alert(`✅ Đã thêm ${sanitizeHTML(username)} vào nhóm!`); document.getElementById('add-user-to-group').value=''; loadGroupMembers(); }
+            else { alert(`❌ Lỗi: ${sanitizeHTML(r.message||'Không thể thêm người dùng vào nhóm!')}`); }
+            saveChatState();
+          },
+          error:()=>{ alert('❌ Đã xảy ra lỗi khi thêm người dùng vào nhóm!'); saveChatState(); }
+        });
+      }
+
+      function removeMemberFromGroup(username){
+        if(!selectedGroupId){ alert('❗ Vui lòng chọn nhóm trước khi xóa!'); return; }
+        if(!confirm(`Bạn có chắc muốn xóa ${sanitizeHTML(username)} khỏi nhóm?`)) return;
+        $.ajax({
+          url:'/chat/RemoveGroupMembers', method:'POST', contentType:'application/json',
+          data: JSON.stringify({ groupId: selectedGroupId, username }),
+          success:r=>{
+            if(r.success){ alert('✅ Đã xóa thành viên!'); loadGroupMembers(); }
+            else { alert(`❌ Xóa thất bại: ${sanitizeHTML(r.message||'Lỗi không xác định')}`); }
+            saveChatState();
+          },
+          error:()=>{ alert('❌ Đã xảy ra lỗi khi xóa thành viên!'); saveChatState(); }
+        });
+      }
+
+      /* ======= Lưu/khôi phục ======= */
+      function saveChatState(){
+        const chatState={ openChatWindows:{}, offset, selectedGroupId,
+          panelVisible: document.getElementById('user-list-panel')?.style.display==='block',
+          activeTab: document.getElementById('tab-users')?.classList.contains('active')?'users':'groups',
+          createGroupName: document.getElementById('create-group-name')?.value||'',
+          groupOptionsVisible: document.getElementById('group-options')?.style.display!=='none'
+        };
+        Object.keys(openChatWindows).forEach(key=>{
+          const chatBox=document.getElementById(`chat-${key}`); if(!chatBox) return;
+          const temp=document.createElement('div'); temp.innerHTML=chatBox.innerHTML;
+          const limited=Array.from(temp.children).slice(-200).map(n=>n.outerHTML).join('');
+          const headerSpan=openChatWindows[key].querySelector('.chat-header span');
+          if(headerSpan){
+            chatState.openChatWindows[key]={
+              type:key.split(':')[0], id:key.split(':')[1], displayName:headerSpan.textContent,
+              messages:limited, isMinimized: openChatWindows[key].classList.contains('min')
+            };
+          }
+        });
+        try{ localStorage.setItem('chatState', JSON.stringify(chatState)); }catch{}
+      }
+
+      function restoreChatState(){
+        let st; try{ st=JSON.parse(localStorage.getItem('chatState')); }catch{ return; }
+        if(!st || typeof st!=='object') return;
+        if(!st.openChatWindows || typeof st.openChatWindows!=='object') st.openChatWindows={};
+
+        const panel=document.getElementById('user-list-panel');
+        if(panel) panel.style.display=st.panelVisible?'block':'none';
+
+        const usersContent=document.getElementById('users-content');
+        const groupsContent=document.getElementById('groups-content');
+        const tabUsers=document.getElementById('tab-users');
+        const tabGroups=document.getElementById('tab-groups');
+        const groupOptions=document.getElementById('group-options');
+
+        if(st.activeTab==='users'){
+          if(usersContent) usersContent.style.display='block';
+          if(groupsContent) groupsContent.style.display='none';
+          if(tabUsers) tabUsers.classList.add('active');
+          if(tabGroups) tabGroups.classList.remove('active');
+        }else{
+          if(usersContent) usersContent.style.display='none';
+          if(groupsContent) groupsContent.style.display='block';
+          if(tabUsers) tabUsers.classList.remove('active');
+          if(tabGroups) tabGroups.classList.add('active');
+        }
+
+        if(st.createGroupName) document.getElementById('create-group-name').value=st.createGroupName;
+        if(groupOptions){
+          groupOptions.style.display=st.groupOptionsVisible?'block':'none';
+          const t=document.getElementById('toggle-group-options');
+          if(t) t.textContent=st.groupOptionsVisible?'Ẩn tùy chọn nhóm':'Hiện tùy chọn nhóm';
+        }
+
+        offset=st.offset||270; selectedGroupId=st.selectedGroupId;
+
+        Object.keys(st.openChatWindows).forEach(key=>{
+          const {type,id,displayName,messages,isMinimized}=st.openChatWindows[key];
+          openNewChatWindow(type, id, displayName, true);
+          const chatBox=document.getElementById(`chat-${key}`);
+          if(chatBox) chatBox.innerHTML=messages;
+          if(isMinimized && openChatWindows[key]) openChatWindows[key].classList.add('min');
+        });
+
+        if(st.panelVisible){ loadUsers(); loadGroups(); startSignalR(); }
+
+        Object.keys(st.openChatWindows).forEach(key=>{
+          const w=st.openChatWindows[key];
+          if(w.type==='user'){ loadChatHistory(w.id, key); }
+          else {
+            const doLoad=()=>loadGroupHistory(w.id, key);
+            if(connectionReady && typeof connectionReady.then==='function'){ connectionReady.then(doLoad).catch(()=>{}); }
+            else { startSignalR().then(doLoad).catch(()=>{}); }
+          }
+        });
+      }
+
+      function saveMessagesToCache(type,id,messages){
+        try{ const k=`chat_${type}:${id}`; localStorage.setItem(k, JSON.stringify(messages.slice(-CACHE_LIMIT))); }catch{}
+      }
+      function loadMessagesFromCache(type,id){
+        try{ const k=`chat_${type}:${id}`; const s=localStorage.getItem(k); if(!s) return []; const arr=JSON.parse(s); return Array.isArray(arr)?arr:[]; }catch{ return []; }
+      }
+
+      /* ======= Cửa sổ chat ======= */
+      async function openNewChatWindow(type, id, displayName=null, isRestoring=false){
+        const key=`${type}:${id}`;
+        if (openChatWindows[key]){
+          openChatWindows[key].style.display='block';
+          openChatWindows[key].classList.remove('min');
+          unreadMessages[key]=0; saveUnreadMessages(); updateUserList(); updateGroupList();
+          if(!isRestoring) saveChatState();
+          return;
+        }
+
+        let finalDisplayName=displayName;
+        if(type==='user' && !displayName) finalDisplayName=await getUserDisplayName(id);
+
+        const wrapper=document.createElement('div');
+        wrapper.id=`chat-window-${key}`; wrapper.className='chat-window';
+        wrapper.style.right=`${offset+40}px`; wrapper.style.zIndex=10000+offset;
+        wrapper.displayName=finalDisplayName||id;
+
+        /* header */
+        const header=document.createElement('div');
+        header.className='chat-header';
+        header.innerHTML=`
+          <span>${sanitizeHTML(finalDisplayName||id)}</span>
+          <div>
+            <button class="minimize-btn" title="Thu nhỏ">-</button>
+            <button class="close-btn" title="Đóng">×</button>
+          </div>`;
+        header.querySelector('.close-btn').onclick=()=>{
+          document.body.removeChild(wrapper); delete openChatWindows[key];
+          offset-=300; repositionChatWindows(); saveChatState();
+        };
+        header.querySelector('.minimize-btn').onclick=()=>{
+          wrapper.classList.toggle('min'); saveChatState();
         };
 
-        Object.keys(openChatWindows).forEach(key => {
-            const chatBox = document.getElementById(`chat-${key}`);
-            if (!chatBox) return;
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = chatBox.innerHTML;
-            const messageNodes = tempDiv.children;
-            const limitedMessages = Array.from(messageNodes).slice(-200).map(node => node.outerHTML).join('');
-            const headerSpan = openChatWindows[key].querySelector('.chat-header span');
-            if (headerSpan) {
-                chatState.openChatWindows[key] = {
-                    type: key.split(':')[0],
-                    id: key.split(':')[1],
-                    displayName: headerSpan.textContent,
-                    messages: limitedMessages,
-                    isMinimized: openChatWindows[key].style.height === '40px'
-                };
-            }
+        /* chat box */
+        const chatBox=document.createElement('div');
+        chatBox.id=`chat-${key}`; chatBox.className='chat-box';
+        chatBox.dataset.chatType = type;   // 'user' | 'group'
+        chatBox.dataset.chatId   = id;     // receiver username OR groupId
+
+        /* footer */
+        const footer=document.createElement('div'); footer.className='chat-footer';
+
+        const chipRow=document.createElement('div'); chipRow.className='chip-row';
+
+        const attachBtn=document.createElement('button'); attachBtn.type='button'; attachBtn.title='Đính kèm tệp'; attachBtn.textContent='📎'; attachBtn.className='attach-btn';
+        const fileInput=document.createElement('input'); fileInput.type='file'; fileInput.style.display='none'; fileInput.multiple=true;
+        fileInput.accept='.png,.jpg,.jpeg,.webp,.gif,.pdf,.doc,.docx,.mp3,.wav,.ogg,.m4a,.mp4,.webm,.m4v,.mov';
+
+        const input=document.createElement('input'); input.type='text'; input.placeholder='Nhập tin nhắn...';
+        const sendBtn=document.createElement('button'); sendBtn.textContent='Gửi';
+
+        const controlsRow=document.createElement('div'); controlsRow.className='controls-row';
+        controlsRow.appendChild(attachBtn);
+        controlsRow.appendChild(fileInput);
+        controlsRow.appendChild(input);
+        controlsRow.appendChild(sendBtn);
+
+        // Drag & drop
+        ;[chatBox, chipRow].forEach(el=>{
+          el.addEventListener('dragover', e=>{ e.preventDefault(); el.style.background='#eef2ff'; });
+          el.addEventListener('dragleave', ()=>{ el.style.background=''; });
+          el.addEventListener('drop', e=>{
+            e.preventDefault(); el.style.background='';
+            if(!e.dataTransfer?.files?.length) return;
+            addFiles([...(e.dataTransfer.files)]);
+          });
         });
 
-        try {
-            localStorage.setItem('chatState', JSON.stringify(chatState));
-        } catch (e) {
-            console.error('Error saving chat state to localStorage:', e.message);
+        // file state
+        let selectedFiles=[];
+        function clearAllChips(){
+          chipRow.innerHTML=''; chipRow.style.display='none';
+          selectedFiles.forEach(x=>{ if(x.previewUrl) URL.revokeObjectURL(x.previewUrl); });
+          selectedFiles=[]; fileInput.value='';
         }
-    }
+        function removeOneChip(idChip){
+          const idx=selectedFiles.findIndex(x=>x.id===idChip);
+          if(idx>=0){ const x=selectedFiles[idx]; if(x.previewUrl) URL.revokeObjectURL(x.previewUrl); selectedFiles.splice(idx,1); }
+          renderChips();
+        }
+        function addFiles(files){
+          if(!files || !files.length) return;
+          const remain=MAX_FILES - selectedFiles.length;
+          const pick=[...files].slice(0, remain);
+          for(const f of pick){
+            if((f.size/1024/1024) > MAX_SIZE_MB){ alert(`⚠️ ${f.name} vượt quá ${MAX_SIZE_MB}MB, bỏ qua.`); continue; }
+            const item={ file:f, id:`${Date.now()}_${Math.random().toString(36).slice(2)}` };
+            if (f.type.startsWith('image/')) item.previewUrl=URL.createObjectURL(f);
+            item.icon=getFileIcon(f.name);
+            selectedFiles.push(item);
+          }
+          renderChips();
+        }
+        function renderChips(){
+          chipRow.innerHTML='';
+          if(selectedFiles.length===0){ chipRow.style.display='none'; return; }
+          selectedFiles.forEach(x=>{
+            const chip=document.createElement('div'); chip.className='chip';
+            if(x.previewUrl){ const img=document.createElement('img'); img.src=x.previewUrl; img.alt='preview'; chip.appendChild(img); }
+            else{ const icon=document.createElement('span'); icon.className='icon'; icon.textContent=x.icon; chip.appendChild(icon); }
+            const name=document.createElement('span'); name.className='name'; name.textContent=x.file.name;
+            const remove=document.createElement('button'); remove.className='remove'; remove.textContent='×';
+            remove.addEventListener('click',()=>removeOneChip(x.id));
+            chip.appendChild(name); chip.appendChild(remove);
+            chipRow.appendChild(chip);
+          });
+          chipRow.style.display='flex';
+        }
 
-    function restoreChatState() {
-        if (!document.getElementById('chat-widget')) return;
+        attachBtn.addEventListener('click', ()=>fileInput.click());
+        fileInput.addEventListener('change', ()=> addFiles([...(fileInput.files||[])]) );
 
-        let chatState;
-        try {
-            chatState = JSON.parse(localStorage.getItem('chatState'));
-        } catch (e) {
-            console.log('Error parsing chatState from localStorage:', e);
+        async function sendMessage(){
+          const message=input.value.trim();
+          if(!message && selectedFiles.length===0){
+            alert('⚠️ Vui lòng nhập tin nhắn hoặc chọn tệp!');
             return;
-        }
+          }
+          const messageId=`${currentUser}_${new Date().toISOString()}_${Math.random().toString(36).substr(2,9)}`;
+          try{
+            if(!connection || connection.state!==signalR.HubConnectionState.Connected){ await startSignalR(); }
 
-        if (!chatState || typeof chatState !== 'object') return;
-
-        if (!chatState.openChatWindows || typeof chatState.openChatWindows !== 'object') {
-            chatState.openChatWindows = {};
-        }
-
-        const panel = document.getElementById('user-list-panel');
-        if (panel) {
-            panel.style.display = chatState.panelVisible ? 'block' : 'none';
-        }
-
-        const usersContent = document.getElementById('users-content');
-        const groupsContent = document.getElementById('groups-content');
-        const tabUsers = document.getElementById('tab-users');
-        const tabGroups = document.getElementById('tab-groups');
-
-        if (chatState.activeTab === 'users') {
-            if (usersContent) usersContent.style.display = 'block';
-            if (groupsContent) groupsContent.style.display = 'none';
-            if (tabUsers) tabUsers.classList.add('active');
-            if (tabGroups) tabGroups.classList.remove('active');
-        } else {
-            if (usersContent) usersContent.style.display = 'none';
-            if (groupsContent) groupsContent.style.display = 'block';
-            if (tabUsers) tabUsers.classList.remove('active');
-            if (tabGroups) tabGroups.classList.add('active');
-        }
-
-        offset = chatState.offset || 270;
-        selectedGroupId = chatState.selectedGroupId;
-
-        Object.keys(chatState.openChatWindows).forEach(key => {
-            const { type, id, displayName, messages, isMinimized } = chatState.openChatWindows[key];
-            openNewChatWindow(type, id, displayName, true);
-            const chatBox = document.getElementById(`chat-${key}`);
-            if (chatBox) {
-                chatBox.innerHTML = messages;
+            let attachmentUrls=[];
+            if(selectedFiles.length>0){
+              const urls=await uploadManyAndGetUrls(selectedFiles.map(x=>x.file));
+              attachmentUrls=urls;
             }
-            if (isMinimized && openChatWindows[key]) {
-                openChatWindows[key].style.height = '40px';
+
+            if(type==='user'){
+              await connection.invoke('SendMessage', {
+                SenderUsername: currentUser,
+                ReceiverUsername: id,
+                MessageText: message,
+                AttachmentUrls: attachmentUrls,
+                Timestamp: new Date().toISOString(),
+                MessageId: messageId
+              });
+            }else{
+              await connection.invoke('SendMessage', {
+                SenderUsername: currentUser,
+                GroupId: id,
+                MessageText: message,
+                AttachmentUrls: attachmentUrls,
+                Timestamp: new Date().toISOString(),
+                MessageId: messageId
+              });
             }
-        });
 
-        if (chatState.panelVisible) {
-            loadUsers();
-            loadGroups();
+            input.value=''; clearAllChips();
+            chatBox.scrollTop = chatBox.scrollHeight;
+          }catch(err){
+            console.error('Send error:', err);
+            alert(err?.message || 'Gửi tin nhắn thất bại');
+          }
+          saveChatState();
         }
 
-        Object.keys(chatState.openChatWindows).forEach(key => {
-            const chatWindow = chatState.openChatWindows[key];
-            if (chatWindow.type === 'user') {
-                loadChatHistory(chatWindow.id, key);
-            } else {
-                if (connectionReady && typeof connectionReady.then === 'function') {
-                    connectionReady.then(() => loadGroupHistory(chatWindow.id, key)).catch(error => {
-                        console.error('Error loading group history during restore:', error.message);
-                    });
-                } else {
-                    console.warn('⚠️ connectionReady is not ready, initializing SignalR for group history');
-                    startSignalR().then(() => loadGroupHistory(chatWindow.id, key)).catch(error => {
-                        console.error('Error initializing SignalR for group history:', error.message);
-                    });
-                }
-            }
-        });
-    }
-
-    function saveMessagesToCache(type, id, messages) {
-        try {
-            const cacheKey = `chat_${type}:${id}`;
-            const cachedMessages = messages.slice(-CACHE_LIMIT);
-            localStorage.setItem(cacheKey, JSON.stringify(cachedMessages));
-        } catch (e) {
-            console.error('Error saving messages to localStorage:', e.message);
-        }
-    }
-
-    function loadMessagesFromCache(type, id) {
-        try {
-            const cacheKey = `chat_${type}:${id}`;
-            const cached = localStorage.getItem(cacheKey);
-            if (cached) {
-                const messages = JSON.parse(cached);
-                if (Array.isArray(messages)) {
-                    return messages;
-                }
-            }
-            return [];
-        } catch (e) {
-            console.error('Error loading messages from localStorage:', e.message);
-            return [];
-        }
-    }
-
-    function saveGroupNamesToCache(groups) {
-        try {
-            const groupNames = {};
-            groups.forEach(group => {
-                groupNames[group.grouP_ID] = group.grouP_NAME;
-            });
-            localStorage.setItem('groupNames', JSON.stringify(groupNames));
-        } catch (e) {
-            console.error('Error saving group names to localStorage:', e.message);
-        }
-    }
-
-    function getGroupNameFromCache(groupId) {
-        try {
-            const cached = localStorage.getItem('groupNames');
-            if (cached) {
-                const groupNames = JSON.parse(cached);
-                return groupNames[groupId] || null;
-            }
-            return null;
-        } catch (e) {
-            console.error('Error loading group names from localStorage:', e.message);
-            return null;
-        }
-    }
-
-    async function getGroupName(groupId) {
-        const cachedName = getGroupNameFromCache(groupId);
-        if (cachedName) {
-            return cachedName;
-        }
-        try {
-            const response = await $.ajax({
-                url: '/chat/GetGroupUser',
-                method: 'GET'
-            });
-            if (response.data) {
-                saveGroupNamesToCache(response.data);
-                const group = response.data.find(g => g.grouP_ID === groupId);
-                return group ? group.grouP_NAME : `Group ${groupId}`;
-            }
-            return `Group ${groupId}`;
-        } catch (error) {
-            console.error('Error fetching group name:', error);
-            return `Group ${groupId}`;
-        }
-    }
-
-    function saveUnreadMessages() {
-        try {
-            localStorage.setItem('unreadMessages', JSON.stringify(unreadMessages));
-        } catch (e) {
-            console.error('Error saving unread messages to localStorage:', e.message);
-        }
-    }
-
-    function loadUnreadMessages() {
-        try {
-            const cached = localStorage.getItem('unreadMessages');
-            if (cached) {
-                unreadMessages = JSON.parse(cached) || {};
-            }
-        } catch (e) {
-            console.error('Error loading unread messages from localStorage:', e.message);
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        if (!window.chatSignalRInitialized) {
-            window.chatSignalRInitialized = true;
-            startSignalR().catch(error => {
-                console.error('Failed to initialize SignalR on load:', error.message);
-            });
-        }
-        loadUnreadMessages();
-        restoreChatState();
-    });
-
-    document.getElementById('toggle-chat')?.addEventListener('click', () => {
-        const panel = document.getElementById('user-list-panel');
-        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        if (panel.style.display === 'block') {
-            loadUsers();
-            loadGroups();
-        }
-        saveChatState();
-    });
-
-    document.getElementById('close-list')?.addEventListener('click', () => {
-        const panel = document.getElementById('user-list-panel');
-        panel.style.display = 'none';
-        selectedGroupId = null;
-        const showBtn = document.getElementById('show-members-btn');
-        if (showBtn) showBtn.style.display = 'none';
-        saveChatState();
-    });
-
-    document.getElementById('tab-users')?.addEventListener('click', () => {
-        document.getElementById('users-content').style.display = 'block';
-        document.getElementById('groups-content').style.display = 'none';
-        document.getElementById('tab-users').classList.add('active');
-        document.getElementById('tab-groups').classList.remove('active');
-        selectedGroupId = null;
-        document.getElementById('show-members-btn').style.display = 'none';
-        saveChatState();
-    });
-
-    document.getElementById('tab-groups')?.addEventListener('click', () => {
-        document.getElementById('users-content').style.display = 'none';
-        document.getElementById('groups-content').style.display = 'block';
-        document.getElementById('tab-users').classList.remove('active');
-        document.getElementById('tab-groups').classList.add('active');
-        saveChatState();
-    });
-
-    function loadUsers() {
-        const userList = document.getElementById('userList');
-        userList.innerHTML = '<li class="header">🔸 Người dùng</li>';
-        $.ajax({
-            url: '/chat/getAllEx',
-            method: 'GET',
-            success: function (data) {
-                console.log('Users data:', data);
-                userList.innerHTML = '<li class="header">🔸 Người dùng</li>';
-                (data.data || []).forEach(user => {
-                    const li = document.createElement('li');
-                    const key = `user:${user.username}`;
-                    const unreadCount = unreadMessages[key] || 0;
-                    const displayName = user.displayName || user.username;
-                    li.innerHTML = `<span>${sanitizeHTML(displayName)}</span>${unreadCount > 0 ? `<span class="unread-count">${unreadCount}</span>` : ''}`;
-                    li.onclick = () => {
-                        openNewChatWindow('user', user.username, displayName);
-                        unreadMessages[key] = 0;
-                        saveUnreadMessages();
-                        updateUserList();
-                        saveChatState();
-                    };
-                    userList.appendChild(li);
-                });
-                saveUserDisplayNamesToCache(data.data || []);
-                saveChatState();
-            },
-            error: function (xhr, status, error) {
-                console.error('Error loading users:', status, error);
-                userList.innerHTML = '<li class="header">🔸 Người dùng</li><li style="color: red;">Lỗi khi tải dữ liệu!</li>';
-                saveChatState();
-            }
-        });
-    }
-
-    function loadGroups() {
-        const groupList = document.getElementById('groupList');
-        groupList.innerHTML = '<li class="header">👥 Nhóm</li>';
-        $.ajax({
-            url: '/chat/GetGroupUser',
-            method: 'GET',
-            success: function (data) {
-                console.log('Groups data:', data);
-                groupList.innerHTML = '<li class="header">👥 Nhóm</li>';
-                document.getElementById('show-members-btn').style.display = 'none';
-                document.getElementById('groupMembersList').style.display = 'none';
-                (data.data || []).forEach(group => {
-                    const li = document.createElement('li');
-                    const key = `group:${group.grouP_ID}`;
-                    const unreadCount = unreadMessages[key] || 0;
-                    li.innerHTML = `<span>${sanitizeHTML(group.grouP_NAME)}</span>${unreadCount > 0 ? `<span class="unread-count">${unreadCount}</span>` : ''}`;
-                    li.onclick = () => {
-                        selectedGroupId = group.grouP_ID;
-                        document.getElementById('show-members-btn').style.display = 'block';
-                        openNewChatWindow('group', group.grouP_ID, group.grouP_NAME);
-                        unreadMessages[key] = 0;
-                        saveUnreadMessages();
-                        updateGroupList();
-                        saveChatState();
-                    };
-                    groupList.appendChild(li);
-                });
-                saveGroupNamesToCache(data.data || []);
-                saveChatState();
-            },
-            error: function (xhr, status, error) {
-                console.error('Error loading groups:', status, error);
-                groupList.innerHTML = '<li class="header">👥 Nhóm</li><li style="color: red;">Lỗi khi tải dữ liệu!</li>';
-                saveChatState();
-            }
-        });
-    }
-
-    function updateUserList() {
-        const userList = document.getElementById('userList');
-        const header = userList.querySelector('.header');
-        $.ajax({
-            url: '/chat/getAllEx',
-            method: 'GET',
-            success: function (data) {
-                console.log('Updated users data:', data);
-                userList.innerHTML = '';
-                userList.appendChild(header);
-                (data.data || []).forEach(user => {
-                    const li = document.createElement('li');
-                    const key = `user:${user.username}`;
-                    const unreadCount = unreadMessages[key] || 0;
-                    const displayName = user.displayName || user.username;
-                    li.innerHTML = `<span>${sanitizeHTML(displayName)}</span>${unreadCount > 0 ? `<span class="unread-count">${unreadCount}</span>` : ''}`;
-                    li.onclick = () => {
-                        openNewChatWindow('user', user.username, displayName);
-                        unreadMessages[key] = 0;
-                        saveUnreadMessages();
-                        updateUserList();
-                        saveChatState();
-                    };
-                    userList.appendChild(li);
-                });
-            },
-            error: function (xhr, status, error) {
-                console.error('Error updating user list:', status, error);
-            }
-        });
-    }
-
-    function updateGroupList() {
-        const groupList = document.getElementById('groupList');
-        const header = groupList.querySelector('.header');
-        $.ajax({
-            url: '/chat/GetGroupUser',
-            method: 'GET',
-            success: function (data) {
-                console.log('Updated groups data:', data);
-                groupList.innerHTML = '';
-                groupList.appendChild(header);
-                (data.data || []).forEach(group => {
-                    const li = document.createElement('li');
-                    const key = `group:${group.grouP_ID}`;
-                    const unreadCount = unreadMessages[key] || 0;
-                    li.innerHTML = `<span>${sanitizeHTML(group.grouP_NAME)}</span>${unreadCount > 0 ? `<span class="unread-count">${unreadCount}</span>` : ''}`;
-                    li.onclick = () => {
-                        selectedGroupId = group.grouP_ID;
-                        document.getElementById('show-members-btn').style.display = 'block';
-                        openNewChatWindow('group', group.grouP_ID, group.grouP_NAME);
-                        unreadMessages[key] = 0;
-                        saveUnreadMessages();
-                        updateGroupList();
-                        saveChatState();
-                    };
-                    groupList.appendChild(li);
-                });
-            },
-            error: function (xhr, status, error) {
-                console.error('Error updating group list:', status, error);
-            }
-        });
-    }
-
-    function loadGroupMembers() {
-        if (!selectedGroupId) {
-            alert('❗ Vui lòng chọn nhóm trước!');
-            return;
-        }
-        const membersList = document.getElementById('groupMembersList');
-        membersList.innerHTML = '<li class="header">👤 Thành viên nhóm</li>';
-        $.ajax({
-            url: '/chat/GetGroupMembers',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ groupId: selectedGroupId }),
-            success: function (data) {
-                console.log('Group members data:', data);
-                membersList.innerHTML = '<li class="header">👤 Thành viên nhóm</li>';
-                (data.data || []).forEach(member => {
-                    const li = document.createElement('li');
-                    const displayName = member.displayName || member.username;
-                    li.innerHTML = `<span>${sanitizeHTML(displayName)}</span><button>Xóa</button>`;
-                    li.querySelector('button').onclick = () => {
-                        removeMemberFromGroup(member.username);
-                    };
-                    membersList.appendChild(li);
-                });
-                membersList.style.display = 'block';
-                saveChatState();
-            },
-            error: function (xhr, status, error) {
-                console.error('Error loading group members:', status, error);
-                membersList.innerHTML = '<li class="header">👤 Thành viên nhóm</li><li style="color: red;">Lỗi khi tải dữ liệu!</li>';
-                saveChatState();
-            }
-        });
-    }
-
-    function addUserToGroup() {
-        const username = document.getElementById('add-user-to-group').value.trim();
-        if (!username) {
-            alert("⚠️ Vui lòng nhập tên người dùng!");
-            return;
-        }
-        if (!selectedGroupId) {
-            alert("⚠️ Vui lòng chọn một nhóm trước!");
-            return;
-        }
-        $.ajax({
-            url: '/chat/AddUserToGroup',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ groupId: selectedGroupId, username }),
-            success: function (result) {
-                console.log('Add user to group result:', result);
-                if (result.success) {
-                    alert(`✅ Đã thêm ${sanitizeHTML(username)} vào nhóm!`);
-                    document.getElementById('add-user-to-group').value = '';
-                    loadGroupMembers();
-                } else {
-                    alert(`❌ Lỗi: ${sanitizeHTML(result.message || 'Không thể thêm người dùng vào nhóm!')}`);
-                }
-                saveChatState();
-            },
-            error: function (xhr, status, error) {
-                console.error('Error adding user to group:', status, error);
-                alert('❌ Đã xảy ra lỗi khi thêm người dùng vào nhóm!');
-                saveChatState();
-            }
-        });
-    }
-
-    function removeMemberFromGroup(username) {
-        if (!selectedGroupId) {
-            alert('❗ Vui lòng chọn nhóm trước khi xóa!');
-            return;
-        }
-        if (!confirm(`Bạn có chắc muốn xóa ${sanitizeHTML(username)} khỏi nhóm?`)) return;
-        $.ajax({
-            url: '/chat/RemoveGroupMembers',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ groupId: selectedGroupId, username }),
-            success: function (result) {
-                console.log('Remove group member result:', result);
-                if (result.success) {
-                    alert('✅ Đã xóa thành viên!');
-                    loadGroupMembers();
-                } else {
-                    alert(`❌ Xóa thất bại: ${sanitizeHTML(result.message || 'Lỗi không xác định')}`);
-                }
-                saveChatState();
-            },
-            error: function (xhr, status, error) {
-                console.error('Error removing group member:', status, error);
-                alert('❌ Đã xảy ra lỗi khi xóa thành viên!');
-                saveChatState();
-            }
-        });
-    }
-
-    document.getElementById('add-user-btn').onclick = () => {
-        addUserToGroup();
-    };
-
-    document.getElementById('add-user-to-group').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            addUserToGroup();
-        }
-    });
-
-    document.getElementById('show-members-btn').onclick = () => {
-        loadGroupMembers();
-    };
-
-    async function openNewChatWindow(type, id, displayName = null, isRestoring = false) {
-        const key = `${type}:${id}`;
-        if (openChatWindows[key]) {
-            openChatWindows[key].style.display = 'block';
-            openChatWindows[key].style.height = '350px';
-            unreadMessages[key] = 0;
-            saveUnreadMessages();
-            updateUserList();
-            updateGroupList();
-            if (!isRestoring) saveChatState();
-            return;
-        }
-
-        let finalDisplayName = displayName;
-        if (type === 'user' && !displayName) {
-            finalDisplayName = await getUserDisplayName(id);
-        }
-
-        const wrapper = document.createElement('div');
-        wrapper.id = `chat-window-${key}`;
-        wrapper.className = 'chat-window';
-        wrapper.style.right = `${offset + 40}px`;
-        wrapper.style.zIndex = 10000 + offset;
-        wrapper.displayName = finalDisplayName || id;
-
-        const header = document.createElement('div');
-        header.className = 'chat-header';
-        header.innerHTML = `
-            <span>${sanitizeHTML(finalDisplayName || id)}</span>
-            <button class="minimize-btn">-</button>
-            <button class="close-btn">×</button>
-        `;
-        header.querySelector('.close-btn').onclick = () => {
-            document.body.removeChild(wrapper);
-            delete openChatWindows[key];
-            offset -= 300;
-            repositionChatWindows();
-            saveChatState();
-        };
-        header.querySelector('.minimize-btn').onclick = () => {
-            wrapper.style.height = wrapper.style.height === '40px' ? '350px' : '40px';
-            saveChatState();
-        };
-
-        const chatBox = document.createElement('div');
-        chatBox.id = `chat-${key}`;
-        chatBox.className = 'chat-box';
-
-        const footer = document.createElement('div');
-        footer.className = 'chat-footer';
-        const input = document.createElement('input');
-        input.placeholder = 'Nhập tin nhắn...';
-        const sendBtn = document.createElement('button');
-        sendBtn.textContent = 'Gửi';
-
-        async function sendMessage() {
-            const message = input.value.trim();
-            if (!message) {
-                alert("⚠️ Bạn chưa nhập nội dung tin nhắn!");
-                return;
-            }
-            const messageId = `${currentUser}_${new Date().toISOString()}_${Math.random().toString(36).substr(2, 9)}`;
-            try {
-                if (!connection || connection.state !== signalR.HubConnectionState.Connected) {
-                    console.warn('SignalR connection not ready, attempting to reconnect...');
-                    await startSignalR();
-                    if (!connection || connection.state !== signalR.HubConnectionState.Connected) {
-                        throw new Error('SignalR connection failed to start');
-                    }
-                }
-                const messageObj = {
-                    senderUsername: currentUser,
-                    messageText: message,
-                    timestamp: new Date().toISOString(),
-                    messageId: messageId
-                };
-                if (type === 'user') {
-                    await sendPrivateMessage(id, message, key, messageId);
-                } else if (type === 'group') {
-                    await sendGroupMessage(id, message, key, messageId);
-                }
-                input.value = '';
-                // appendMessage(`chat-${key}`, currentUser, message, messageObj.timestamp, messageId);
-                saveMessagesToCache(type, id, [...loadMessagesFromCache(type, id), messageObj]);
-            } catch (error) {
-                console.error('Error sending message:', error.message);
-                alert(`❌ Đã xảy ra lỗi khi gửi tin nhắn: ${sanitizeHTML(error.message)}`);
-            }
-            saveChatState();
-        }
-
-        input.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') sendMessage();
-        });
+        input.addEventListener('keypress', e=>{ if(e.key==='Enter') sendMessage(); });
         sendBtn.addEventListener('click', sendMessage);
 
-        footer.appendChild(input);
-        footer.appendChild(sendBtn);
+        footer.appendChild(chipRow);
+        footer.appendChild(controlsRow);
         wrapper.appendChild(header);
         wrapper.appendChild(chatBox);
         wrapper.appendChild(footer);
         document.body.appendChild(wrapper);
-        openChatWindows[key] = wrapper;
-        offset += 300;
-        repositionChatWindows();
+        openChatWindows[key]=wrapper;
+        offset+=300; repositionChatWindows();
 
-        if (!isRestoring) {
-            if (type === 'user') {
-                loadChatHistory(id, key);
-            } else {
-                if (connectionReady && typeof connectionReady.then === 'function') {
-                    connectionReady.then(() => loadGroupHistory(id, key)).catch(error => {
-                        console.error('Error loading group history:', error.message);
-                        const chatBox = document.getElementById(`chat-${key}`);
-                        if (chatBox) {
-                            chatBox.innerHTML = `<div style="color: red;">Lỗi khi tải lịch sử nhóm: ${sanitizeHTML(error.message)}</div>`;
-                        }
-                    });
-                } else {
-                    console.warn('⚠️ connectionReady is not ready, initializing SignalR');
-                    startSignalR().then(() => loadGroupHistory(id, key)).catch(error => {
-                        console.error('Error initializing SignalR for group history:', error.message);
-                        const chatBox = document.getElementById(`chat-${key}`);
-                        if (chatBox) {
-                            chatBox.innerHTML = `<div style="color: red;">Lỗi khi tải lịch sử nhóm: ${sanitizeHTML(error.message)}</div>`;
-                        }
-                    });
-                }
-            }
+        if(!isRestoring){
+          if(type==='user'){ loadChatHistory(id, key); }
+          else{
+            const doLoad=()=>loadGroupHistory(id, key);
+            if(connectionReady && typeof connectionReady.then==='function'){ connectionReady.then(doLoad).catch(()=>{}); }
+            else { startSignalR().then(doLoad).catch(()=>{}); }
+          }
         }
-
         saveChatState();
-    }
+      }
 
-    function repositionChatWindows() {
-        let currentOffset = 270;
-        Object.values(openChatWindows).forEach(window => {
-            window.style.right = `${currentOffset + 40}px`;
-            currentOffset += 310;
-        });
-        offset = currentOffset;
-        saveChatState();
-    }
+      function repositionChatWindows(){
+        let x=270;
+        Object.values(openChatWindows).forEach(w=>{ w.style.right=`${x+40}px`; x+=310; });
+        offset=x; saveChatState();
+      }
 
-    function appendMessage(containerId, sender, text, timestamp, messageId) {
-        if (!text) return;
-        const uniqueMessageId = `${sessionId}_${messageId}`;
-        if (messageId && sentMessageIds.has(uniqueMessageId)) {
-            console.log(`Message ${uniqueMessageId} already added, skipping`);
-            return;
-        }
-        const container = document.getElementById(containerId);
-        if (!container) {
-            console.warn(`Container ${containerId} not found`);
-            return;
-        }
-        let timeStr = '';
-        if (timestamp) {
-            const dateObj = new Date(timestamp);
-            timeStr = isNaN(dateObj) ? '[Không rõ thời gian]' : dateObj.toLocaleTimeString();
+      /* ======= RENDER 1 MESSAGE ======= */
+           function appendMessage(containerId, sender, text, timestamp, messageId, attachmentUrls) {
+      if (!text && (!attachmentUrls || attachmentUrls.length === 0)) return;
+      const container = document.getElementById(containerId); if (!container) return;
+
+      const timeStr = timestamp
+        ? (isNaN(new Date(timestamp)) ? '' : new Date(timestamp).toLocaleTimeString())
+        : new Date().toLocaleTimeString();
+
+      const isMine = sender === currentUser;
+
+      const ctxKey = containerId.replace('chat-', '');
+      let receiverUsername = '', groupId = '';
+      if (ctxKey.startsWith('user:')) receiverUsername = (ctxKey.split(':')[1] || '');
+      else if (ctxKey.startsWith('group:')) groupId = (ctxKey.split(':')[1] || '');
+
+      const msg = document.createElement('div');
+      msg.className = `chat-message ${isMine ? 'sent' : 'received'}`;
+      msg.dataset.messageId = messageId || '';
+      msg.dataset.isMine = isMine ? '1' : '0';
+      msg.dataset.peer = receiverUsername;
+      msg.dataset.groupId = groupId;
+
+      let html = '';
+
+      // ==== TEXT ====
+      if (text) {
+        if (isMine) {
+          // MÌNH GỬI: có nút ⋯ và dùng flex để đặt nút cạnh bubble
+          html += `
+            <div class="bubble-row" style="display:flex;flex-direction:row-reverse;gap:6px;align-items:flex-start;">
+              <div class="message-content">${sanitizeHTML(text)}</div>
+              <button class="options-btn" type="button" aria-label="Tùy chọn" data-kind="text" data-mid="${messageId||''}">⋯</button>
+            </div>
+          `;
         } else {
-            timeStr = new Date().toLocaleTimeString();
+          // NGƯỜI KHÁC: KHÔNG dùng flex, chỉ render bubble thuần
+          html += `<div class="message-content">${sanitizeHTML(text)}</div>`;
         }
-        const senderDisplayName = sender === currentUser ? currentUser : getUserDisplayNameFromCache(sender);
-        const msg = document.createElement('div');
-        msg.className = `chat-message ${sender === currentUser ? 'sent' : 'received'}`;
-        msg.innerHTML = `
-            <div class="message-content">${sanitizeHTML(text)}</div>
-            <div class="timestamp"><strong>${sanitizeHTML(senderDisplayName)}</strong> </div>
-        `;
-        if (messageId) {
-            msg.dataset.messageId = uniqueMessageId;
-            sentMessageIds.add(uniqueMessageId);
-        }
-        container.appendChild(msg);
-        container.scrollTop = container.scrollHeight;
-        saveChatState();
+      }
+
+      // ==== ATTACHMENTS (giữ flex cho cả hai phía để nút ⋯ nằm cạnh) ====
+          if (attachmentUrls && attachmentUrls.length > 0) {
+      html += attachmentUrls
+        .map(u => buildAttachmentRow(u, isMine, messageId))
+        .join('');
     }
 
-    function loadChatHistory(user, key) {
-        const chatBox = document.getElementById(`chat-${key}`);
-        if (!chatBox) {
-            console.warn(`Chat box ${key} not found`);
-            return;
-        }
-        const cachedMessages = loadMessagesFromCache('user', user);
-        if (cachedMessages.length > 0) {
-            chatBox.innerHTML = '';
-            cachedMessages.forEach(msg => {
-                appendMessage(`chat-${key}`, msg.senderUsername, msg.messageText, msg.timestamp, msg.messageId);
-            });
-        } else {
-            chatBox.innerHTML = '<div>Đang tải...</div>';
-        }
+      html += `<div class="timestamp"><strong>${sanitizeHTML(sender)}</strong> </div>`;
 
+      msg.innerHTML = html;
+      container.appendChild(msg);
+      container.scrollTop = container.scrollHeight;
+    }
+        function buildAttachmentRow(url, isMine, messageId){
+      return `
+        <div class="attach-row" style="display:flex;${isMine ? 'flex-direction:row-reverse;' : ''}gap:6px;align-items:flex-start;margin-top:6px;">
+          ${buildAttachmentBlock(url)}
+          <button class="options-btn" type="button" aria-label="Tùy chọn tệp" data-kind="file" data-mid="${messageId||''}">⋯</button>
+        </div>`;
+    }
+
+
+
+      /* ======= Chuẩn hoá tin vào ======= */
+      function normalizeIncoming(msg){
+        const sender = msg.SenderUsername ?? msg.senderUsername ?? '';
+        const receiver = msg.ReceiverUsername ?? msg.receiverUsername ?? '';
+        const groupId = msg.GroupId ?? msg.groupId ?? '';
+        const messageText = msg.MessageText ?? msg.messageText ?? '';
+        const ts = msg.Timestamp ?? msg.timestamp ?? '';
+        const mid = msg.MessageId ?? msg.messageId ?? '';
+        let atts = msg.AttachmentUrls ?? msg.attachmentUrls ?? null;
+        if(!Array.isArray(atts)){
+          const single = msg.AttachmentUrl ?? msg.attachmentUrl ?? null;
+          atts = single ? [single] : [];
+        }
+        return { sender, receiver, groupId, messageText, ts, mid, atts };
+      }
+
+      function loadChatHistory(user, key){
+        const chatBox=document.getElementById(`chat-${key}`); if(!chatBox) return;
+        const cached=loadMessagesFromCache('user', user);
+        if(cached.length>0){
+          chatBox.innerHTML='';
+          cached.forEach(m=>{
+            const txt = m.MessageText ?? m.messageText ?? '';
+            const arr = (m.AttachmentUrls ?? m.attachmentUrls) || ((m.AttachmentUrl ?? m.attachmentUrl) ? [m.AttachmentUrl ?? m.attachmentUrl] : []);
+            appendMessage(`chat-${key}`, m.SenderUsername ?? m.senderUsername, txt, m.Timestamp ?? m.timestamp, m.MessageId ?? m.messageId, arr);
+          });
+        }else{
+          chatBox.innerHTML='<div>Đang tải...</div>';
+        }
         $.ajax({
-            url: '/chat/GetChatBetweenUsers',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ usename1: currentUser, usename2: user }),
-            success: function (result) {
-                console.log('Chat history result:', result);
-                chatBox.innerHTML = '';
-                if (result.success) {
-                    const messages = result.data || [];
-                    saveMessagesToCache('user', user, messages);
-                    messages.forEach(msg => {
-                        appendMessage(`chat-${key}`, msg.senderUsername, msg.messageText, msg.timestamp, msg.messageId);
-                    });
-                } else {
-                    chatBox.innerHTML = `<div style="color: red;">Lỗi: ${sanitizeHTML(result.message || 'Không thể tải tin nhắn')}</div>`;
-                }
-                saveChatState();
-            },
-            error: function (xhr, status, error) {
-                console.error('Error loading chat history:', status, error);
-                if (cachedMessages.length === 0) {
-                    chatBox.innerHTML = '<div style="color: red;">Lỗi khi tải lịch sử chat!</div>';
-                }
-                saveChatState();
+          url:'/chat/GetChatBetweenUsers', method:'POST', contentType:'application/json',
+          data: JSON.stringify({ usename1: currentUser, usename2: user }),
+          success:r=>{
+            chatBox.innerHTML='';
+            if(r.success){
+              const messages=r.data||[];
+              saveMessagesToCache('user', user, messages);
+              messages.forEach(m=>{
+                const txt = m.MessageText ?? m.messageText ?? '';
+                const arr = (m.AttachmentUrls ?? m.attachmentUrls) || ((m.AttachmentUrl ?? m.attachmentUrl) ? [m.AttachmentUrl ?? m.attachmentUrl] : []);
+                appendMessage(`chat-${key}`, m.SenderUsername ?? m.senderUsername, txt, m.Timestamp ?? m.timestamp, m.MessageId ?? m.messageId, arr);
+              });
+              if(messages.length===0 && cached.length===0){
+                chatBox.innerHTML='<div>Chưa có tin nhắn nào</div>';
+              }
+            }else{
+              chatBox.innerHTML=`<div style="color:red;">Lỗi: ${sanitizeHTML(r.message||'Không thể tải tin nhắn')}</div>`;
             }
-        });
-    }
-
-    function loadGroupHistory(groupId, key) {
-        const chatBox = document.getElementById(`chat-${key}`);
-        if (!chatBox) {
-            console.warn(`Chat box ${key} not found`);
-            return;
-        }
-        const cachedMessages = loadMessagesFromCache('group', groupId);
-        if (cachedMessages.length > 0) {
-            chatBox.innerHTML = '';
-            cachedMessages.forEach(msg => {
-                appendMessage(`chat-${key}`, msg.senderUsername, msg.messageText, msg.timestamp, msg.messageId);
-            });
-        } else {
-            chatBox.innerHTML = '<div>Đang tải...</div>';
-        }
-
-        if (!connection || connection.state !== signalR.HubConnectionState.Connected) {
-            console.warn('SignalR connection not ready for group history, attempting to reconnect...');
-            startSignalR().then(() => {
-                connection.invoke('JoinGroup', groupId).then(() => {
-                    loadGroupMessages();
-                }).catch(error => {
-                    console.error('Error joining group:', error.message);
-                    chatBox.innerHTML = `<div style="color: red;">Lỗi khi tham gia nhóm: ${sanitizeHTML(error.message)}</div>`;
-                    saveChatState();
-                });
-            }).catch(error => {
-                console.error('Error reconnecting SignalR:', error.message);
-                if (cachedMessages.length === 0) {
-                    chatBox.innerHTML = `<div style="color: red;">Lỗi khi kết nối SignalR: ${sanitizeHTML(error.message)}</div>`;
-                }
-                saveChatState();
-            });
-        } else {
-            connection.invoke('JoinGroup', groupId).then(() => {
-                loadGroupMessages();
-            }).catch(error => {
-                console.error('Error joining group:', error.message);
-                if (cachedMessages.length === 0) {
-                    chatBox.innerHTML = `<div style="color: red;">Lỗi khi tham gia nhóm: ${sanitizeHTML(error.message)}</div>`;
-                }
-                saveChatState();
-            });
-        }
-
-        function loadGroupMessages() {
-            $.ajax({
-                url: '/chat/getMessagesinGroup',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ username: currentUser, groupId }),
-                success: function (result) {
-                    console.log('Group messages result:', result);
-                    chatBox.innerHTML = '';
-                    if (result.success) {
-                        sentMessageIds.clear();
-                        const messages = result.data || [];
-                        saveMessagesToCache('group', groupId, messages);
-                        messages.forEach(msg => {
-                            appendMessage(`chat-${key}`, msg.senderUsername, msg.messageText, msg.timestamp, msg.messageId);
-                        });
-                        if (messages.length === 0 && cachedMessages.length === 0) {
-                            chatBox.innerHTML = '<div>Chưa có tin nhắn nào trong nhóm này</div>';
-                        }
-                    } else {
-                        if (cachedMessages.length === 0) {
-                            chatBox.innerHTML = `<div style="color: red;">Lỗi: ${sanitizeHTML(result.message || 'Không thể tải tin nhắn nhóm')}</div>`;
-                        }
-                    }
-                    saveChatState();
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error loading group history:', status, error);
-                    if (cachedMessages.length === 0) {
-                        chatBox.innerHTML = '<div style="color: red;">Lỗi khi tải lịch sử nhóm</div>';
-                    }
-                    saveChatState();
-                }
-            });
-        }
-    }
-
-    async function sendPrivateMessage(to, message, key, messageId) {
-        if (!connection || connection.state !== signalR.HubConnectionState.Connected) {
-            console.warn('SignalR connection not ready for private message, attempting to reconnect...');
-            await startSignalR();
-            if (!connection || connection.state !== signalR.HubConnectionState.Connected) {
-                throw new Error('SignalR connection failed to start');
-            }
-        }
-        await connection.invoke('SendMessage', {
-            senderUsername: currentUser,
-            receiverUsername: to,
-            messageText: message,
-            timestamp: new Date().toISOString(),
-            messageId: messageId
-        });
-    }
-
-    async function sendGroupMessage(groupId, message, key, messageId) {
-        if (!connection || connection.state !== signalR.HubConnectionState.Connected) {
-            console.warn('SignalR connection not ready for group message, attempting to reconnect...');
-            await startSignalR();
-            if (!connection || connection.state !== signalR.HubConnectionState.Connected) {
-                throw new Error('SignalR connection failed to start');
-            }
-        }
-        await connection.invoke('SendMessage', {
-            senderUsername: currentUser,
-            groupId,
-            messageText: message,
-            timestamp: new Date().toISOString(),
-            messageId: messageId
-        });
-    }
-
-    async function startSignalR() {
-        if (connection && connection.state === signalR.HubConnectionState.Connected) {
-            console.log('SignalR already connected');
-            return;
-        }
-        connection = new signalR.HubConnectionBuilder()
-            .withUrl('/chathub?username=' + encodeURIComponent(currentUser))
-            .withAutomaticReconnect([0, 1000, 5000, 10000])
-            .build();
-
-        connection.on('ReceiveMessage', async msg => {
-            const key = msg.groupId
-                ? `group:${msg.groupId}`
-                : msg.senderUsername === currentUser
-                ? `user:${msg.receiverUsername}`
-                : `user:${msg.senderUsername}`;
-            const messageObj = {
-                senderUsername: msg.senderUsername,
-                messageText: msg.messageText,
-                timestamp: msg.timestamp,
-                messageId: msg.messageId
-            };
-            let displayName;
-            if (msg.groupId) {
-                displayName = await getGroupName(msg.groupId);
-            } else {
-                if (openChatWindows[key]) {
-                    displayName = openChatWindows[key].displayName;
-                } else {
-                    displayName = await getUserDisplayName(msg.senderUsername === currentUser ? msg.receiverUsername : msg.senderUsername);
-                }
-            }
-
-            if (openChatWindows[key]) {
-                openChatWindows[key].style.display = 'block';
-                openChatWindows[key].style.height = '350px';
-                appendMessage(`chat-${key}`, msg.senderUsername, msg.messageText, msg.timestamp, msg.messageId);
-                unreadMessages[key] = 0;
-            } else {
-                unreadMessages[key] = (unreadMessages[key] || 0) + 1;
-                openNewChatWindow(msg.groupId ? 'group' : 'user', msg.groupId || (msg.senderUsername === currentUser ? msg.receiverUsername : msg.senderUsername), displayName);
-                appendMessage(`chat-${key}`, msg.senderUsername, msg.messageText, msg.timestamp, msg.messageId);
-            }
-
-            saveMessagesToCache(key.split(':')[0], key.split(':')[1], [
-                ...loadMessagesFromCache(key.split(':')[0], key.split(':')[1]),
-                messageObj
-            ]);
-            saveUnreadMessages();
-            updateUserList();
-            updateGroupList();
+            chatBox.scrollTop = chatBox.scrollHeight;
             saveChatState();
+          },
+          error: ()=>{
+            if(cached.length===0) chatBox.innerHTML='<div style="color:red;">Lỗi khi tải lịch sử chat!</div>';
+            saveChatState();
+          }
+        });
+      }
+
+      function loadGroupHistory(groupId, key){
+        const chatBox=document.getElementById(`chat-${key}`); if(!chatBox) return;
+        const cached=loadMessagesFromCache('group', groupId);
+        if(cached.length>0){
+          chatBox.innerHTML='';
+          cached.forEach(m=>{
+            const txt = m.MessageText ?? m.messageText ?? '';
+            const arr = (m.AttachmentUrls ?? m.attachmentUrls) || ((m.AttachmentUrl ?? m.attachmentUrl) ? [m.AttachmentUrl ?? m.attachmentUrl] : []);
+            appendMessage(`chat-${key}`, m.SenderUsername ?? m.senderUsername, txt, m.Timestamp ?? m.timestamp, m.MessageId ?? m.messageId, arr);
+          });
+        }else{
+          chatBox.innerHTML='<div>Đang tải...</div>';
+        }
+
+        const joinAndLoad=()=>{
+          connection.invoke('JoinGroup', groupId).then(()=>{
+            $.ajax({
+              url:'/chat/getMessagesinGroup', method:'POST', contentType:'application/json',
+              data: JSON.stringify({ username: currentUser, groupId }),
+              success:r=>{
+                chatBox.innerHTML='';
+                if(r.success){
+                  const messages=r.data||[];
+                  saveMessagesToCache('group', groupId, messages);
+                  messages.forEach(m=>{
+                    const txt = m.MessageText ?? m.messageText ?? '';
+                    const arr = (m.AttachmentUrls ?? m.attachmentUrls) || ((m.AttachmentUrl ?? m.attachmentUrl) ? [m.AttachmentUrl ?? m.attachmentUrl] : []);
+                    appendMessage(`chat-${key}`, m.SenderUsername ?? m.senderUsername, txt, m.Timestamp ?? m.timestamp, m.MessageId ?? m.messageId, arr);
+                  });
+                  if(messages.length===0 && cached.length===0){
+                    chatBox.innerHTML='<div>Chưa có tin nhắn nào trong nhóm này</div>';
+                  }
+                }else{
+                  if(cached.length===0){
+                    chatBox.innerHTML=`<div style="color:red;">Lỗi: ${sanitizeHTML(r.message||'Không thể tải tin nhắn nhóm')}</div>`;
+                  }
+                }
+                chatBox.scrollTop = chatBox.scrollHeight;
+                saveChatState();
+              },
+              error: ()=>{
+                if(cached.length===0) chatBox.innerHTML='<div style="color:red;">Lỗi khi tải lịch sử nhóm</div>';
+                saveChatState();
+              }
+            });
+          }).catch(err=>{
+            if(cached.length===0) chatBox.innerHTML=`<div style="color:red;">Lỗi khi tham gia nhóm: ${sanitizeHTML(err.message)}</div>`;
+            saveChatState();
+          });
+        };
+
+        if(!connection || connection.state!==signalR.HubConnectionState.Connected){
+          startSignalR().then(joinAndLoad).catch(err=>{
+            if(cached.length===0) chatBox.innerHTML=`<div style="color:red;">Lỗi khi kết nối SignalR: ${sanitizeHTML(err.message)}</div>`;
+            saveChatState();
+          });
+        } else { joinAndLoad(); }
+      }
+
+      /* ======= SignalR ======= */
+      async function startSignalR(){
+        if(connection && connection.state===signalR.HubConnectionState.Connected) return;
+        connection = new signalR.HubConnectionBuilder()
+          .withUrl('/chathub?username='+encodeURIComponent(currentUser))
+          .withAutomaticReconnect([0,1000,5000,10000]).build();
+
+        connection.on('ReceiveMessage', async raw=>{
+          const m = normalizeIncoming(raw);
+          const key = m.groupId
+            ? `group:${m.groupId}`
+            : (m.sender===currentUser ? `user:${m.receiver}` : `user:${m.sender}`);
+
+          if (!openChatWindows[key]){
+            const name = m.groupId
+              ? await getGroupName(m.groupId)
+              : (openChatWindows[key]?.displayName || await getUserDisplayName(m.sender===currentUser?m.receiver:m.sender));
+            openNewChatWindow(m.groupId?'group':'user', m.groupId || (m.sender===currentUser?m.receiver:m.sender), name);
+          }
+
+          appendMessage(`chat-${key}`, m.sender, m.messageText, m.ts, m.mid, m.atts);
         });
 
-        try {
-            console.log('Starting SignalR connection...');
-            connectionReady = connection.start();
-            await connectionReady;
-            console.log('SignalR connection established');
-        } catch (error) {
-            console.error('Error starting SignalR:', error.message);
-            connectionReady = null;
-            throw error;
+        // server thông báo xoá
+        connection.on('MessageDeleted', (messageId) => {
+          const els=document.querySelectorAll(`.chat-message[data-message-id="${messageId}"]`);
+          els.forEach(el=>el.remove());
+          saveChatState();
+        });
+
+        connectionReady = connection.start();
+        await connectionReady;
+      }
+
+      /* ======= Side panel (menu) ======= */
+      let currentPanel=null, panelCloser=null;
+      const PANEL_WIDTH=200, GUTTER=8;
+
+      function closeSidePanel(){
+        if(currentPanel){
+          currentPanel.remove();
+          currentPanel=null;
         }
-    }
+        if(panelCloser){
+          document.removeEventListener('click', panelCloser, true);
+          window.removeEventListener('resize', closeSidePanel, true);
+          window.removeEventListener('scroll', closeSidePanel, true);
+          document.removeEventListener('keydown', escCloser, true);
+          panelCloser=null;
+        }
+      }
+      function escCloser(e){ if(e.key==='Escape') closeSidePanel(); }
+
+      function openSidePanel(btn, side, items){
+           closeSidePanel();
+
+    const panel=document.createElement('div');
+    panel.className='sidepanel '+(side==='right'?'right':'left');
+    const ul=document.createElement('ul');
+    items.forEach(it=>{
+      const li=document.createElement('li');
+      if (it.disabled) li.classList.add('disabled');   // <<-- mới
+      const i=document.createElement('span'); i.className='i'; i.textContent=it.icon||'•';
+      const t=document.createElement('span'); t.textContent=it.label;
+      li.appendChild(i); li.appendChild(t);
+      li.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        if (it.disabled) return;                       // <<-- chặn click nếu disable
+        it.action();
+        closeSidePanel();
+      });
+      ul.appendChild(li);
+    });
+    panel.appendChild(ul);
+    document.body.appendChild(panel);
+
+        const r=btn.getBoundingClientRect();
+        const top = window.scrollY + r.top - 6;
+        let left;
+        if (side==='right'){ left = window.scrollX + r.right + GUTTER; }
+        else { left = window.scrollX + r.left - PANEL_WIDTH - GUTTER; }
+        panel.style.top = `${top}px`;
+        panel.style.left= `${left}px`;
+        panel.style.width= PANEL_WIDTH+'px';
+
+        requestAnimationFrame(()=> panel.classList.add('show') );
+
+        panelCloser=(ev)=>{
+          if (!panel.contains(ev.target) && ev.target!==btn){
+            closeSidePanel();
+          }
+        };
+        setTimeout(()=>{
+          document.addEventListener('click', panelCloser, true);
+          window.addEventListener('resize', closeSidePanel, true);
+          window.addEventListener('scroll', closeSidePanel, true);
+          document.addEventListener('keydown', escCloser, true);
+        },0);
+
+        currentPanel=panel;
+      }
+
+      function deleteMessage(mid, contextEl){
+        if(!mid) return;
+        if(!confirm('Bạn có chắc chắn muốn xóa tin nhắn này không?')) return;
+
+        // Lấy context chat (user / group) để gọi đúng tham số hub
+        const chatBox = contextEl.closest('.chat-box');
+        const chatType = chatBox?.dataset.chatType || '';
+        const chatId   = chatBox?.dataset.chatId   || '';
+        const receiverUsername = (chatType==='user') ? chatId : '';
+        const groupId  = (chatType==='group') ? chatId : '';
+
+        connection.invoke('DeleteMessage', mid, receiverUsername, groupId).catch(err=>{
+          console.error('Delete error:', err);
+          alert('Xóa tin nhắn thất bại');
+        });
+      }
+
+      // click nút ⋯ (nằm ngoài bubble/attach)
+         document.addEventListener('click', function(e){
+      if (!e.target.classList.contains('options-btn')) return;
+      e.stopPropagation();
+
+      const btn   = e.target;
+      const kind  = btn.getAttribute('data-kind'); // 'text' | 'file'
+      const mid   = btn.getAttribute('data-mid') || '';
+      const msgEl = btn.closest('.chat-message');
+      const isMine = msgEl?.dataset.isMine === '1';
+      const groupId = msgEl?.dataset.groupId || '';
+      const peer    = msgEl?.dataset.peer || '';
+      const side = msgEl?.classList.contains('received') ? 'right' : 'left';
+
+      // MENU ITEMS
+      let items = [];
+
+      if (kind === 'text') {
+        // Text: chỉ có nút khi là của mình -> chỉ cần 'Xóa'
+        items = [
+          { icon:'🗑️', label:'Xóa', disabled:false, action: ()=>{
+              if (!confirm('Bạn có chắc chắn muốn xóa tin nhắn này?')) return;
+              connection.invoke('DeleteMessage', mid, peer, groupId).catch(err=>{
+                console.error('Delete error:', err);
+                alert('Xóa tin nhắn thất bại');
+              });
+            }
+          }
+        ];
+      } else {
+        // File: luôn hiện menu cho cả hai phía
+        // Hành động Xóa: disable khi KHÔNG phải của mình
+        items.push({
+          icon:'🗑️', label:'Xóa',
+          disabled: !isMine,
+          action: ()=>{
+            if (!isMine) return; // đề phòng
+            if (!confirm('Bạn có chắc chắn muốn xóa tệp/tin nhắn này?')) return;
+            connection.invoke('DeleteMessage', mid, peer, groupId).catch(err=>{
+              console.error('Delete error:', err);
+              alert('Xóa tin nhắn thất bại');
+            });
+          }
+        });
+
+        // Lấy URL từ block gần nhất
+        const attach = btn.parentElement.querySelector('.attach');
+        const url = attach?.getAttribute('data-url') || '';
+        const name = attach?.querySelector('.meta')?.textContent || 'file';
+
+        if (url) {
+          if (isPdfUrl(url)) {
+            items.push({ icon:'👁️', label:'Xem PDF', action: ()=> window.open(url,'_blank') });
+          } else if (isDocxUrl(url)) {
+            const viewer='https://view.officeapps.live.com/op/view.aspx?src='+encodeURIComponent(url);
+            items.push({ icon:'👁️', label:'Xem DOCX', action: ()=> window.open(viewer,'_blank') });
+            items.push({ icon:'↗️', label:'Mở file gốc', action: ()=> window.open(url,'_blank') });
+          } else {
+            items.push({ icon:'↗️', label:'Mở', action: ()=> window.open(url,'_blank') });
+          }
+          items.push({
+            icon:'⬇️', label:'Tải xuống',
+            action: ()=>{
+              const a=document.createElement('a'); a.href=url; a.download=name;
+              document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            }
+          });
+          items.push({ icon:'🔗', label:'Copy link', action: ()=> navigator.clipboard?.writeText(url) });
+        }
+      }
+
+      openSidePanel(btn, side, items);
+    });
+
+
+      /* ======= Boot & Panel events ======= */
+      document.addEventListener('DOMContentLoaded', ()=>{
+        if(!window.chatSignalRInitialized){ window.chatSignalRInitialized=true; startSignalR().catch(console.error); }
+        loadUnreadMessages(); restoreChatState();
+      });
+
+      document.getElementById('toggle-chat')?.addEventListener('click', ()=>{
+        const panel=document.getElementById('user-list-panel');
+        panel.style.display = panel.style.display==='none' ? 'block' : 'none';
+        if (panel.style.display==='block'){ loadUsers(); loadGroups(); startSignalR(); }
+        saveChatState();
+      });
+      document.getElementById('close-list')?.addEventListener('click', ()=>{
+        const panel=document.getElementById('user-list-panel');
+        panel.style.display='none'; selectedGroupId=null;
+        const showBtn=document.getElementById('show-members-btn'); if(showBtn) showBtn.style.display='none';
+        saveChatState();
+      });
+      document.getElementById('tab-users')?.addEventListener('click', ()=>{
+        document.getElementById('users-content').style.display='block';
+        document.getElementById('groups-content').style.display='none';
+        document.getElementById('tab-users').classList.add('active');
+        document.getElementById('tab-groups').classList.remove('active');
+        selectedGroupId=null; document.getElementById('show-members-btn').style.display='none';
+        saveChatState();
+      });
+      document.getElementById('tab-groups')?.addEventListener('click', ()=>{
+        document.getElementById('users-content').style.display='none';
+        document.getElementById('groups-content').style.display='block';
+        document.getElementById('tab-users').classList.remove('active');
+        document.getElementById('tab-groups').classList.add('active');
+        saveChatState();
+      });
+      document.getElementById('create-group-btn')?.addEventListener('click', ()=>createNewGroup());
+      document.getElementById('create-group-name')?.addEventListener('keypress', e=>{ if(e.key==='Enter') createNewGroup(); });
+      document.getElementById('add-user-btn')?.addEventListener('click', ()=>addUserToGroup());
+      document.getElementById('add-user-to-group')?.addEventListener('keypress', e=>{ if(e.key==='Enter') addUserToGroup(); });
+      document.getElementById('show-members-btn')?.addEventListener('click', ()=>loadGroupMembers());
+
+      function createNewGroup(){
+        const groupName=document.getElementById('create-group-name').value.trim();
+        if(!groupName){ alert('❗ Vui lòng nhập tên nhóm!'); return; }
+        $.ajax({
+          url:'/chat/createGroupwithCreator', method:'POST', contentType:'application/json',
+          data:JSON.stringify({ groupName, username: currentUser }),
+          success:r=>{
+            if(r.success){ alert(`✅ Tạo nhóm ${sanitizeHTML(groupName)} thành công!`); document.getElementById('create-group-name').value=''; loadGroups(); saveChatState(); }
+            else { alert(`❌ Tạo nhóm thất bại: ${sanitizeHTML(r.message||'Lỗi không xác định')}`); }
+          },
+          error:()=>alert('❌ Đã xảy ra lỗi khi tạo nhóm!')
+        });
+      }
+
+      // expose nhẹ
+      window.loadUsers=loadUsers; window.loadGroups=loadGroups;
+    })();
 </script>

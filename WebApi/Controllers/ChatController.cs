@@ -196,6 +196,30 @@ namespace WebApi.Controllers
                 });
             }
         }
+        [HttpPost("DeleteMessage")]
+        public async Task<IActionResult> DeleteMessage([FromBody] string MessageId)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(ChatController), nameof(CreateGroupChatWithUser));
+
+                var response = await _chat.Delete_Message(MessageId);
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return StatusCode(500, new CResponseMessage1
+                {
+                    Success = false,
+                    code = "500",
+                    message = "Lỗi server: " + ex.Message
+                });
+            }
+        }
+
+
         [HttpPost("getGroupUser")]
         public async Task<IActionResult> get_group_chat_by_user([FromQuery]string username)
         {

@@ -82,13 +82,23 @@
                     if (!window.location.pathname.toLowerCase().includes('/chat/index')) {
                         $('#chat-widget-container').addClass('chat-visible');
                     }
+                    console.log("Báo cáo anh đang chạy ");
+                     if (typeof startSignalR === 'function') {
+                    startSignalR();
+                   
+                }
+                 
+                else {
+                    console.warn("⚠️ startSignalR chưa được định nghĩa.");
+                }
+                if (typeof loadGroups === 'function') {loadGroups(); console.log("Báo cáo anh load group")}
                     if (typeof restoreChatState === 'function') {
                         const chatState = localStorage.getItem('chatState');
                         if (chatState) {
                             restoreChatState();
                         } else {
                             if (typeof loadUsers === 'function') loadUsers();
-                            if (typeof loadGroups === 'function') loadGroups();
+                            if (typeof loadGroups === 'function') {loadGroups(); console.log("Báo cáo anh load group")}
                         }
                     }
                 },

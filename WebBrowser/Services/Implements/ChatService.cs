@@ -383,7 +383,25 @@ namespace WebBrowser.Services.Implements
                 };
             }
         }
-
+        public async Task<ApiResponse123> DeleteMessage(string MessageId)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion("ChatService", nameof(CreateGroupChatAsync));
+                return await _httpService.PostAsync<ApiResponse123>("Chat/DeleteMessage", MessageId);
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return new ApiResponse123
+                {
+                    code = "500",
+                    message = "Lỗi gọi API: " + ex.Message,
+                    success = false,
+                    data = null
+                };
+            }
+        }
         public async Task<ApiResponse123> RemoveGroupMembers(addUserToGroup dto)
         {
             try

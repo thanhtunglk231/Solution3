@@ -19,4 +19,7 @@ public class GroupMessageModel
 
     [JsonProperty("senT_AT")]
     public DateTime SentAt { get; set; }
+    [JsonProperty("attachmenT_URL")] // thêm cột attachment_url
+    public string AttachmentUrl { get; set; }
+
 }

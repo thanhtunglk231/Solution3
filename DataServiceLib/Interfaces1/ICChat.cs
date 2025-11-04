@@ -17,5 +17,6 @@ namespace DataServiceLib.Interfaces1
         Task<CResponseMessage1> get_messages_in_group(getMessagesinGroup request);
         Task<CResponseMessage1> get_group_members(GetGroupMembersRequest groupId);
         Task<CResponseMessage1> remove_user_from_group(addUserToGroup groupId);
+        Task<CResponseMessage1> Delete_Message(string message_Id);
     }
 }

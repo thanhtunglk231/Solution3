@@ -127,5 +127,58 @@ namespace WebBrowser.Services.Implements
             }
         }
 
+
+        public async Task<TotpEnrollStartResponse?> TotpEnrollStartAsync(string username, string issuer = "MyWebApp")
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(LoginService), nameof(TotpEnrollStartAsync));
+                var url = _baseUrl + ApiRouter.TotpEnrollStart;
+
+                var req = new TotpEnrollStartRequest { username = username, issuer = issuer };
+                return await _httpService.PostAsync<TotpEnrollStartResponse>(url, req);
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return new TotpEnrollStartResponse { success = false, message = "Lỗi tạo QR TOTP." };
+            }
+        }
+
+        public async Task<SimpleResponse?> TotpEnrollConfirmAsync(string username, string secretBase32, string code)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(LoginService), nameof(TotpEnrollConfirmAsync));
+                var url = _baseUrl + ApiRouter.TotpEnrollConfirm;
+
+                var req = new TotpEnrollConfirmRequest { username = username, secretBase32 = secretBase32, code = code };
+                return await _httpService.PostAsync<SimpleResponse>(url, req);
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return new SimpleResponse { success = false, message = "Lỗi xác nhận bật TOTP." };
+            }
+        }
+
+        public async Task<LoginResponse?> TotpVerifyAsync(string username, string code)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(LoginService), nameof(TotpVerifyAsync));
+                var url = _baseUrl + ApiRouter.TotpVerify;
+
+                var req = new TotpVerifyRequest { username = username, code = code };
+                return await _httpService.PostAsync<LoginResponse>(url, req);
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return new LoginResponse { Code = "500", Message = "Lỗi xác minh TOTP.", Success = false };
+            }
+        }
+
+
     }
 }
