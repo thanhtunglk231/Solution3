@@ -129,7 +129,7 @@ dotnet run
 |------------------------|-----|
 | Đăng nhập              | ![image](https://github.com/user-attachments/assets/77fb9133-b948-484c-ab83-d5607b79a968) |
 | Quét QR Google Auth    | ![image](https://github.com/user-attachments/assets/230c9a04-03e2-4d5f-bc8d-fafde3d0f748) |
-| Giao diện Chat         | ![image](https://github.com/user-attachments/assets/03ae59f7-2422-4719-a40c-70851e72c7a6) |
+| OTP gửi về             | ![image](https://github.com/user-attachments/assets/03ae59f7-2422-4719-a40c-70851e72c7a6) |
 
 ---
 
