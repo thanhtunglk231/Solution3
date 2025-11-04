@@ -1,4 +1,4 @@
-# 📌 HỆ THỐNG QUẢN LÝ NHÂN VIÊN + CHAT + XÁC THỰC ĐA YẾU TỐ (MFA)
+# 📌 HỆ THỐNG QUẢN LÝ NHÂN VIÊN = + XÁC THỰC ĐA YẾU TỐ (MFA)
 
 ## 📝 1. Giới thiệu
 
@@ -6,7 +6,7 @@ Hệ thống quản lý nhân sự nội bộ tích hợp:
 
 - ✅ Đăng nhập, phân quyền người dùng (Admin / User)
 - ✅ Quản lý nhân viên, phòng ban, chức vụ, lịch sử công việc
-- ✅ Chat nội bộ theo nhóm (Group Chat / Private Chat)
+=
 - ✅ Xác thực đa yếu tố (MFA):
   - OTP qua Email / SMS  
   - Google Authenticator (TOTP)  
