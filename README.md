@@ -23,7 +23,7 @@ Trusted Devices – “Nhớ thiết bị” không hỏi lại MFA trong X ngà
 
 ⚙️ 2. Công nghệ sử dụng
 Công nghệ	Mô tả
-Ngôn ngữ	C#, ASP.NET Core MVC (.NET 6)
+Ngôn ngữ	C#, ASP.NET Core MVC (.NET 8)
 CSDL	Oracle Database
 ORM	Entity Framework Core (hoặc Dapper + Oracle.ManagedDataAccess)
 Thư viện	QRCodeGenerator (TOTP), Otp.NET (Google Authenticator), SMTP / Twilio (Email/SMS OTP)
@@ -72,6 +72,17 @@ Visual Studio	2022
 ✅ 4.2 Import database
 
 ✔ Mở Oracle SQL Developer → New Connection → Run file Database/script.sql
+-- Tạo user để chứa dữ liệu
+CREATE USER C##USER02 IDENTIFIED BY toto;
+GRANT CONNECT, RESOURCE TO C##USER02;
+ALTER USER C##USER02 QUOTA UNLIMITED ON USERS;
+
+-- Import dữ liệu từ .dmp
+impdp C##USER02/toto@localhost:1521/xe \
+  DIRECTORY=BACKUP_DIR \
+  DUMPFILE=your_backup.dmp \
+  LOGFILE=import.log \
+  REMAP_SCHEMA=OLD_SCHEMA:C##USER02
 
 
 ✅ 4.3 Cấu hình Oracle & Email / SMS OTP
@@ -146,8 +157,14 @@ Kích hoạt Google Authenticator
 (QR)	<img width="971" height="915" alt="image" src="https://github.com/user-attachments/assets/230c9a04-03e2-4d5f-bc8d-fafde3d0f748" />
 
 Nhập mã OTP Email	images/otp_email.png
-Giao diện quản lý nhân viên	images/nhanvien.png
-Giao diện Chat nội bộ	images/chat.png
+
+<img width="795" height="649" alt="image" src="https://github.com/user-attachments/assets/6725a642-3009-4d11-8296-11f05eb26bf6" />
+
+<img width="1537" height="728" alt="image" src="https://github.com/user-attachments/assets/03ae59f7-2422-4719-a40c-70851e72c7a6" />
+
+
+
+
 ✅ 7. Các bảng CSDL chính
 Bảng	Chức năng
 USERS	Tài khoản đăng nhập
