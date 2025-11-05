@@ -1,0 +1,99 @@
+﻿@model WebBrowser.Models.ViewModels.EmployeeListViewModel
+
+@{
+    ViewBag.Title = "Danh sách nhân viên";
+}
+
+<h2 class="mb-4 text-primary"> Danh sách nhân viên</h2>
+
+@if (Model.Response != null && !string.IsNullOrWhiteSpace(Model.Response.Message))
+{
+    var alertClass = Model.Response.Success ? "alert-success" : "alert-danger";
+    <div id="alertMessage" class="alert @alertClass alert-dismissible fade show" role="alert">
+        @Model.Response.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<p>
+    <a class="btn btn-success mb-3" href="@Url.Action("Add", "Employee")">
+        <i class="bi bi-plus-circle me-1"></i> Thêm nhân viên mới
+    </a>
+</p>
+
+<table class="table table-bordered table-hover table-striped align-middle">
+    <thead class="table-dark text-center">
+        <tr>
+            <th>Mã NV</th>
+            <th>Họ tên</th>
+            <th>Ngày sinh</th>
+            <th>Địa chỉ</th>
+            <th>Phái</th>
+            <th>Lương</th>
+            <th>Mã NQL</th>
+            <th>Mã phòng</th>
+            <th>Ngày vào</th>
+            <th>Hoa hồng</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var emp in Model.Employees)
+        {
+            <tr>
+                <td>@emp.MANV</td>
+                <td>@emp.HO_TEN</td>
+                <td>@emp.NGSINH?.ToString("dd/MM/yyyy")</td>
+                <td>@emp.DCHI</td>
+                <td>@emp.PHAI</td>
+                <td>@String.Format("{0:N0}", emp.LUONG)</td>
+                <td>@emp.MA_NQL</td>
+                <td>@emp.MAPHG</td>
+                <td>@emp.NGAY_VAO?.ToString("dd/MM/yyyy")</td>
+                <td>@emp.HOAHONG</td>
+                <td class="text-center">
+                    <div class="d-flex justify-content-center gap-2">
+                        <form method="post" asp-action="UpdateCommision" onsubmit="return confirm('Bạn có chắc muốn tăng hoa hồng cho nhân viên này?');">
+                            <input type="hidden" name="manv" value="@emp.MANV" />
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                <i class="bi bi-cash-coin me-1"></i> Hoa hồng
+                            </button>
+                        </form>
+                        <form method="get" asp-action="HisEmp">
+                            <input type="hidden" name="manv" value="@emp.MANV" />
+                            <button type="submit" class="btn btn-info btn-sm">
+                                <i class="bi bi-clock-history me-1"></i> Lịch sử
+                            </button>
+                        </form>
+                        <form method="post" asp-action="UpdateSalary">
+                            <input type="hidden" name="manv" value="@emp.MANV" />
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="bi bi-arrow-up-circle me-1"></i> Tăng lương
+                            </button>
+                        </form>
+                        <form method="post" asp-action="Delete" onsubmit="return confirm('Bạn có chắc muốn xoá nhân viên này?');">
+                            <input type="hidden" name="manv" value="@emp.MANV" />
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="bi bi-trash me-1"></i> Xoá
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const alert = document.getElementById("alertMessage");
+            if (alert) {
+                setTimeout(function () {
+                    const alertInstance = bootstrap.Alert.getOrCreateInstance(alert);
+                    alertInstance.close();
+                }, 3000);
+            }
+        });
+    </script>
+}

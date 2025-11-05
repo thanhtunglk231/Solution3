@@ -1,0 +1,215 @@
+﻿@{
+    ViewData["Title"] = "Quản lý Công việc (Job)";
+}
+
+@await Html.PartialAsync("_AlertMessage")
+
+<div class="container py-4">
+    <h3 class="text-center mb-4 text-primary">
+        <i class="bi bi-briefcase-fill"></i> Quản lý Công việc
+    </h3>
+
+    <div class="d-flex flex-wrap gap-2 justify-content-between mb-3">
+        <button class="btn btn-primary" id="btnShowForm">
+            <i class="bi bi-plus-circle"></i> Thêm mới
+        </button>
+        <button class="btn btn-success" id="btnLoad">
+            <i class="bi bi-arrow-clockwise"></i> Tải lại
+        </button>
+    </div>
+
+    <!-- Form thêm/sửa -->
+    <div id="formContainer" class="card shadow-sm mb-4 d-none">
+        <div class="card-header fw-semibold" id="formHeader">Thêm Công việc</div>
+        <div class="card-body">
+            <form id="jobForm">
+                <input type="hidden" id="isUpdateMode" value="false" />
+                <div class="mb-3">
+                    <label for="majob" class="form-label">Mã Job</label>
+                    <input type="text" class="form-control" id="majob" name="majob" required />
+                </div>
+                <div class="mb-3">
+                    <label for="tenjob" class="form-label">Tên Job</label>
+                    <input type="text" class="form-control" id="tenjob" name="tenjob" required />
+                </div>
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary" id="btnSubmit">Thêm</button>
+                    <button type="button" class="btn btn-secondary" id="btnCancel">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loader -->
+    <div id="loader" class="text-center my-3 d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Mã Job</th>
+                    <th>Tên Job</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="jobTableBody">
+                <!-- JS render -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const showMessage = (msg) => {
+            $('#jobTableBody').html(`<tr><td colspan="3" class="text-danger">${msg}</td></tr>`);
+        };
+
+        const showLoading = (show) => {
+            $('#loader').toggleClass('d-none', !show);
+        };
+
+        const resetForm = () => {
+            $('#jobForm')[0].reset();
+            $('#majob').prop('readonly', false);
+            $('#isUpdateMode').val("false");
+            $('#btnSubmit').text("Thêm");
+            $('#formHeader').text("Thêm Công việc");
+        };
+
+        const loadJobs = () => {
+            showLoading(true);
+            console.log("[DEBUG] Gọi API: /Job1/getall");
+
+            $.get('/Job1/getall')
+                .done(res => {
+                    showLoading(false);
+                    console.log("[DEBUG] Kết quả trả về:", res);
+
+                    if (res.success && Array.isArray(res.data)) {
+                        let rows = res.data.map(job => `
+                            <tr>
+                                <td>${job.majob}</td>
+                                <td>${job.tenjob}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm btnEdit" data-id="${job.majob}" data-name="${job.tenjob}">
+                                        <i class="bi bi-pencil-square"></i> Sửa
+                                    </button>
+                                    <button class="btn btn-danger btn-sm btnDelete" data-id="${job.majob}">
+                                        <i class="bi bi-trash"></i> Xóa
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join("");
+                        $('#jobTableBody').html(rows);
+                    } else {
+                        showMessage(res.message || "Không có dữ liệu hoặc bạn không có quyền.");
+                    }
+                })
+                .fail(err => {
+                    showLoading(false);
+                    console.error("[ERROR] Khi gọi /Job1/getall:", err);
+                    showMessage("Lỗi khi tải dữ liệu công việc.");
+                });
+        };
+
+        $('#jobForm').submit(function (e) {
+            e.preventDefault();
+            const isUpdate = $('#isUpdateMode').val() === "true";
+            const payload = {
+                majob: $('#majob').val(),
+                tenjob: $('#tenjob').val()
+            };
+            const url = isUpdate ? '/Job1/Update' : '/Job1/Add';
+
+            console.log("[DEBUG] Submit form:", { url, isUpdate, payload });
+
+            showLoading(true);
+            $.ajax({
+                url: url,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                success: function (res) {
+                    showLoading(false);
+                    console.log("[DEBUG] Kết quả response:", res);
+
+                    if (res.success) {
+                        alert(res.message || "Thành công!");
+                        $('#formContainer').addClass('d-none');
+                        resetForm();
+                        loadJobs();
+                    } else {
+                        alert(res.message || "Lỗi không xác định.");
+                    }
+                },
+                error: function (err) {
+                    showLoading(false);
+                    console.error("[ERROR] Submit lỗi:", err);
+                    alert("Lỗi gửi dữ liệu.");
+                }
+            });
+        });
+
+        $(document).on('click', '.btnEdit', function () {
+            $('#formContainer').removeClass('d-none');
+            $('#formHeader').text("Cập nhật Công việc");
+            $('#btnSubmit').text("Cập nhật");
+            $('#isUpdateMode').val("true");
+
+            const majob = $(this).data('id');
+            const tenjob = $(this).data('name');
+            console.log("[DEBUG] Click Sửa:", { majob, tenjob });
+
+            $('#majob').val(majob).prop('readonly', true);
+            $('#tenjob').val(tenjob);
+            $('html, body').animate({ scrollTop: $('#formContainer').offset().top }, 'slow');
+        });
+
+        $(document).on('click', '.btnDelete', function () {
+            const majob = $(this).data('id');
+            if (confirm(`Bạn có chắc muốn xóa Job "${majob}"?`)) {
+                showLoading(true);
+                console.log("[DEBUG] Gửi yêu cầu xóa Job:", majob);
+
+                $.post('/Job1/Delete', { majob }, function (res) {
+                    showLoading(false);
+                    console.log("[DEBUG] Kết quả xóa Job:", res);
+
+                    if (res.success) {
+                        alert(res.message || "Đã xóa thành công.");
+                        loadJobs();
+                    } else {
+                        alert(res.message || "Không thể xóa.");
+                    }
+                }).fail(function (err) {
+                    showLoading(false);
+                    console.error("[ERROR] Xóa thất bại:", err);
+                    alert("Lỗi khi gửi yêu cầu xóa.");
+                });
+            }
+        });
+
+        $('#btnShowForm').click(function () {
+            resetForm();
+            $('#formContainer').toggleClass('d-none');
+            if (!$('#formContainer').hasClass('d-none')) {
+                $('html, body').animate({ scrollTop: $('#formContainer').offset().top }, 'slow');
+            }
+        });
+
+        $('#btnCancel').click(function () {
+            $('#formContainer').addClass('d-none');
+            resetForm();
+        });
+
+        $('#btnLoad').click(loadJobs);
+
+        $(document).ready(loadJobs);
+    </script>
+}
