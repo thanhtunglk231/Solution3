@@ -15,5 +15,6 @@ namespace WebBrowser.Services.Interfaces
         Task<SimpleResponse?> TotpEnrollConfirmAsync(string username, string secretBase32, string code);
         Task<TotpEnrollStartResponse?> TotpEnrollStartAsync(string username, string issuer = "MyWebApp");
         //Task<ApiResponse?> UpdateUserAsync(string username, string password, string role, string manv);
+        Task<LoginResponse?> VerifySmsAsync(string idToken);
     }
 }

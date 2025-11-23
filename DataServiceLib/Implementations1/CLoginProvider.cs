@@ -130,6 +130,111 @@ namespace DataServiceLib.Implementations1
             }
         }
 
+
+        public async Task<CResponseMessage1> GetPhone(string sdt)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(CLoginProvider), nameof(GetPhone));
+
+                Console.WriteLine("===== [GetPhone] START =====");
+                Console.WriteLine("Input SDT: " + sdt);
+
+                // INPUT
+                var p_sdt = new OracleParameter("p_sdt", OracleDbType.Varchar2)
+                {
+                    Direction = ParameterDirection.Input,
+                    Value = sdt
+                };
+                Console.WriteLine("Param p_sdt: " + p_sdt.Value);
+
+                // OUTPUTS
+                var o_username = new OracleParameter("o_username", OracleDbType.Varchar2, 100)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                var o_email = new OracleParameter("o_email", OracleDbType.Varchar2, 100)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                var o_role = new OracleParameter("o_role", OracleDbType.Varchar2, 50)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                var o_manv = new OracleParameter("o_manv", OracleDbType.Varchar2, 50)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                var parameters = new IDbDataParameter[]
+                {
+            p_sdt,
+            o_username,
+            o_email,
+            o_role,
+            o_manv
+                    // _dataProvider sẽ tự thêm o_code và o_message
+                };
+
+                Console.WriteLine("===== Calling Stored Procedure SP_GET_USER_BY_PHONE =====");
+
+                var result = _dataProvider.GetResponseFromExecutedSP(
+                    "SP_GET_USER_BY_PHONE",
+                    parameters,
+                    _connectString
+                );
+
+                Console.WriteLine("SP executed.");
+                Console.WriteLine("SP result.code: " + result.code);
+                Console.WriteLine("SP result.message: " + result.message);
+
+                // Đọc kết quả OUT param
+                var username = o_username.Value?.ToString()?.Trim();
+                var email = o_email.Value?.ToString()?.Trim();
+                var role = o_role.Value?.ToString()?.Trim();
+                var manv = o_manv.Value?.ToString()?.Trim();
+
+                Console.WriteLine("OUT username: " + username);
+                Console.WriteLine("OUT email    : " + email);
+                Console.WriteLine("OUT role     : " + role);
+                Console.WriteLine("OUT manv     : " + manv);
+
+                Console.WriteLine("===== [GetPhone] END =====");
+
+                return new CResponseMessage1
+                {
+                    code = result.code?.Trim(),
+                    message = result.message?.Trim(),
+                    Success = result.code?.Trim() == "200",
+                    Data = new
+                    {
+                        username,
+                        email,
+                        role,
+                        manv,
+                        sdt
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(">>> ERROR in GetPhone: " + ex.Message);
+                _errorHandler.WriteToFile(ex);
+
+                return new CResponseMessage1
+                {
+                    code = "500",
+                    message = "Lỗi hệ thống khi lấy thông tin số điện thoại",
+                    Success = false
+                };
+            }
+        }
+ 
+
+
         public async Task<CResponseMessage1> GetEmail(string input)
         {
             try

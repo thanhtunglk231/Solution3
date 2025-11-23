@@ -178,6 +178,34 @@ namespace WebBrowser.Services.Implements
                 return new LoginResponse { Code = "500", Message = "Lỗi xác minh TOTP.", Success = false };
             }
         }
+        public async Task<LoginResponse?> VerifySmsAsync(string idToken)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(LoginService), nameof(VerifySmsAsync));
+
+                var url = _baseUrl + "login/verify-sms";
+
+                var req = new VerifyFirebaseRequest
+                {
+                    IdToken = idToken
+                };
+
+                var result = await _httpService.PostAsync<LoginResponse>(url, req);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return new LoginResponse
+                {
+                    Code = "500",
+                    Message = "Lỗi xác thực SMS/Firebase.",
+                    Success = false
+                };
+            }
+        }
 
 
     }
