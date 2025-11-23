@@ -23,8 +23,34 @@ namespace WebBrowser.Controllers
         {
             return View();
         }
-       
-       
+
+        [HttpPost]
+        public async Task<IActionResult> VerifySms(string idToken)
+        {
+            var res = await _loginService.VerifySmsAsync(idToken);
+
+            if (res == null)
+                return Json(new { success = false, message = "Lỗi hệ thống" });
+
+            if (!res.Success)
+                return Json(new { success = false, message = res.Message });
+
+            // TRẢ TOKEN VÀO COOKIE / SESSION CHO MVC NẾU CẦN
+            HttpContext.Session.SetString("JWToken", res.Token);
+            HttpContext.Session.SetString("Username", res.Username);
+            HttpContext.Session.SetString("Role", res.Role);
+
+            return Json(new
+            {
+                success = true,
+                message = res.Message,
+                token = res.Token,
+                username = res.Username,
+                role = res.Role
+            });
+        }
+
+
         public async Task<IActionResult> LoginJson([FromBody] LoginViewModel model)
         {
             try

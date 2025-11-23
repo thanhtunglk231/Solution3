@@ -1,18 +1,21 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+﻿using CommonLib.Handles;
+using CommonLib.Helpers;
+using CommonLib.Implementations;
+using CommonLib.Interfaces;
 using CoreLib.Dtos;
 using DataServiceLib.Interfaces1;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using CommonLib.Handles;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
-using CommonLib.Interfaces;
 using WebBrowser.Models;
 
 namespace WebApi.Controllers
@@ -21,19 +24,29 @@ namespace WebApi.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
+        private readonly IFirebaseOtpService _firebaseOtpService;
         private readonly ICLoginProvider _userService;
         private readonly IConfiguration _configuration;
         private readonly IErrorHandler _errorHandler;
         private readonly IOtpService _otpService;
         private readonly ITotpService _totpService;
-        public LoginController(ICLoginProvider userService, ITotpService totpService, IConfiguration configuration, IErrorHandler errorHandler,IOtpService otpService)
+
+        public LoginController(
+            IFirebaseOtpService firebaseOtpService,
+            ICLoginProvider userService,
+            ITotpService totpService,
+            IConfiguration configuration,
+            IErrorHandler errorHandler,
+            IOtpService otpService)
         {
+            _firebaseOtpService = firebaseOtpService;
             _userService = userService;
             _configuration = configuration;
             _errorHandler = errorHandler;
             _totpService = totpService;
-            _otpService = otpService;   
+            _otpService = otpService;
         }
+
         // POST /api/login
         [HttpPost]
         public async Task<IActionResult> Login([FromBody] LoginRequest req)
@@ -161,6 +174,192 @@ namespace WebApi.Controllers
                 });
             }
         }
+        #region sms firebase
+        [HttpPost("send-sms")]
+        public async Task<IActionResult> SendSms([FromBody] InputStringDto input)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(LoginController), nameof(SendSms));
+
+                var firebaseIdToken = input.Input?.Trim();
+                if (string.IsNullOrWhiteSpace(firebaseIdToken))
+                {
+                    return BadRequest(new { success = false, message = "Thiếu Firebase ID Token." });
+                }
+
+                // 1. Verify Firebase Token
+                var decoded = await _firebaseOtpService.VerifyFirebaseTokenAsync(firebaseIdToken);
+                if (decoded == null)
+                {
+                    _errorHandler.WriteStringToFuncion("Token Firebase không hợp lệ", firebaseIdToken);
+                    return BadRequest(new { success = false, message = "Token không hợp lệ." });
+                }
+
+                var uid = decoded.Uid;
+                var phone = decoded.Claims.ContainsKey("phone_number")
+                            ? decoded.Claims["phone_number"]?.ToString()
+                            : null;
+
+                if (string.IsNullOrWhiteSpace(phone))
+                {
+                    return BadRequest(new { success = false, message = "Không lấy được số điện thoại từ Firebase." });
+                }
+
+                _errorHandler.WriteStringToFuncion("Firebase xác thực thành công cho UID: {UID}", uid);
+
+                // 2. Lưu session vào Redis giống logic OTP Email
+                var sessionSaved = await _firebaseOtpService.SaveLoginSessionToRedis(uid);
+
+                if (!sessionSaved)
+                {
+                    return StatusCode(500, new { success = false, message = "Không thể lưu phiên vào Redis." });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Xác thực số điện thoại thành công qua Firebase SMS.",
+                    uid,
+                    phone
+                });
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống khi xử lý Firebase SMS." });
+            }
+        }
+        [HttpPost("verify-sms")]
+        public async Task<IActionResult> VerifySms([FromBody] VerifyFirebaseRequest req)
+        {
+            try
+            {
+                _errorHandler.WriteStringToFuncion(nameof(LoginController), nameof(VerifySms));
+
+                if (string.IsNullOrWhiteSpace(req.IdToken))
+                {
+                    return BadRequest(new
+                    {
+                        code = "400",
+                        message = "Thiếu Firebase ID Token.",
+                        success = false
+                    });
+                }
+
+                // 1) Xác thực token Firebase
+                var decoded = await _firebaseOtpService.VerifyFirebaseTokenAsync(req.IdToken.Trim());
+                if (decoded == null)
+                {
+                    return Unauthorized(new
+                    {
+                        code = "401",
+                        message = "Token Firebase không hợp lệ.",
+                        success = false
+                    });
+                }
+
+                var uid = decoded.Uid;
+
+                // Email (có thể null)
+                var emailFromToken = decoded.Claims.ContainsKey("email")
+                    ? decoded.Claims["email"]?.ToString()
+                    : null;
+
+                // Phone (bắt buộc)
+                var phoneFromToken = decoded.Claims.ContainsKey("phone_number")
+                    ? decoded.Claims["phone_number"]?.ToString()
+                    : null;
+
+                if (string.IsNullOrWhiteSpace(phoneFromToken))
+                {
+                    return BadRequest(new
+                    {
+                        code = "400",
+                        message = "Không tìm thấy số điện thoại trong Firebase token.",
+                        success = false
+                    });
+                }
+
+                // 2) Chuẩn hóa số điện thoại
+                var normalizedPhone = PhoneNumberHelper.NormalizePhone(phoneFromToken);
+                Console.WriteLine("Firebase phone  : " + phoneFromToken);
+                Console.WriteLine("Normalized phone: " + normalizedPhone);
+
+                if (string.IsNullOrWhiteSpace(normalizedPhone))
+                {
+                    return BadRequest(new
+                    {
+                        code = "400",
+                        message = "Số điện thoại trong Firebase token không hợp lệ.",
+                        success = false
+                    });
+                }
+
+                // 3) Gọi DB lấy user theo SĐT
+                var response = await _userService.GetPhone(normalizedPhone);
+                Console.WriteLine("===== DB RESPONSE =====");
+                Console.WriteLine(JsonConvert.SerializeObject(response, Formatting.Indented));
+
+                if (!response.Success || response.Data == null)
+                {
+                    return NotFound(new
+                    {
+                        code = "404",
+                        message = "Số điện thoại chưa được đăng ký trong hệ thống.",
+                        success = false
+                    });
+                }
+
+                // 4) Lấy dữ liệu từ DB
+                var data = response.Data;
+                var username = data.GetType().GetProperty("username")?.GetValue(data)?.ToString();
+                var email = data.GetType().GetProperty("email")?.GetValue(data)?.ToString();
+                var role = data.GetType().GetProperty("role")?.GetValue(data)?.ToString();
+                var manv = data.GetType().GetProperty("manv")?.GetValue(data)?.ToString();
+
+                // 5) Lưu session vào Redis
+                await _firebaseOtpService.SaveLoginSessionToRedis(uid);
+
+                // 6) Sinh JWT Token → để FE đăng nhập luôn
+                var jwtEmail = !string.IsNullOrWhiteSpace(email) ? email : emailFromToken;
+                var token = GenerateJwtToken(username, role, manv, jwtEmail);
+
+                // 7) Trả token để FE tự redirect
+                return Ok(new
+                {
+                    code = "200",
+                    message = "Đăng nhập bằng SMS thành công.",
+                    success = true,
+                    token,          // FE sẽ dùng token này để đăng nhập
+                    username,
+                    role,
+                    manv,
+                    email = jwtEmail,
+                    phone = normalizedPhone,
+                    firebaseUid = uid
+                });
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteToFile(ex);
+                Console.WriteLine(">>> ERROR VerifySms: " + ex);
+
+                return StatusCode(500, new
+                {
+                    code = "500",
+                    message = "Lỗi hệ thống khi xác thực SMS.",
+                    detail = ex.Message,
+                    success = false
+                });
+            }
+        }
+
+
+
+        #endregion
+
+
         [HttpPost("send")]
         public async Task<IActionResult> Send([FromBody] InputStringDto input)
         {

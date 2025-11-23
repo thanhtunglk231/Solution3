@@ -5,125 +5,259 @@
 <!-- Bootstrap CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<!-- Custom CSS for enhanced styling -->
 <style>
     body {
-        background-color: #f4f7fa;
-        font-family: 'Segoe UI', Arial, sans-serif;
+        background: radial-gradient(circle at top, #4f46e5 0, #020617 45%, #020617 100%);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        min-height: 100vh;
     }
 
     .chat-container {
         max-width: 1200px;
-        margin: 20px auto;
-        padding: 20px;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin: 30px auto;
+        padding: 20px 24px;
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 18px;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.35);
+        border: 1px solid rgba(148, 163, 184, 0.2);
     }
 
+    .chat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .chat-header-title {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .chat-header-title h3 {
+            margin: 0;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .chat-header-title small {
+            color: #64748b;
+        }
+
+    .current-user-pill {
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .current-user-pill i {
+            font-size: 0.9rem;
+        }
+
     .nav-tabs {
-        border-bottom: 2px solid #007bff;
+        border-bottom: 2px solid #e2e8f0;
+        margin-top: 10px;
     }
 
         .nav-tabs .nav-link {
-            color: #495057;
+            color: #64748b;
             font-weight: 500;
             padding: 10px 20px;
-            border-radius: 8px 8px 0 0;
+            border-radius: 999px 999px 0 0;
+            border: none;
+            margin-right: 5px;
         }
 
             .nav-tabs .nav-link.active {
-                background-color: #007bff;
-                color: white;
-                border-color: #007bff;
+                background: linear-gradient(135deg, #2563eb, #4f46e5);
+                color: #fff;
+                border: none;
+                box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
             }
 
             .nav-tabs .nav-link:hover {
-                background-color: #e9ecef;
+                background-color: #e5e7eb;
+                color: #111827;
             }
+
+    .badge-unread {
+        background-color: #dc2626;
+        color: white;
+        font-size: 0.7rem;
+        padding: 2px 7px;
+        border-radius: 999px;
+        margin-left: 6px;
+    }
+
+    .side-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #4b5563;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .side-title i {
+            color: #6366f1;
+        }
+
+    .list-group {
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+        background-color: #f9fafb;
+    }
 
     .list-group-item {
         cursor: pointer;
         border: none;
-        border-radius: 5px;
-        margin-bottom: 5px;
-        background-color: #f8f9fa;
-        transition: background-color 0.2s;
+        border-radius: 0;
+        margin-bottom: 0;
+        background-color: transparent;
+        transition: background-color 0.15s, transform 0.05s;
+        font-size: 0.95rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
     }
 
         .list-group-item:hover {
-            background-color: #e9ecef;
+            background-color: #e5e7eb;
         }
 
         .list-group-item.active {
-            background-color: #007bff;
-            color: white;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: #fff;
+        }
+
+        .list-group-item .name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 160px;
         }
 
     .chat-box {
-        background: #f1f3f5;
-        border-radius: 8px;
-        padding: 15px;
-        height: 400px;
+        background: #f3f4f6;
+        border-radius: 14px;
+        padding: 14px;
+        height: 420px;
         overflow-y: auto;
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.12);
+        position: relative;
     }
+
+    .chat-empty-state {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: #9ca3af;
+        text-align: center;
+        pointer-events: none;
+    }
+
+        .chat-empty-state i {
+            font-size: 40px;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
 
     .chat-message {
         margin-bottom: 10px;
-        padding: 10px;
-        border-radius: 8px;
-        max-width: 70%;
+        padding: 10px 12px;
+        border-radius: 14px;
+        max-width: 72%;
         overflow-wrap: break-word;
         word-break: break-word;
+        font-size: 0.9rem;
+        position: relative;
     }
 
         .chat-message.sent {
-            background-color: #007bff;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
             color: white;
             margin-left: auto;
-            text-align: right;
+            text-align: left;
+            border-bottom-right-radius: 4px;
         }
 
         .chat-message.received {
-            background-color: #e9ecef;
-            color: #333;
+            background-color: #e5e7eb;
+            color: #111827;
             margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-message strong {
+            display: block;
+            font-size: 0.8rem;
+            margin-bottom: 3px;
+            opacity: 0.9;
         }
 
         .chat-message .timestamp {
-            font-size: 0.8em;
-            color: #6c757d;
-            margin-top: 5px;
+            font-size: 0.75rem;
+            color: rgba(148, 163, 184, 0.9);
+            margin-top: 4px;
+            text-align: right;
         }
 
-    .badge-unread {
-        background-color: #dc3545;
-        color: white;
-        font-size: 0.75em;
-        padding: 2px 6px;
-        border-radius: 10px;
-        margin-left: 10px;
-    }
-
-    .toast {
-        border: 1px solid #007bff;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .toast-header {
-        background-color: #007bff;
-        color: white;
-        border-bottom: none;
-    }
-
     .input-group .form-control {
-        border-radius: 5px 0 0 5px;
+        border-radius: 12px 0 0 12px;
+        border-color: #d1d5db;
+        font-size: 0.95rem;
     }
 
     .input-group .btn {
-        border-radius: 0 5px 5px 0;
+        border-radius: 0 12px 12px 0;
+    }
+
+    .input-helper-text {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-top: 4px;
+    }
+
+        .input-helper-text span {
+            color: #4f46e5;
+            font-weight: 500;
+        }
+
+    .pill-button {
+        border-radius: 999px;
+    }
+
+    .toast {
+        border-radius: 10px;
+        box-shadow: 0 6px 24px rgba(15, 23, 42, 0.3);
+        border: 1px solid #2563eb;
+    }
+
+    .toast-header {
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+        color: #fff;
+        border-bottom: none;
+    }
+
+    .toast-body {
+        font-size: 0.9rem;
+    }
+
+    .section-divider {
+        height: 1px;
+        background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+        margin: 16px 0 12px;
     }
 </style>
 
@@ -132,7 +266,7 @@
     <div id="messageToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="5000">
         <div class="toast-header">
             <strong class="me-auto" id="toastTitle">Tin nhắn mới</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body" id="toastMessageContent"></div>
     </div>
@@ -140,16 +274,29 @@
 
 <!-- Chat Container -->
 <div class="chat-container">
+    <div class="chat-header">
+        <div class="chat-header-title">
+            <h3>Trò chuyện nội bộ</h3>
+            <small>Chat 1:1 và chat nhóm theo thời gian thực</small>
+        </div>
+        <div class="current-user-pill">
+            <i class="bi bi-person-circle"></i>
+            <span id="currentUserLabel">Đang đăng nhập: <strong>@User.Identity?.Name</strong></span>
+        </div>
+    </div>
+
     <!-- Tabs -->
     <ul class="nav nav-tabs mb-3" id="chatTabs" role="tablist">
         <li class="nav-item">
             <a class="nav-link active" id="chat1-1-tab" data-bs-toggle="tab" href="#chat1-1" role="tab">
-                Chat 1:1 <span id="unreadPrivateCount" class="badge-unread" style="display: none;">0</span>
+                Chat 1:1
+                <span id="unreadPrivateCount" class="badge-unread" style="display: none;">0</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" id="chatGroup-tab" data-bs-toggle="tab" href="#chatGroup" role="tab">
-                Chat nhóm <span id="unreadGroupCount" class="badge-unread" style="display: none;">0</span>
+                Chat nhóm
+                <span id="unreadGroupCount" class="badge-unread" style="display: none;">0</span>
             </a>
         </li>
     </ul>
@@ -158,17 +305,38 @@
     <div class="tab-content" id="chatTabsContent">
         <!-- Chat 1:1 -->
         <div class="tab-pane fade show active" id="chat1-1" role="tabpanel">
-            <div class="row">
+            <div class="row g-4">
                 <div class="col-md-4">
-                    <h5>Người dùng</h5>
+                    <div class="side-title">
+                        <i class="bi bi-people"></i>
+                        <span>Danh sách người dùng</span>
+                    </div>
                     <ul id="userList" class="list-group"></ul>
                 </div>
                 <div class="col-md-8">
-                    <h5>Chat với <span id="selectedUser"></span></h5>
-                    <div id="chatBox" class="chat-box"></div>
-                    <div class="input-group mt-3">
-                        <input type="text" id="messageInput" class="form-control" placeholder="Nhập tin nhắn...">
-                        <button class="btn btn-primary" id="sendBtn">Gửi</button>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">
+                            Chat với:
+                            <span id="selectedUser" class="fw-semibold text-indigo-600"></span>
+                        </h6>
+                        <span class="text-muted small" id="privateChatHint">Chưa chọn người để chat</span>
+                    </div>
+                    <div id="chatBox" class="chat-box">
+                        <div class="chat-empty-state" id="privateEmptyState">
+                            <i class="bi bi-chat-dots"></i>
+                            <div>Chọn một người bên trái để bắt đầu trò chuyện.</div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="input-group">
+                            <input type="text" id="messageInput" class="form-control" placeholder="Nhập tin nhắn...">
+                            <button class="btn btn-primary pill-button" id="sendBtn">
+                                <i class="bi bi-send-fill me-1"></i> Gửi
+                            </button>
+                        </div>
+                        <div class="input-helper-text">
+                            Nhấn <span>Enter</span> để gửi nhanh • Hãy chọn người nhận trước khi gửi.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -176,33 +344,62 @@
 
         <!-- Chat nhóm -->
         <div class="tab-pane fade" id="chatGroup" role="tabpanel">
-            <div class="mb-3">
-                <div class="input-group">
-                    <input type="text" id="newGroupName" class="form-control" placeholder="Tên nhóm mới...">
-                    <button class="btn btn-outline-primary" id="createGroupBtn">Tạo nhóm</button>
-                </div>
-            </div>
-            <div class="row">
+            <div class="row g-4">
                 <div class="col-md-4">
-                    <h5>Nhóm</h5>
+                    <div class="side-title">
+                        <i class="bi bi-collection"></i>
+                        <span>Nhóm chat</span>
+                    </div>
+                    <div class="input-group mb-2">
+                        <input type="text" id="newGroupName" class="form-control" placeholder="Tên nhóm mới...">
+                        <button class="btn btn-outline-primary pill-button" id="createGroupBtn">
+                            <i class="bi bi-plus-circle me-1"></i>Tạo
+                        </button>
+                    </div>
+                    <div class="input-helper-text mb-2">Ví dụ: Phòng IT, Dự án A, Nhóm trực ca tối…</div>
                     <ul id="groupList" class="list-group"></ul>
                 </div>
+
                 <div class="col-md-8">
-                    <h5>Chat nhóm: <span id="selectedGroupName"></span></h5>
-                    <div class="mb-3">
-                        <button class="btn btn-info" id="loadMembersBtn">Xem thành viên nhóm</button>
-                        <ul id="groupMembersList" class="list-group mt-2" style="display: none;"></ul>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">
+                            Chat nhóm:
+                            <span id="selectedGroupName" class="fw-semibold text-indigo-600"></span>
+                        </h6>
+                        <button class="btn btn-sm btn-outline-secondary pill-button" id="loadMembersBtn">
+                            <i class="bi bi-people-fill me-1"></i>
+                            Xem thành viên nhóm
+                        </button>
                     </div>
+
+                    <div id="groupMembersList" class="list-group mb-3" style="display: none;"></div>
+
                     <div id="addUserToGroupSection" class="mb-3" style="display: none;">
                         <div class="input-group">
                             <input type="text" id="usernameToAdd" class="form-control" placeholder="Tên người dùng cần thêm...">
-                            <button class="btn btn-warning" id="addUserToGroupBtn">Thêm thành viên</button>
+                            <button class="btn btn-warning pill-button" id="addUserToGroupBtn">
+                                <i class="bi bi-person-plus-fill me-1"></i>Thêm thành viên
+                            </button>
                         </div>
                     </div>
-                    <div id="groupChatBox" class="chat-box"></div>
-                    <div class="input-group mt-3">
-                        <input type="text" id="groupMessageInput" class="form-control" placeholder="Nhập tin nhắn nhóm...">
-                        <button class="btn btn-success" id="sendGroupBtn">Gửi</button>
+
+                    <div id="groupChatBox" class="chat-box">
+                        <div class="chat-empty-state" id="groupEmptyState">
+                            <i class="bi bi-chat-square-dots"></i>
+                            <div>Chọn một nhóm bên trái hoặc tạo nhóm mới để bắt đầu.</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="input-group">
+                            <input type="text" id="groupMessageInput" class="form-control" placeholder="Nhập tin nhắn nhóm...">
+                            <button class="btn btn-success pill-button" id="sendGroupBtn">
+                                <i class="bi bi-send-fill me-1"></i> Gửi
+                            </button>
+                        </div>
+                        <div class="input-helper-text">
+                            Nhấn <span>Enter</span> để gửi nhanh • Chỉ gửi khi đã chọn nhóm.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -213,58 +410,84 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script data-partial-script="true">
+        // ========= GLOBAL STATE =========
         let selectedUser = '';
         let selectedGroupId = '';
         let selectedGroupName = '';
-        let connection = window.chatConnection;
-        let unreadMessages = { private: {}, groups: {} };
         let activeTab = 'chat1-1';
 
-        // Initialize Bootstrap toast
+        // Lấy connection từ window, nếu chưa có thì tạo mới
+        let connection = window.chatConnection;
+        if (!connection) {
+            connection = new signalR.HubConnectionBuilder()
+                .withUrl("/chathub")
+                .withAutomaticReconnect()
+                .build();
+            window.chatConnection = connection;
+        }
+
+        let unreadMessages = { private: {}, groups: {} };
+
+        // Bootstrap Toast
         const toastElement = document.getElementById('messageToast');
         const toast = new bootstrap.Toast(toastElement);
 
-        // Load unread messages from localStorage
+        // ========= HELPER: KẾT NỐI =========
+        async function ensureConnectionStarted() {
+            if (!connection) return;
+
+            if (connection.state === signalR.HubConnectionState.Disconnected) {
+                try {
+                    await connection.start();
+                    console.log('✅ Đã kết nối SignalR');
+                } catch (err) {
+                    console.error('❌ Lỗi khi kết nối SignalR:', err);
+                }
+            }
+        }
+
+        // ========= UNREAD MESSAGES =========
         function loadUnreadMessages() {
             const stored = localStorage.getItem('unreadMessages');
             if (stored) {
                 try {
                     unreadMessages = JSON.parse(stored);
-                    unreadMessages.private = unreadMessages.private || {};
-                    unreadMessages.groups = unreadMessages.groups || {};
                 } catch (e) {
-                    console.error('❌ Lỗi khi parse unreadMessages từ localStorage:', e);
+                    console.error('❌ Lỗi khi parse unreadMessages:', e);
                     unreadMessages = { private: {}, groups: {} };
                 }
             }
+            unreadMessages.private = unreadMessages.private || {};
+            unreadMessages.groups = unreadMessages.groups || {};
         }
 
-        // Save unread messages to localStorage
         function saveUnreadMessages() {
             try {
                 localStorage.setItem('unreadMessages', JSON.stringify(unreadMessages));
             } catch (e) {
-                console.error('Error saving unreadMessages to localStorage:', e.message);
+                console.error('❌ Lỗi khi lưu unreadMessages:', e);
             }
         }
 
-        // Update badge counts on 
         function updateBadges() {
             unreadMessages.private = unreadMessages.private || {};
             unreadMessages.groups = unreadMessages.groups || {};
 
-            const privateCount = Object.values(unreadMessages.private).reduce((sum, count) => sum + count, 0);
+            // Tổng private
+            const privateCount = Object.values(unreadMessages.private).reduce((sum, c) => sum + c, 0);
             const privateBadge = document.getElementById('unreadPrivateCount');
             privateBadge.textContent = privateCount;
             privateBadge.style.display = privateCount > 0 ? 'inline-block' : 'none';
 
-            const groupCount = Object.values(unreadMessages.groups).reduce((sum, count) => sum + count, 0);
+            // Tổng group
+            const groupCount = Object.values(unreadMessages.groups).reduce((sum, c) => sum + c, 0);
             const groupBadge = document.getElementById('unreadGroupCount');
             groupBadge.textContent = groupCount;
             groupBadge.style.display = groupCount > 0 ? 'inline-block' : 'none';
 
-            const userList = document.getElementById('userList').children;
-            for (let li of userList) {
+            // Badge theo từng user
+            const userItems = document.getElementById('userList').children;
+            for (let li of userItems) {
                 const username = li.dataset.username;
                 const count = unreadMessages.private[username] || 0;
                 const badge = li.querySelector('.badge-unread');
@@ -274,10 +497,11 @@
                 }
             }
 
-            const groupList = document.getElementById('groupList').children;
-            for (let li of groupList) {
-                const groupId = li.dataset.groupId;
-                const count = unreadMessages.groups[groupId] || 0;
+            // Badge theo từng group
+            const groupItems = document.getElementById('groupList').children;
+            for (let li of groupItems) {
+                const gid = li.dataset.groupId;
+                const count = unreadMessages.groups[gid] || 0;
                 const badge = li.querySelector('.badge-unread');
                 if (badge) {
                     badge.textContent = count;
@@ -286,6 +510,7 @@
             }
         }
 
+        // ========= LOAD USERS =========
         async function loadUsers() {
             try {
                 const response = await fetch('/chat/getAllEx');
@@ -296,31 +521,42 @@
 
                 users.forEach(user => {
                     const li = document.createElement('li');
-                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                    li.className = 'list-group-item';
                     li.dataset.username = user.username;
                     li.innerHTML = `
-                        ${user.username}
+                        <span class="name-text">${user.username}</span>
                         <span class="badge-unread" style="display: none;">0</span>
                     `;
-                    li.style.cursor = 'pointer';
+
                     li.onclick = () => {
                         selectedUser = user.username;
                         document.getElementById('selectedUser').innerText = selectedUser;
+                        document.getElementById('privateChatHint').innerText = 'Đang trò chuyện với ' + selectedUser;
+                        document.getElementById('privateEmptyState').style.display = 'none';
+
+                        // Active item
                         document.querySelectorAll('#userList .list-group-item').forEach(item => item.classList.remove('active'));
                         li.classList.add('active');
+
+                        // Reset unread
                         unreadMessages.private[user.username] = 0;
                         saveUnreadMessages();
                         updateBadges();
+
+                        // Load lịch sử chat
                         loadChat(selectedUser);
                     };
+
                     userList.appendChild(li);
                 });
+
                 updateBadges();
             } catch (error) {
                 console.error('❌ Lỗi khi load người dùng:', error);
             }
         }
 
+        // ========= LOAD CHAT 1:1 =========
         async function loadChat(targetUser) {
             try {
                 const response = await fetch('/chat/GetChatBetweenUsers', {
@@ -340,12 +576,19 @@
                     appendMessage('chatBox', msg.senderUsername, msg.messageText, msg.timestamp);
                 });
 
+                if (!result.data || result.data.length === 0) {
+                    document.getElementById('privateEmptyState').style.display = 'flex';
+                } else {
+                    document.getElementById('privateEmptyState').style.display = 'none';
+                }
+
                 chatBox.scrollTop = chatBox.scrollHeight;
             } catch (error) {
                 console.error('❌ Lỗi khi load chat 1:1:', error);
             }
         }
 
+        // ========= LOAD GROUPS =========
         async function loadGroups() {
             try {
                 const response = await fetch('/chat/GetGroupUser');
@@ -355,37 +598,47 @@
 
                 (result.data || []).forEach(group => {
                     if (!group.grouP_ID || !group.grouP_NAME) return;
+
                     const li = document.createElement('li');
-                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                    li.className = 'list-group-item';
                     li.dataset.groupId = group.grouP_ID;
                     li.innerHTML = `
-                        ${group.grouP_NAME}
+                        <span class="name-text">${group.grouP_NAME}</span>
                         <span class="badge-unread" style="display: none;">0</span>
                     `;
-                    li.style.cursor = 'pointer';
+
                     li.onclick = () => {
                         selectedGroupId = group.grouP_ID;
                         selectedGroupName = group.grouP_NAME;
                         document.getElementById('selectedGroupName').innerText = selectedGroupName;
+                        document.getElementById('groupEmptyState').style.display = 'none';
                         document.getElementById('addUserToGroupSection').style.display = 'block';
+
                         document.querySelectorAll('#groupList .list-group-item').forEach(item => item.classList.remove('active'));
                         li.classList.add('active');
+
                         unreadMessages.groups[group.grouP_ID] = 0;
                         saveUnreadMessages();
                         updateBadges();
+
                         loadGroupChat(selectedGroupId);
                     };
+
                     groupList.appendChild(li);
                 });
+
                 updateBadges();
             } catch (err) {
                 console.error('❌ Lỗi khi tải nhóm:', err);
             }
         }
 
+        // ========= LOAD GROUP CHAT =========
         async function loadGroupChat(groupId) {
             try {
+                await ensureConnectionStarted();
                 await connection.invoke('JoinGroup', groupId);
+
                 const response = await fetch('/chat/getMessagesinGroup', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -400,12 +653,19 @@
                     appendMessage('groupChatBox', msg.senderUsername, msg.messageText, msg.timestamp);
                 });
 
+                if (!result.data || result.data.length === 0) {
+                    document.getElementById('groupEmptyState').style.display = 'flex';
+                } else {
+                    document.getElementById('groupEmptyState').style.display = 'none';
+                }
+
                 chatBox.scrollTop = chatBox.scrollHeight;
             } catch (err) {
                 console.error('❌ Lỗi khi load tin nhắn nhóm:', err);
             }
         }
 
+        // ========= APPEND MESSAGE =========
         function appendMessage(containerId, sender, content, timestamp = new Date().toISOString()) {
             const box = document.getElementById(containerId);
             if (!box) return;
@@ -414,18 +674,28 @@
             const div = document.createElement('div');
             div.className = `chat-message ${isSent ? 'sent' : 'received'}`;
             const time = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
             div.innerHTML = `
-                <strong>${sender}</strong>: ${content}
+                <strong>${sender}</strong>
+                <div>${content}</div>
                 <div class="timestamp">${time}</div>
             `;
+
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         }
 
+        // ========= SEND PRIVATE MESSAGE =========
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const messageText = input.value.trim();
-            if (!messageText || !selectedUser) return;
+
+            if (!selectedUser) {
+                alert('Vui lòng chọn người cần chat trước!');
+                return;
+            }
+
+            if (!messageText) return;
 
             const dto = {
                 senderUsername: window.currentUser,
@@ -435,17 +705,31 @@
             };
 
             try {
+                await ensureConnectionStarted();
+                console.log('👉 Gửi tin nhắn 1:1', dto);
                 await connection.invoke('SendMessage', dto);
+
+                // Optimistic UI: add luôn
+                appendMessage('chatBox', dto.senderUsername, dto.messageText, dto.timestamp);
+                document.getElementById('privateEmptyState').style.display = 'none';
                 input.value = '';
             } catch (error) {
                 console.error('❌ Lỗi khi gửi tin nhắn:', error);
+                alert('Gửi tin nhắn thất bại: ' + error.toString());
             }
         }
 
+        // ========= SEND GROUP MESSAGE =========
         async function sendGroupMessage() {
             const input = document.getElementById('groupMessageInput');
             const messageText = input.value.trim();
-            if (!messageText || !selectedGroupId) return;
+
+            if (!selectedGroupId) {
+                alert('Vui lòng chọn nhóm trước khi gửi tin nhắn!');
+                return;
+            }
+
+            if (!messageText) return;
 
             const dto = {
                 senderUsername: window.currentUser,
@@ -455,17 +739,24 @@
             };
 
             try {
+                await ensureConnectionStarted();
+                console.log('👉 Gửi tin nhắn nhóm', dto);
                 await connection.invoke('SendMessage', dto);
+
+                appendMessage('groupChatBox', dto.senderUsername, dto.messageText, dto.timestamp);
+                document.getElementById('groupEmptyState').style.display = 'none';
                 input.value = '';
             } catch (error) {
                 console.error('❌ Lỗi khi gửi tin nhắn nhóm:', error);
+                alert('Gửi tin nhắn nhóm thất bại: ' + error.toString());
             }
         }
 
+        // ========= GROUP CRUD =========
         async function createGroup() {
             const groupName = document.getElementById('newGroupName').value.trim();
             if (!groupName) {
-                alert('❗ Vui lòng nhập tên nhóm!');
+                alert('Vui lòng nhập tên nhóm!');
                 return;
             }
 
@@ -478,11 +769,11 @@
 
                 const result = await response.json();
                 if (result.success) {
-                    alert('✅ Tạo nhóm thành công!');
+                    alert('Tạo nhóm thành công!');
                     document.getElementById('newGroupName').value = '';
                     await loadGroups();
                 } else {
-                    alert('❌ Tạo nhóm thất bại: ' + result.message);
+                    alert('Tạo nhóm thất bại: ' + result.message);
                 }
             } catch (err) {
                 console.error('❌ Lỗi khi tạo nhóm:', err);
@@ -492,7 +783,7 @@
         async function addUserToGroup() {
             const usernameToAdd = document.getElementById('usernameToAdd').value.trim();
             if (!usernameToAdd || !selectedGroupId) {
-                alert('❗ Vui lòng nhập tên người dùng hợp lệ!');
+                alert('Vui lòng nhập tên người dùng và chọn nhóm!');
                 return;
             }
 
@@ -508,10 +799,11 @@
 
                 const result = await response.json();
                 if (result.success) {
-                    alert('✅ Thêm thành viên thành công!');
+                    alert('Thêm thành viên thành công!');
                     document.getElementById('usernameToAdd').value = '';
+                    loadGroupMembers();
                 } else {
-                    alert('❌ Thêm thất bại: ' + result.message);
+                    alert('Thêm thất bại: ' + result.message);
                 }
             } catch (err) {
                 console.error('❌ Lỗi khi thêm thành viên:', err);
@@ -522,11 +814,12 @@
 
         async function loadGroupMembers() {
             if (!selectedGroupId) {
-                alert('❗ Vui lòng chọn nhóm trước!');
+                alert('Vui lòng chọn nhóm trước!');
                 return;
             }
 
             const list = document.getElementById('groupMembersList');
+
             if (membersVisible) {
                 list.style.display = 'none';
                 membersVisible = false;
@@ -547,18 +840,21 @@
                 if (result.code === '200') {
                     (result.data || []).forEach(member => {
                         const li = document.createElement('li');
-                        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                        li.className = 'list-group-item';
                         li.innerHTML = `
-                            <span><strong>${member.username}</strong> - ${member.email}</span>
-                            <button class="btn btn-sm btn-danger" onclick="removeMemberFromGroup('${member.username}')">Xóa</button>
+                            <span class="name-text"><strong>${member.username}</strong> - ${member.email}</span>
+                            <button class="btn btn-sm btn-outline-danger pill-button" onclick="removeMemberFromGroup('${member.username}')">
+                                <i class="bi bi-person-x-fill"></i>
+                            </button>
                         `;
                         list.appendChild(li);
                     });
+
                     list.style.display = 'block';
                     membersVisible = true;
                     document.getElementById('loadMembersBtn').innerText = 'Ẩn thành viên nhóm';
                 } else {
-                    alert('⚠️ ' + result.message);
+                    alert(result.message || 'Không lấy được danh sách thành viên.');
                 }
             } catch (err) {
                 console.error('❌ Lỗi khi load thành viên nhóm:', err);
@@ -567,7 +863,7 @@
 
         async function removeMemberFromGroup(username) {
             if (!selectedGroupId) {
-                alert('❗ Vui lòng chọn nhóm trước khi xóa!');
+                alert('Vui lòng chọn nhóm trước khi xóa!');
                 return;
             }
 
@@ -585,41 +881,58 @@
 
                 const result = await response.json();
                 if (result.success) {
-                    alert('✅ Đã xóa thành viên!');
+                    alert('Đã xóa thành viên!');
                     loadGroupMembers();
                 } else {
-                    alert('❌ Xóa thất bại: ' + result.message);
+                    alert('Xóa thất bại: ' + result.message);
                 }
             } catch (err) {
                 console.error('❌ Lỗi khi xóa thành viên:', err);
             }
         }
 
-        // Handle incoming messages
+        // ========= SIGNALR HANDLERS =========
         connection.on('ReceiveMessage', function (msg) {
-            const isPrivate = msg.receiverUsername && (
-                msg.receiverUsername === window.currentUser ||
-                msg.senderUsername === window.currentUser && selectedUser === msg.receiverUsername
-            );
-            const isGroup = msg.groupId && msg.groupId === selectedGroupId;
+            console.log('📩 Nhận tin nhắn:', msg);
 
-            if (isPrivate || isGroup) {
-                const boxId = msg.groupId ? 'groupChatBox' : 'chatBox';
-                appendMessage(boxId, msg.senderUsername, msg.messageText, msg.timestamp);
+            const isGroupMsg = !!msg.groupId;
+            const isPrivateMsg = !msg.groupId;
+
+            if (isGroupMsg && msg.groupId === selectedGroupId) {
+                appendMessage('groupChatBox', msg.senderUsername, msg.messageText, msg.timestamp);
+                document.getElementById('groupEmptyState').style.display = 'none';
             }
 
-            if (msg.senderUsername !== window.currentUser) {
-                const isActivePrivateChat = activeTab === 'chat1-1' && msg.senderUsername === selectedUser;
-                const isActiveGroupChat = activeTab === 'chatGroup' && msg.groupId === selectedGroupId;
+            if (isPrivateMsg &&
+                (msg.senderUsername === window.currentUser ||
+                 msg.receiverUsername === window.currentUser) &&
+                (msg.senderUsername === selectedUser || msg.receiverUsername === selectedUser)) {
 
-                if (msg.groupId && !isActiveGroupChat) {
+                appendMessage('chatBox', msg.senderUsername, msg.messageText, msg.timestamp);
+                document.getElementById('privateEmptyState').style.display = 'none';
+            }
+
+            // Xử lý unread + toast
+            if (msg.senderUsername !== window.currentUser) {
+                const isActivePrivateChat =
+                    activeTab === 'chat1-1' &&
+                    isPrivateMsg &&
+                    (msg.senderUsername === selectedUser || msg.receiverUsername === selectedUser);
+
+                const isActiveGroupChat =
+                    activeTab === 'chatGroup' &&
+                    isGroupMsg &&
+                    msg.groupId === selectedGroupId;
+
+                if (isGroupMsg && !isActiveGroupChat) {
                     unreadMessages.groups[msg.groupId] = (unreadMessages.groups[msg.groupId] || 0) + 1;
-                    document.getElementById('toastTitle').innerText = `Tin nhắn nhóm: ${selectedGroupName || 'Nhóm'}`;
+                    document.getElementById('toastTitle').innerText = `Tin nhắn nhóm: ${msg.groupName || 'Nhóm'}`;
                     document.getElementById('toastMessageContent').innerText = `${msg.senderUsername}: ${msg.messageText}`;
                     toast.show();
-                } else if (!msg.groupId && !isActivePrivateChat) {
-                    unreadMessages.private[msg.senderUsername] = (unreadMessages.private[msg.senderUsername] || 0) + 1;
-                    document.getElementById('toastTitle').innerText = `Tin nhắn từ ${msg.senderUsername}`;
+                } else if (isPrivateMsg && !isActivePrivateChat) {
+                    const otherUser = msg.senderUsername;
+                    unreadMessages.private[otherUser] = (unreadMessages.private[otherUser] || 0) + 1;
+                    document.getElementById('toastTitle').innerText = `Tin nhắn từ ${otherUser}`;
                     document.getElementById('toastMessageContent').innerText = msg.messageText;
                     toast.show();
                 }
@@ -630,28 +943,49 @@
         });
 
         connection.on('ReceiveError', function (error) {
-            alert('Lỗi: ' + error);
+            alert('Lỗi từ server: ' + error);
         });
 
-        // Event listeners
+        // ========= EVENT LISTENERS =========
         document.getElementById('sendBtn').addEventListener('click', sendMessage);
         document.getElementById('sendGroupBtn').addEventListener('click', sendGroupMessage);
         document.getElementById('addUserToGroupBtn').addEventListener('click', addUserToGroup);
-        document.getElementById('messageInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
-        document.getElementById('groupMessageInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendGroupMessage(); });
-        document.getElementById('chatGroup-tab').addEventListener('click', loadGroups);
+
+        document.getElementById('messageInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        document.getElementById('groupMessageInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendGroupMessage();
+            }
+        });
+
+        document.getElementById('chatGroup-tab').addEventListener('click', () => {
+            activeTab = 'chatGroup';
+            loadGroups();
+        });
+
+        document.getElementById('chat1-1-tab').addEventListener('click', () => {
+            activeTab = 'chat1-1';
+        });
+
         document.getElementById('createGroupBtn').addEventListener('click', createGroup);
         document.getElementById('loadMembersBtn').addEventListener('click', loadGroupMembers);
-        document.getElementById('chat1-1-tab').addEventListener('click', () => { activeTab = 'chat1-1'; });
-        document.getElementById('chatGroup-tab').addEventListener('click', () => { activeTab = 'chatGroup'; });
 
+        // ========= INIT =========
         document.addEventListener('DOMContentLoaded', async () => {
+            if (!window.currentUser) {
+                console.warn('⚠️ window.currentUser chưa được set – cần gán ở layout!');
+            }
+
             loadUnreadMessages();
             await loadUsers();
-            if (connection.state !== signalR.HubConnectionState.Connected) {
-                await connection.start();
-                console.log('✅ Đã kết nối SignalR');
-            }
+            await ensureConnectionStarted();
         });
     </script>
 }

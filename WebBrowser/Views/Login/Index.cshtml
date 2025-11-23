@@ -1,151 +1,460 @@
 ﻿@{
     ViewData["Title"] = "Đăng nhập / Đăng ký";
 }
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
 
 <style>
-    .otp-logo {
-        max-width: 250px;
-        height: auto;
-        display: block;
-        margin: 0 auto 20px auto;
+    body {
+        min-height: 100vh;
+        margin: 0;
+        background: radial-gradient(circle at top, #4f46e5 0, #020617 40%, #020617 100%);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    .card-max {
-        max-width: 520px;
+    .auth-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 12px;
+    }
+
+    .auth-card {
+        max-width: 560px;
+        width: 100%;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 22px 45px rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(10px);
+    }
+
+    .auth-header {
+        background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+        color: #fff;
+        padding: 20px 24px 18px;
+    }
+
+        .auth-header h4 {
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .auth-header p {
+            margin: 4px 0 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+    .auth-body {
+        background: #0b1120;
+        color: #e5e7eb;
+        padding: 20px 22px 22px;
+    }
+
+    .nav-auth {
+        border-bottom: 1px solid #1f2937;
+        margin-bottom: 16px;
+    }
+
+        .nav-auth .nav-link {
+            color: #9ca3af;
+            font-weight: 500;
+            font-size: 14px;
+            border: none;
+            border-radius: 999px;
+            margin-right: 6px;
+            padding: 8px 16px;
+        }
+
+            .nav-auth .nav-link.active {
+                background: #1f2937;
+                color: #f9fafb;
+            }
+
+    .form-label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #e5e7eb;
+    }
+
+    .form-control {
+        background: #020617;
+        border-color: #1f2937;
+        color: #e5e7eb;
+        font-size: 14px;
+    }
+
+        .form-control:focus {
+            background: #020617;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.4);
+            color: #e5e7eb;
+        }
+
+    .btn-soft {
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .btn-soft-primary {
+        background: #4f46e5;
+        border-color: #4f46e5;
+        color: #fff;
+    }
+
+        .btn-soft-primary:hover {
+            background: #4338ca;
+            border-color: #4338ca;
+        }
+
+    .btn-soft-outline {
+        border-radius: 999px;
+        border-width: 1px;
+        font-size: 13px;
+    }
+
+    .btn-soft-outline-light {
+        border-color: #1f2937;
+        color: #e5e7eb;
+        background: #020617;
+    }
+
+        .btn-soft-outline-light:hover {
+            background: #111827;
+        }
+
+    .btn-soft-outline-warning {
+        border-color: #facc15;
+        color: #fbbf24;
+        background: transparent;
+    }
+
+        .btn-soft-outline-warning:hover {
+            background: #facc15;
+            color: #111827;
+        }
+
+    .btn-soft-outline-danger {
+        border-color: #f97373;
+        color: #fca5a5;
+        background: transparent;
+    }
+
+        .btn-soft-outline-danger:hover {
+            background: #ef4444;
+            color: #111827;
+        }
+
+    .otp-logo {
+        max-width: 220px;
+        height: auto;
+        display: block;
+        margin: 0 auto 10px auto;
+    }
+
+    .small-muted {
+        font-size: 12px;
+        color: #9ca3af;
+    }
+
+    #message {
+        font-size: 13px;
+    }
+
+    #firebase-recaptcha > div {
+        margin: 0 auto;
+    }
+
+    /* Panel đăng nhập thành công */
+    #success-panel {
+        background: radial-gradient(circle at top, #16a34a33 0, #0b1120 55%);
+        border-radius: 16px;
+        border: 1px solid #15803d66;
+        padding: 24px 18px 18px;
+    }
+
+        #success-panel .success-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at top, #22c55e, #15803d);
+            box-shadow: 0 18px 30px rgba(34, 197, 94, 0.4);
+            font-size: 34px;
+            color: #ecfdf5;
+        }
+
+        #success-panel h5 {
+            margin-top: 14px;
+            margin-bottom: 6px;
+            font-weight: 700;
+            color: #bbf7d0;
+        }
+
+        #success-panel p {
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+
+    #success-countdown {
+        font-weight: 600;
+        color: #facc15;
     }
 </style>
 
-<div class="container mt-5">
-    <div class="card shadow-lg mx-auto card-max">
-        <div class="card-header bg-primary text-white text-center">
+<div class="auth-wrapper">
+    <div class="card auth-card border-0">
+        <div class="auth-header">
             <h4 id="form-title">Đăng nhập</h4>
+            <p>Chọn phương thức đăng nhập phù hợp với bạn</p>
         </div>
 
-        <div class="card-body">
+        <div class="auth-body">
+            <!-- Bọc toàn bộ tabs + form để ẩn khi đăng nhập thành công -->
+            <div id="auth-forms-wrapper">
+                <!-- Tabs chế độ -->
+                <ul class="nav nav-pills nav-auth mb-3" id="authTabs">
+                    <li class="nav-item">
+                        <button id="tab-password" class="nav-link active" type="button" onclick="switchMainTab('password')">
+                            <i class="bi bi-lock-fill me-1"></i> Mật khẩu
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button id="tab-otp" class="nav-link" type="button" onclick="switchMainTab('otp')">
+                            OTP Email
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button id="tab-sms" class="nav-link" type="button" onclick="switchMainTab('sms')">
+                            SMS
+                        </button>
+                    </li>
+                    <li class="nav-item d-none d-md-block">
+                        <button id="tab-totp" class="nav-link" type="button" onclick="switchMainTab('totp')">
+                            Google Authenticator
+                        </button>
+                    </li>
+                </ul>
 
-            <!-- ========== FORM ĐĂNG NHẬP ========== -->
-            <div id="login-form">
-                <div class="mb-3">
-                    <label class="form-label">Tên đăng nhập</label>
-                    <input type="text" class="form-control" id="login-username" placeholder="Nhập tên đăng nhập">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Mật khẩu</label>
-                    <input type="password" class="form-control" id="login-password" placeholder="Nhập mật khẩu">
-                </div>
-                <div class="d-grid gap-2">
-                    <button class="btn btn-success" onclick="login(event)">Đăng nhập</button>
-                    <button class="btn btn-outline-secondary" onclick="toggleForm()">Chưa có tài khoản? Đăng ký</button>
-                    <button class="btn btn-outline-primary" onclick="showOtpForm()">Đăng nhập bằng OTP Email</button>
-                    <button class="btn btn-outline-warning" onclick="showTotpForm()">Đăng nhập bằng Google Authenticator</button>
-                </div>
-            </div>
-
-            <!-- ========== FORM ĐĂNG KÝ ========== -->
-            <div id="register-form" class="d-none">
-                <div class="mb-3">
-                    <label class="form-label">Tên đăng nhập</label>
-                    <input type="text" class="form-control" id="register-username" placeholder="Nhập tên đăng nhập">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Mật khẩu</label>
-                    <input type="password" class="form-control" id="register-password" placeholder="Nhập mật khẩu">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Email (tùy chọn)</label>
-                    <input type="email" class="form-control" id="register-email" placeholder="Nhập email (nếu có)">
-                </div>
-                <div class="d-grid gap-2">
-                    <button class="btn btn-primary" onclick="register(event)">Đăng ký</button>
-                    <button class="btn btn-outline-secondary" onclick="toggleForm()">Đã có tài khoản? Đăng nhập</button>
-                </div>
-            </div>
-
-            <!-- ========== FORM OTP EMAIL ========== -->
-            <div id="otp-form" class="d-none">
-                <img class="otp-logo" src="https://up.yimg.com/ib/th/id/OIP.xHnKHZeu4wI10qCHtwKcdQHaB8?pid=Api&rs=1&c=1&qlt=95&w=449&h=117" alt="OTP" />
-                <div class="mb-3">
-                    <label class="form-label">Tên đăng nhập hoặc Email</label>
-                    <input type="text" class="form-control" id="otp-username" placeholder="Nhập tài khoản hoặc email">
-                </div>
-
-                <div id="otp-code-section" class="d-none">
+                <!-- ========== FORM ĐĂNG NHẬP PASSWORD ========== -->
+                <div id="login-form">
                     <div class="mb-3">
-                        <label class="form-label">Mã OTP</label>
-                        <input type="text" class="form-control" id="otp-code" placeholder="Nhập mã OTP">
+                        <label class="form-label">Tên đăng nhập</label>
+                        <input type="text" class="form-control" id="login-username" placeholder="Nhập tên đăng nhập">
                     </div>
-                    <div class="mb-3 text-center">
-                        <span id="countdown" class="fw-bold text-danger"></span>
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu</label>
+                        <input type="password" class="form-control" id="login-password" placeholder="Nhập mật khẩu">
+                    </div>
+                    <div class="d-grid gap-2 mt-3">
+                        <button class="btn btn-soft btn-soft-primary" onclick="login(event)">
+                            Đăng nhập
+                        </button>
+                        <button class="btn btn-soft btn-soft-outline-light" onclick="toggleRegister()">
+                            Chưa có tài khoản? Đăng ký
+                        </button>
                     </div>
                 </div>
 
-                <div class="d-grid gap-2">
-                    <button id="btn-send-otp" class="btn btn-primary" onclick="sendOtp()">Gửi mã OTP</button>
-                    <button class="btn btn-success" onclick="verifyOtp(event)">Xác nhận OTP</button>
-                    <button class="btn btn-outline-primary" onclick="backToLogin()">Quay lại Đăng nhập</button>
-                </div>
-            </div>
-
-            <!-- ========== FORM GOOGLE AUTHENTICATOR (TOTP) ========== -->
-            <div id="totp-form" class="d-none">
-                <div class="text-center mb-3">
-                    <img class="otp-logo" src="https://cdn-icons-png.flaticon.com/512/300/300221.png" alt="GA" />
-                    <h5 class="mb-0">Xác thực bằng Google Authenticator</h5>
-                </div>
-
-                <!-- Nhập username -->
-                <div class="mb-3">
-                    <label class="form-label">Tên đăng nhập</label>
-                    <input type="text" class="form-control" id="totp-username" placeholder="Nhập tên đăng nhập">
-                </div>
-
-                <!-- Khu QR khi ENROLL -->
-                <div id="totp-qr-wrapper" class="d-none">
-                    <p class="fw-bold text-primary text-center">Quét mã QR này bằng ứng dụng Google Authenticator</p>
-                    <div class="text-center">
-                        <img id="totp-qr" class="img-fluid border" style="max-width: 260px;" />
+                <!-- ========== FORM ĐĂNG KÝ ========== -->
+                <div id="register-form" class="d-none">
+                    <div class="mb-3">
+                        <label class="form-label">Tên đăng nhập</label>
+                        <input type="text" class="form-control" id="register-username" placeholder="Nhập tên đăng nhập">
                     </div>
-                    <p class="mt-2 text-muted small text-center">
-                        Mã bí mật: <span id="totp-secret" class="fw-bold text-dark"></span>
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu</label>
+                        <input type="password" class="form-control" id="register-password" placeholder="Nhập mật khẩu">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email (tùy chọn)</label>
+                        <input type="email" class="form-control" id="register-email" placeholder="Nhập email (nếu có)">
+                    </div>
+                    <div class="d-grid gap-2 mt-3">
+                        <button class="btn btn-soft btn-soft-primary" onclick="register(event)">Đăng ký</button>
+                        <button class="btn btn-soft btn-soft-outline-light" onclick="toggleRegister()">Đã có tài khoản? Đăng nhập</button>
+                    </div>
+                </div>
+
+                <!-- ========== FORM OTP EMAIL ========== -->
+                <div id="otp-form" class="d-none">
+                    <div class="mb-3">
+                        <label class="form-label">Tên đăng nhập hoặc Email</label>
+                        <input type="text" class="form-control" id="otp-username" placeholder="Nhập tài khoản hoặc email">
+                    </div>
+
+                    <div id="otp-code-section" class="d-none">
+                        <div class="mb-3">
+                            <label class="form-label">Mã OTP</label>
+                            <input type="text" class="form-control" id="otp-code" placeholder="Nhập mã OTP">
+                        </div>
+                        <div class="mb-2 text-center">
+                            <span id="countdown" class="fw-semibold text-warning small"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-3">
+                        <button id="btn-send-otp" class="btn btn-soft btn-soft-primary" onclick="sendOtp()">Gửi mã OTP</button>
+                        <button class="btn btn-soft btn-soft-outline-light" onclick="verifyOtp(event)">Xác nhận OTP</button>
+                        <button class="btn btn-soft btn-soft-outline-light" onclick="backToLogin()">Quay lại Đăng nhập</button>
+                    </div>
+                    <p class="small-muted mt-2 text-center">
+                        Mã OTP sẽ gửi tới email đã đăng ký. Mã chỉ có hiệu lực trong thời gian ngắn.
                     </p>
                 </div>
 
-                <!-- Ô nhập mã 6 số (dùng cho cả ENROLL CONFIRM & LOGIN) -->
-                <div id="totp-code-wrapper" class="d-none">
-                    <label class="form-label mt-2">Mã 6 số</label>
-                    <input type="text" class="form-control mb-3" id="totp-code" placeholder="Nhập mã 6 số hiện trên app">
+                <!-- ========== FORM ĐĂNG NHẬP SMS (Firebase) ========== -->
+                <div id="sms-form" class="d-none">
+                    <div class="mb-3">
+                        <label class="form-label">Số điện thoại</label>
+                        <input type="text" class="form-control" id="sms-phone" placeholder="VD: 0865936122 hoặc +84865936122">
+                    </div>
+
+                    <div id="sms-code-section" class="d-none">
+                        <div class="mb-3">
+                            <label class="form-label">Mã OTP SMS</label>
+                            <input type="text" class="form-control" id="sms-code" placeholder="Nhập mã OTP trong tin nhắn">
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-2">
+                        <button id="btn-sms-send" class="btn btn-soft btn-soft-outline-danger" onclick="sendSmsOtp(event)">
+                            Gửi mã SMS
+                        </button>
+                        <button class="btn btn-soft btn-soft-primary" onclick="verifySmsOtp(event)">
+                            Xác nhận SMS &amp; đăng nhập
+                        </button>
+                        <button class="btn btn-soft btn-soft-outline-light" onclick="backToLogin()">Quay lại Đăng nhập</button>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <div id="firebase-recaptcha"></div>
+                        <p class="small-muted mt-2">
+                            Mã SMS sẽ được gửi qua dịch vụ Firebase Phone Auth của Google.
+                        </p>
+                    </div>
                 </div>
 
-                <!-- Nút hành động -->
-                <div class="d-grid gap-2" id="totp-actions-enroll" class="d-none">
-                    <button class="btn btn-success" onclick="confirmTotp(event)">Kích hoạt bảo mật 2 lớp</button>
-                </div>
-                <div class="d-grid gap-2" id="totp-actions-login" class="d-none">
-                    <button class="btn btn-warning" onclick="loginWithTotp(event)">Đăng nhập bằng mã 6 số</button>
+                <!-- ========== FORM GOOGLE AUTHENTICATOR (TOTP) ========== -->
+                <div id="totp-form" class="d-none">
+                    <div class="text-center mb-3">
+                        <img class="otp-logo" src="https://cdn-icons-png.flaticon.com/512/300/300221.png" alt="GA" />
+                        <h6 class="mb-1">Xác thực bằng Google Authenticator</h6>
+                        <p class="small-muted mb-0">Bảo mật 2 lớp với mã 6 số thay đổi liên tục</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tên đăng nhập</label>
+                        <input type="text" class="form-control" id="totp-username" placeholder="Nhập tên đăng nhập">
+                    </div>
+
+                    <div id="totp-qr-wrapper" class="d-none">
+                        <p class="fw-semibold text-primary text-center mb-2">Quét mã QR này bằng ứng dụng Google Authenticator</p>
+                        <div class="text-center mb-2">
+                            <img id="totp-qr" class="img-fluid border border-secondary-subtle rounded" style="max-width: 260px;" />
+                        </div>
+                        <p class="small-muted text-center mb-1">
+                            Mã bí mật: <span id="totp-secret" class="fw-semibold text-light"></span>
+                        </p>
+                    </div>
+
+                    <div id="totp-code-wrapper" class="d-none">
+                        <label class="form-label mt-2">Mã 6 số</label>
+                        <input type="text" class="form-control mb-3" id="totp-code" placeholder="Nhập mã 6 số trên ứng dụng GA">
+                    </div>
+
+                    <div class="d-grid gap-2 d-none" id="totp-actions-enroll">
+                        <button class="btn btn-soft btn-soft-primary" onclick="confirmTotp(event)">Kích hoạt bảo mật 2 lớp</button>
+                    </div>
+                    <div class="d-grid gap-2 d-none" id="totp-actions-login">
+                        <button class="btn btn-soft btn-soft-outline-warning" onclick="loginWithTotp(event)">Đăng nhập bằng mã 6 số</button>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-3">
+                        <button class="btn btn-soft btn-soft-outline-light" id="btn-enroll-start" onclick="enrollTotp()">
+                            Tạo mã QR mới / Kiểm tra trạng thái
+                        </button>
+                        <button class="btn btn-soft btn-soft-outline-light" onclick="backToLogin()">Quay lại Đăng nhập</button>
+                    </div>
                 </div>
 
-                <div class="d-grid gap-2 mt-3">
-                    <button class="btn btn-success" id="btn-enroll-start" onclick="enrollTotp()">Tạo mã QR mới (kích hoạt Google Authenticator)</button>
-                    <button class="btn btn-outline-primary" onclick="backToLogin()">Quay lại Đăng nhập</button>
+                <!-- Thông báo -->
+                <div class="mt-3">
+                    <div id="message" class="alert d-none" role="alert"></div>
                 </div>
             </div>
 
-            <!-- Thông báo -->
-            <div class="mt-3">
-                <div id="message" class="alert d-none" role="alert"></div>
+            <!-- ========== PANEL ĐĂNG NHẬP THÀNH CÔNG ========== -->
+            <div id="success-panel" class="d-none mt-2 text-center">
+                <div class="success-icon mx-auto mb-2">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+                <h5>Đăng nhập thành công</h5>
+                <p id="success-text" class="mb-1">Bạn đã xác thực thành công. Hệ thống đang chuyển sang màn hình quản lý.</p>
+                <p class="small-muted mb-2">
+                    Tự động chuyển sau <span id="success-countdown">5</span> giây...
+                </p>
+                <div class="d-grid gap-2 mt-2">
+                    <a id="success-link" href="/emp/index" class="btn btn-soft btn-soft-primary">
+                        Vào trang quản lý ngay
+                    </a>
+                </div>
             </div>
-
         </div>
     </div>
 </div>
 
+<!-- Firebase (compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+<!-- File này NÊN chỉ gán window.firebaseConfig = {...} -->
+<script src="/js/firebase-config.js"></script>
+
 <script>
+    // ====== BIẾN TOÀN CỤC FIREBASE ======
+    let firebaseApp = null;
+    let recaptchaVerifier = null;
+    let confirmationResultGlobal = null;
+
+    function initFirebaseIfNeeded() {
+        console.log("[initFirebaseIfNeeded] Gọi hàm init");
+
+        if (!window.firebaseConfig) {
+            console.error("[initFirebaseIfNeeded] window.firebaseConfig không tồn tại. Kiểm tra lại /js/firebase-config.js");
+            showMessage("Lỗi cấu hình Firebase. Vui lòng liên hệ quản trị.", false);
+            return;
+        }
+
+        if (!firebase.apps.length) {
+            firebaseApp = firebase.initializeApp(window.firebaseConfig);
+            console.log("[initFirebaseIfNeeded] Firebase đã khởi tạo mới:", firebaseApp);
+        } else {
+            firebaseApp = firebase.app();
+            console.log("[initFirebaseIfNeeded] Firebase đã tồn tại, dùng lại app:", firebaseApp.name);
+        }
+
+        if (!recaptchaVerifier) {
+            recaptchaVerifier = new firebase.auth.RecaptchaVerifier('firebase-recaptcha', {
+                'size': 'normal'
+            });
+            console.log("[initFirebaseIfNeeded] RecaptchaVerifier đã được tạo");
+        } else {
+            console.log("[initFirebaseIfNeeded] RecaptchaVerifier đã tồn tại, không tạo lại");
+        }
+    }
+
     // ====== STATE ======
     let countdownInterval;
     let verifiedEmail = "";
     let totpMode = "login"; // 'enroll' hoặc 'login'
-    let totpSecretCached = ""; // lưu secret khi enroll
+    let totpSecretCached = "";
+    let successTimer = null;
 
     // ====== COMMON UI ======
     function showMessage(text, isSuccess) {
@@ -153,54 +462,115 @@
         el.className = `alert ${isSuccess ? "alert-success" : "alert-danger"}`;
         el.textContent = text;
         el.classList.remove("d-none");
-        setTimeout(() => { el.classList.add("d-none"); }, 3000);
+        setTimeout(() => { el.classList.add("d-none"); }, 4000);
     }
+
     function clearMessage() {
         const el = document.getElementById("message");
         el.classList.add("d-none");
         el.textContent = "";
     }
 
-    // ====== FORM SWITCHERS ======
-    function toggleForm() {
-        document.getElementById("login-form").classList.toggle("d-none");
-        document.getElementById("register-form").classList.toggle("d-none");
-        document.getElementById("otp-form").classList.add("d-none");
-        document.getElementById("totp-form").classList.add("d-none");
-        document.getElementById("form-title").innerText =
-            document.getElementById("login-form").classList.contains("d-none") ? "Đăng ký" : "Đăng nhập";
+    // Panel success sau đăng nhập
+    function showLoginSuccess(message, redirectUrl) {
         clearMessage();
+
+        // Ẩn toàn bộ form + tabs
+        const wrapper = document.getElementById("auth-forms-wrapper");
+        if (wrapper) wrapper.classList.add("d-none");
+
+        const panel = document.getElementById("success-panel");
+        const textEl = document.getElementById("success-text");
+        const countdownEl = document.getElementById("success-countdown");
+        const linkEl = document.getElementById("success-link");
+
+        if (textEl && message) textEl.innerText = message;
+        if (linkEl && redirectUrl) linkEl.href = redirectUrl;
+
+        if (panel) panel.classList.remove("d-none");
+
+        // Đếm ngược 5 giây
+        let seconds = 5;
+        if (countdownEl) countdownEl.innerText = seconds;
+
+        if (successTimer) clearInterval(successTimer);
+
+        successTimer = setInterval(() => {
+            seconds--;
+            if (countdownEl) countdownEl.innerText = seconds;
+            if (seconds <= 0) {
+                clearInterval(successTimer);
+                window.location.href = redirectUrl || "/emp/index";
+            }
+        }, 1000);
     }
-    function showOtpForm() {
+
+    // ====== SWITCH TAB CHÍNH ======
+    function switchMainTab(tab) {
+        clearMessage();
+
+        document.querySelectorAll('#authTabs .nav-link').forEach(btn => btn.classList.remove('active'));
+
         document.getElementById("login-form").classList.add("d-none");
         document.getElementById("register-form").classList.add("d-none");
-        document.getElementById("otp-form").classList.remove("d-none");
-        document.getElementById("totp-form").classList.add("d-none");
-        document.getElementById("form-title").innerText = "Đăng nhập bằng OTP Email";
-        clearMessage();
-    }
-    function showTotpForm() {
-        document.getElementById("login-form").classList.add("d-none");
-        document.getElementById("register-form").classList.add("d-none");
         document.getElementById("otp-form").classList.add("d-none");
-        document.getElementById("totp-form").classList.remove("d-none");
-        document.getElementById("form-title").innerText = "Đăng nhập bằng Google Authenticator";
-        // reset UI
-        setTotpMode("login");
-        document.getElementById("totp-qr-wrapper").classList.add("d-none");
-        document.getElementById("totp-code-wrapper").classList.add("d-none");
-        document.getElementById("totp-actions-enroll").classList.add("d-none");
-        document.getElementById("totp-actions-login").classList.remove("d-none");
-        clearMessage();
+        document.getElementById("sms-form").classList.add("d-none");
+        document.getElementById("totp-form").classList.add("d-none");
+
+        const title = document.getElementById("form-title");
+
+        if (tab === 'password') {
+            document.getElementById("tab-password").classList.add("active");
+            document.getElementById("login-form").classList.remove("d-none");
+            title.innerText = "Đăng nhập";
+        }
+        else if (tab === 'otp') {
+            document.getElementById("tab-otp").classList.add("active");
+            document.getElementById("otp-form").classList.remove("d-none");
+            title.innerText = "Đăng nhập bằng OTP Email";
+        }
+        else if (tab === 'sms') {
+            document.getElementById("tab-sms").classList.add("active");
+            document.getElementById("sms-form").classList.remove("d-none");
+            title.innerText = "Đăng nhập bằng SMS";
+            initFirebaseIfNeeded();
+        }
+        else if (tab === 'totp') {
+            document.getElementById("tab-totp").classList.add("active");
+            document.getElementById("totp-form").classList.remove("d-none");
+            title.innerText = "Đăng nhập bằng Google Authenticator";
+
+            setTotpMode("login");
+            document.getElementById("totp-qr-wrapper").classList.add("d-none");
+            document.getElementById("totp-code-wrapper").classList.add("d-none");
+            document.getElementById("totp-actions-enroll").classList.add("d-none");
+            document.getElementById("totp-actions-login").classList.remove("d-none");
+        }
     }
+
+    function toggleRegister() {
+        clearMessage();
+        const loginForm = document.getElementById("login-form");
+        const regForm = document.getElementById("register-form");
+        const title = document.getElementById("form-title");
+
+        if (regForm.classList.contains("d-none")) {
+            loginForm.classList.add("d-none");
+            regForm.classList.remove("d-none");
+            title.innerText = "Đăng ký";
+        } else {
+            loginForm.classList.remove("d-none");
+            regForm.classList.add("d-none");
+            title.innerText = "Đăng nhập";
+        }
+    }
+
     function backToLogin() {
-        document.getElementById("totp-form").classList.add("d-none");
-        document.getElementById("login-form").classList.remove("d-none");
-        document.getElementById("form-title").innerText = "Đăng nhập";
-        clearMessage();
+        switchMainTab('password');
     }
+
     function setTotpMode(mode) {
-        totpMode = mode; // 'enroll' hoặc 'login'
+        totpMode = mode;
         if (mode === "enroll") {
             document.getElementById("totp-actions-enroll").classList.remove("d-none");
             document.getElementById("totp-actions-login").classList.add("d-none");
@@ -217,6 +587,9 @@
         const original = btn.innerHTML;
         const username = document.getElementById("login-username").value.trim();
         const password = document.getElementById("login-password").value.trim();
+        if (!username || !password) {
+            return showMessage("Vui lòng nhập đủ tên đăng nhập và mật khẩu.", false);
+        }
         btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Đang đăng nhập...`;
         btn.disabled = true;
 
@@ -226,10 +599,14 @@
                 body: JSON.stringify({ username, password })
             });
             const r = await res.json();
-            showMessage(r.message ?? "Không rõ phản hồi", r.success);
-            if (r.success) setTimeout(() => window.location.href = "/emp/index", 1000);
+
+            if (r.success) {
+                showLoginSuccess("Đăng nhập bằng mật khẩu thành công!", "/emp/index");
+            } else {
+                showMessage(r.message ?? "Không rõ phản hồi", false);
+            }
         } catch {
-            showMessage("Đăng nhập thất bại", false);
+            showMessage("Đăng nhập thất bại.", false);
         } finally {
             btn.innerHTML = original; btn.disabled = false;
         }
@@ -243,7 +620,8 @@
         const password = document.getElementById("register-password").value.trim();
         const email = document.getElementById("register-email").value.trim();
 
-        if (!username || !password) return showMessage("Vui lòng nhập đủ tên đăng nhập và mật khẩu", false);
+        if (!username || !password)
+            return showMessage("Vui lòng nhập đủ tên đăng nhập và mật khẩu.", false);
 
         btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Đang đăng ký...`;
         btn.disabled = true;
@@ -256,13 +634,13 @@
             showMessage(r.message ?? "Không rõ phản hồi", r.success);
             if (r.success) {
                 setTimeout(() => {
-                    toggleForm();
+                    toggleRegister();
                     document.getElementById("login-username").value = username;
                     document.getElementById("login-password").focus();
                 }, 1200);
             }
         } catch {
-            showMessage("Lỗi khi đăng ký", false);
+            showMessage("Lỗi khi đăng ký.", false);
         } finally {
             btn.innerHTML = original; btn.disabled = false;
         }
@@ -276,8 +654,10 @@
             const m = Math.floor(seconds / 60);
             const s = seconds % 60;
             el.innerText = `Mã OTP sẽ hết hạn sau: ${m}:${s < 10 ? '0' : ''}${s}`;
-            if (seconds <= 0) { clearInterval(countdownInterval); el.innerText = "OTP đã hết hạn, vui lòng gửi lại."; }
-            else seconds--;
+            if (seconds <= 0) {
+                clearInterval(countdownInterval);
+                el.innerText = "OTP đã hết hạn, vui lòng gửi lại.";
+            } else seconds--;
         }
         tick();
         countdownInterval = setInterval(tick, 1000);
@@ -288,7 +668,7 @@
         const input = document.getElementById("otp-username").value.trim();
         const btn = document.getElementById("btn-send-otp");
         const original = btn.innerHTML;
-        if (!input) return showMessage("Vui lòng nhập tài khoản hoặc email", false);
+        if (!input) return showMessage("Vui lòng nhập tài khoản hoặc email.", false);
 
         btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Đang gửi...`;
         btn.disabled = true;
@@ -300,15 +680,15 @@
             const r = await res.json();
             if (r.success) {
                 verifiedEmail = r.email;
-                showMessage("Đã gửi mã OTP đến email của bạn", true);
+                showMessage("Đã gửi mã OTP đến email của bạn.", true);
                 document.getElementById("otp-code-section").classList.remove("d-none");
                 document.getElementById("otp-code").focus();
                 startCountdown(60);
             } else {
-                showMessage(r.message ?? "Gửi OTP thất bại", false);
+                showMessage(r.message ?? "Gửi OTP thất bại.", false);
             }
         } catch {
-            showMessage("Đã xảy ra lỗi khi gửi OTP", false);
+            showMessage("Đã xảy ra lỗi khi gửi OTP.", false);
         } finally { btn.innerHTML = original; btn.disabled = false; }
     }
 
@@ -316,7 +696,7 @@
         clearMessage();
         const btn = event.target, original = btn.innerHTML;
         const otp = document.getElementById("otp-code").value.trim();
-        if (!verifiedEmail || !otp) return showMessage("Vui lòng nhập đầy đủ thông tin", false);
+        if (!verifiedEmail || !otp) return showMessage("Vui lòng nhập đầy đủ thông tin.", false);
 
         btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Đang xác thực...`;
         btn.disabled = true;
@@ -326,19 +706,163 @@
                 body: JSON.stringify({ email: verifiedEmail, otp })
             });
             const r = await res.json();
-            showMessage(r.message ?? "Xác thực thất bại", r.success);
-            if (r.success) setTimeout(() => window.location.href = "/emp/index", 1000);
+
+            if (r.success) {
+                showLoginSuccess("Xác thực OTP Email thành công!", "/emp/index");
+            } else {
+                showMessage(r.message ?? "Xác thực thất bại.", false);
+            }
         } catch {
-            showMessage("Lỗi khi xác thực OTP", false);
+            showMessage("Lỗi khi xác thực OTP.", false);
         } finally { btn.innerHTML = original; btn.disabled = false; }
     }
 
+    // ====== HÀM CHUẨN HÓA SĐT E.164 ======
+    function normalizePhoneNumber(rawPhone) {
+        let phone = rawPhone.replace(/\s+/g, '');
+
+        if (phone.startsWith('+')) {
+            return phone;
+        }
+
+        if (phone.startsWith('0') && phone.length >= 9) {
+            phone = '+84' + phone.substring(1);
+            return phone;
+        }
+
+        if (phone.startsWith('84')) {
+            phone = '+' + phone;
+            return phone;
+        }
+
+        return null;
+    }
+
+    function isValidE164(phone) {
+        const regex = /^\+[1-9]\d{7,14}$/;
+        return regex.test(phone);
+    }
+
+    // ====== SMS (FIREBASE PHONE AUTH) ======
+    async function sendSmsOtp(event) {
+        console.log("===[sendSmsOtp] BẮT ĐẦU ===");
+
+        clearMessage();
+        initFirebaseIfNeeded();
+        console.log("Firebase apps length:", firebase.apps.length);
+
+        const btn = event.target;
+        const original = btn.innerHTML;
+        const rawPhone = document.getElementById("sms-phone").value.trim();
+
+        console.log("SĐT raw:", rawPhone);
+
+        if (!rawPhone) {
+            console.warn("SĐT trống");
+            return showMessage("Vui lòng nhập số điện thoại.", false);
+        }
+
+        let phone = normalizePhoneNumber(rawPhone);
+        console.log("SĐT normalize:", phone);
+
+        if (!phone || !isValidE164(phone)) {
+            console.warn("SĐT sai định dạng");
+            return showMessage("Số điện thoại không đúng định dạng. Vui lòng nhập dạng +84xxxxxxxxx hoặc 0xxxxxxxxx.", false);
+        }
+
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Đang gửi SMS...`;
+        btn.disabled = true;
+
+        try {
+            const auth = firebase.auth();
+            console.log("Firebase Auth:", auth);
+
+            console.log("Gửi OTP đến:", phone);
+            confirmationResultGlobal = await auth.signInWithPhoneNumber(phone, recaptchaVerifier);
+
+            console.log("confirmationResultGlobal:", confirmationResultGlobal);
+
+            showMessage("Đã gửi mã SMS. Vui lòng kiểm tra điện thoại.", true);
+            document.getElementById("sms-code-section").classList.remove("d-none");
+            document.getElementById("sms-code").focus();
+        } catch (err) {
+            console.error("LỖI SEND SMS:", err);
+            showMessage("Lỗi khi gửi SMS: " + (err.message || ""), false);
+        } finally {
+            btn.innerHTML = original;
+            btn.disabled = false;
+            console.log("===[sendSmsOtp] KẾT THÚC ===");
+        }
+    }
+
+    async function verifySmsOtp(event) {
+        console.log("===[verifySmsOtp] BẮT ĐẦU ===");
+
+        clearMessage();
+
+        if (!confirmationResultGlobal) {
+            console.warn("Không có confirmationResultGlobal, chưa send SMS");
+            return showMessage("Bạn cần gửi SMS trước khi xác thực.", false);
+        }
+
+        const btn = event.target;
+        const original = btn.innerHTML;
+        const code = document.getElementById("sms-code").value.trim();
+
+        console.log("Mã OTP nhập:", code);
+
+        if (!code) return showMessage("Vui lòng nhập mã OTP SMS.", false);
+
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Đang xác thực SMS...`;
+        btn.disabled = true;
+
+        try {
+            console.log("Gọi confirmationResultGlobal.confirm()...");
+            const result = await confirmationResultGlobal.confirm(code);
+
+            console.log("KẾT QUẢ confirm():", result);
+
+            const user = result.user;
+            const idToken = await user.getIdToken();
+
+            console.log("Firebase User:", user);
+            console.log("Firebase ID Token:", idToken);
+
+            console.log("Gửi token lên MVC API /Login/VerifySms...");
+
+            const res = await fetch('/Login/VerifySms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                },
+                body: 'idToken=' + encodeURIComponent(idToken)
+            });
+
+            console.log("Response từ MVC:", res);
+
+            const r = await res.json();
+            console.log("JSON body:", r);
+
+            if (r.success === true) {
+                showLoginSuccess("Đăng nhập bằng SMS thành công!", "/emp/index");
+            } else {
+                showMessage(r.message ?? "Xác thực SMS thất bại.", false);
+            }
+        } catch (err) {
+            console.error("LỖI VERIFY SMS:", err);
+            showMessage("Lỗi khi xác thực SMS: " + (err.message || ""), false);
+        } finally {
+            btn.innerHTML = original;
+            btn.disabled = false;
+            console.log("===[verifySmsOtp] KẾT THÚC ===");
+        }
+    }
+
     // ====== GOOGLE AUTHENTICATOR (TOTP) ======
-    // 1) ENROLL-START: nếu trả QR → chế độ ENROLL; nếu không có QR → đã bật → chế độ LOGIN
     async function enrollTotp() {
         clearMessage();
         const username = document.getElementById("totp-username").value.trim();
-        if (!username) return showMessage("Vui lòng nhập tên đăng nhập", false);
+        if (!username) return showMessage("Vui lòng nhập tên đăng nhập.", false);
 
         const btn = document.getElementById("btn-enroll-start");
         const original = btn.innerHTML;
@@ -352,7 +876,6 @@
             const r = await res.json();
 
             if (r.success && r.qrPngBase64 && r.secretBase32) {
-                // CHƯA BẬT → ENROLL
                 totpSecretCached = r.secretBase32;
                 setTotpMode("enroll");
                 document.getElementById("totp-qr").src = "data:image/png;base64," + r.qrPngBase64;
@@ -360,9 +883,8 @@
                 document.getElementById("totp-qr-wrapper").classList.remove("d-none");
                 document.getElementById("totp-code-wrapper").classList.remove("d-none");
                 document.getElementById("totp-code").value = "";
-                showMessage("Quét QR bằng Google Authenticator, sau đó nhập mã 6 số để kích hoạt.", true);
+                showMessage("Quét QR rồi nhập mã 6 số để kích hoạt.", true);
             } else {
-                // ĐÃ BẬT → LOGIN MODE
                 setTotpMode("login");
                 document.getElementById("totp-qr-wrapper").classList.add("d-none");
                 document.getElementById("totp-code-wrapper").classList.remove("d-none");
@@ -370,11 +892,10 @@
                 showMessage(r.message ?? "Tài khoản đã bật Google Authenticator. Nhập mã 6 số để đăng nhập.", true);
             }
         } catch {
-            showMessage("Lỗi khi tạo QR TOTP", false);
+            showMessage("Lỗi khi tạo QR TOTP.", false);
         } finally { btn.innerHTML = original; btn.disabled = false; }
     }
 
-    // 2) ENROLL-CONFIRM: xác nhận mã 6 số để bật GA
     async function confirmTotp(event) {
         clearMessage();
         if (totpMode !== "enroll") return showMessage("Không ở chế độ kích hoạt.", false);
@@ -384,7 +905,7 @@
         const code = document.getElementById("totp-code").value.trim();
         const secret = totpSecretCached || document.getElementById("totp-secret").innerText.trim();
 
-        if (!username || !code || !secret) return showMessage("Vui lòng nhập mã và tên đăng nhập", false);
+        if (!username || !code || !secret) return showMessage("Vui lòng nhập mã và tên đăng nhập.", false);
 
         btn.disabled = true; btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Đang xác minh...`;
         try {
@@ -394,27 +915,25 @@
             });
             const r = await res.json();
             if (r.success) {
-                showMessage("Đã kích hoạt Google Authenticator thành công! Bạn có thể đăng nhập bằng mã 6 số.", true);
-                // chuyển sang LOGIN mode
+                showMessage("Đã kích hoạt Google Authenticator thành công!", true);
                 setTotpMode("login");
                 document.getElementById("totp-qr-wrapper").classList.add("d-none");
                 document.getElementById("totp-code-wrapper").classList.remove("d-none");
                 document.getElementById("totp-code").value = "";
             } else {
-                showMessage(r.message ?? "Mã không đúng", false);
+                showMessage(r.message ?? "Mã không đúng.", false);
             }
         } catch {
-            showMessage("Lỗi khi xác nhận mã TOTP", false);
+            showMessage("Lỗi khi xác nhận mã TOTP.", false);
         } finally { btn.disabled = false; btn.innerHTML = original; }
     }
 
-    // 3) VERIFY (LOGIN): dùng mã 6 số để đăng nhập
     async function loginWithTotp(event) {
         clearMessage();
         const btn = event.target, original = btn.innerHTML;
         const username = document.getElementById("totp-username").value.trim();
         const code = document.getElementById("totp-code").value.trim();
-        if (!username || !code) return showMessage("Vui lòng nhập đầy đủ thông tin", false);
+        if (!username || !code) return showMessage("Vui lòng nhập đầy đủ thông tin.", false);
 
         btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Đang xác thực...`;
         btn.disabled = true;
@@ -424,10 +943,18 @@
                 body: JSON.stringify({ username, code })
             });
             const r = await res.json();
-            showMessage(r.message ?? (r.success ? "Đăng nhập thành công" : "Mã TOTP không đúng"), r.success);
-            if (r.success) setTimeout(() => window.location.href = "/emp/index", 1200);
+
+            if (r.success) {
+                showLoginSuccess("Đăng nhập bằng Google Authenticator thành công!", "/emp/index");
+            } else {
+                showMessage(r.message ?? "Mã TOTP không đúng.", false);
+            }
         } catch {
-            showMessage("Lỗi khi xác thực TOTP", false);
+            showMessage("Lỗi khi xác thực TOTP.", false);
         } finally { btn.innerHTML = original; btn.disabled = false; }
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        switchMainTab('password');
+    });
 </script>

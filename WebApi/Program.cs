@@ -114,6 +114,10 @@ builder.Services.AddSingleton<ISerilogProvider, SerilogProvider>();
 builder.Services.AddScoped<ICChat, CChat>();
 builder.Services.AddSignalR();
 
+
+builder.Services.AddScoped<IFirebaseOtpService, FirebaseOtpService>();
+
+
 // ------------------ Build & Run App ------------------
 var app = builder.Build();
 
