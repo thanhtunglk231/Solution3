@@ -108,22 +108,7 @@ namespace WebApi.Controllers
                     });
                 }
 
-                if (isEnabled)
-                {
-                    // CHÚ Ý: Không cấp token ở đây. Yêu cầu người dùng nhập mã TOTP.
-                    return Ok(new
-                    {
-                        code = "200",
-                        message = "Mật khẩu đúng. Vui lòng nhập mã Google Authenticator.",
-                        success = true,
-                        mfaRequired = true,
-                        methods = new[] { "totp" },
-                        username = req.username, // FE sẽ dùng lại
-                        role,
-                        manv,
-                        email
-                    });
-                }
+            
 
                 // Chưa bật TOTP → cấp token luôn
                 var token = GenerateJwtToken(req.username, role, manv, email);

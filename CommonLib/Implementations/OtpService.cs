@@ -76,7 +76,7 @@ public class OtpService : IOtpService
 
             var otp = GenerateOtp();
 
-            //  OTP có hiệu lực trong 5 phút
+            //  OTP có hiệu lực trong 1 phút
 
             await _redisService.SetAsync(otpKey, otp, TimeSpan.FromMinutes(OtpExpireMinutes));
 
