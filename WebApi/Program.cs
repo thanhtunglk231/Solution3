@@ -113,7 +113,7 @@ builder.Services.AddScoped<DataTableHelper>();
 builder.Services.AddSingleton<ISerilogProvider, SerilogProvider>();
 builder.Services.AddScoped<ICChat, CChat>();
 builder.Services.AddSignalR();
-
+builder.Services.AddScoped<CMyproFile>();
 
 builder.Services.AddScoped<IFirebaseOtpService, FirebaseOtpService>();
 

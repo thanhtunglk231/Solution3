@@ -557,90 +557,99 @@ namespace DataServiceLib.Implementations1
             {
                 _errorHandler.WriteStringToFuncion(nameof(CChat), nameof(SaveMessageAsync));
 
-                // Gom danh sách URL một cách an toàn (hỗ trợ cả AttachmentUrl & AttachmentUrls nếu có)
+                if (dto == null || string.IsNullOrWhiteSpace(dto.SenderUsername))
+                    return (false, "400", "Thiếu thông tin gửi tin nhắn.");
+
+                bool hasReceiver = !string.IsNullOrWhiteSpace(dto.ReceiverUsername);
+                bool hasGroup = !string.IsNullOrWhiteSpace(dto.GroupId);
+
+                // Rule đúng theo procedure Oracle
+                if ((!hasReceiver && !hasGroup) || (hasReceiver && hasGroup))
+                    return (false, "400", "Chỉ được truyền 1 trong ReceiverUsername hoặc GroupId.");
+
+                // Gom URL
                 var urls = new List<string>();
 
-                if (!string.IsNullOrWhiteSpace(dto?.AttachmentUrl))
-                    urls.Add(dto.AttachmentUrl);
+                if (!string.IsNullOrWhiteSpace(dto.AttachmentUrl))
+                    urls.Add(dto.AttachmentUrl.Trim());
 
-                // Dùng reflection để không phụ thuộc compile nếu DTO chưa có AttachmentUrls
-                var prop = dto?.GetType().GetProperty("AttachmentUrls");
-                if (prop != null)
+                if (dto.AttachmentUrls != null)
                 {
-                    var enumerable = prop.GetValue(dto) as System.Collections.IEnumerable;
-                    if (enumerable != null)
+                    foreach (var u in dto.AttachmentUrls)
                     {
-                        foreach (var item in enumerable)
-                        {
-                            var s = item?.ToString();
-                            if (!string.IsNullOrWhiteSpace(s)) urls.Add(s);
-                        }
+                        if (!string.IsNullOrWhiteSpace(u))
+                            urls.Add(u.Trim());
                     }
                 }
+
+                urls = urls.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+                if (urls.Count == 0) urls.Add(null); // không có file vẫn insert 1 bản ghi
 
                 bool allSuccess = true;
                 string lastCode = "200";
                 string lastMessage = "OK";
 
-                using (var conn = new OracleConnection(_connectString))
-                using (var cmd = new OracleCommand("sp_add_chat_message", conn) { CommandType = CommandType.StoredProcedure })
+                using var conn = new OracleConnection(_connectString);
+                using var cmd = new OracleCommand("sp_add_chat_message", conn)
                 {
-                    // Khai báo tham số 1 lần
-                    var pSender = cmd.Parameters.Add("p_sender_username", OracleDbType.Varchar2);
-                    var pReceiver = cmd.Parameters.Add("p_receiver_username", OracleDbType.Varchar2);
-                    var pGroupId = cmd.Parameters.Add("p_group_id", OracleDbType.Varchar2);
-                    var pText = cmd.Parameters.Add("p_message_text", OracleDbType.Varchar2);
-                    var pUrl = cmd.Parameters.Add("p_url", OracleDbType.Varchar2);
+                    CommandType = CommandType.StoredProcedure,
+                    BindByName = true
+                };
 
-                    var oCode = new OracleParameter("o_code", OracleDbType.Varchar2, 10) { Direction = ParameterDirection.Output };
-                    var oMessage = new OracleParameter("o_message", OracleDbType.Varchar2, 4000) { Direction = ParameterDirection.Output };
-                    cmd.Parameters.Add(oCode);
-                    cmd.Parameters.Add(oMessage);
+                // INPUT PARAMS
+                var pSender = cmd.Parameters.Add("p_sender_username", OracleDbType.Varchar2);
+                var pReceiver = cmd.Parameters.Add("p_receiver_username", OracleDbType.Varchar2);
+                var pGroupId = cmd.Parameters.Add("p_group_id", OracleDbType.Varchar2);
+                var pText = cmd.Parameters.Add("p_message_text", OracleDbType.Varchar2);
+                var pUrl = cmd.Parameters.Add("p_url", OracleDbType.Varchar2);
 
-                    await conn.OpenAsync();
+                // OUTPUT PARAMS (ĐỦ 8 PARAM)
+                var oCode = cmd.Parameters.Add("o_code", OracleDbType.Varchar2, 10);
+                oCode.Direction = ParameterDirection.Output;
 
-                    // Hàm local để set & gọi
-                    async Task<(bool ok, string code, string msg)> ExecOnceAsync(string urlOrNull)
-                    {
-                        pSender.Value = dto?.SenderUsername ?? (object)DBNull.Value;
-                        pReceiver.Value = string.IsNullOrWhiteSpace(dto?.ReceiverUsername) ? (object)DBNull.Value : dto.ReceiverUsername;
-                        pGroupId.Value = string.IsNullOrWhiteSpace(dto?.GroupId) ? (object)DBNull.Value : dto.GroupId;
-                        pText.Value = dto?.MessageText ?? string.Empty;
-                        pUrl.Value = string.IsNullOrWhiteSpace(urlOrNull) ? (object)DBNull.Value : urlOrNull;
+                var oMessage = cmd.Parameters.Add("o_message", OracleDbType.Varchar2, 4000);
+                oMessage.Direction = ParameterDirection.Output;
 
-                        // reset output buffer (Oracle driver sẽ set lại khi exec)
-                        oCode.Value = DBNull.Value;
-                        oMessage.Value = DBNull.Value;
+                var oMessageId = cmd.Parameters.Add("o_message_id", OracleDbType.Varchar2, 32);
+                oMessageId.Direction = ParameterDirection.Output;
 
-                        await cmd.ExecuteNonQueryAsync();
+                var oTimestamp = cmd.Parameters.Add("o_timestamp", OracleDbType.TimeStamp);
+                oTimestamp.Direction = ParameterDirection.Output;
 
-                        var code = oCode.Value?.ToString() ?? "500";
-                        var msg = oMessage.Value?.ToString() ?? "Không lấy được phản hồi";
-                        return (code == "200", code, msg);
-                    }
+                await conn.OpenAsync();
 
-                    if (urls.Count == 0)
-                    {
-                        // Không có URL -> gọi 1 lần (url = null)
-                        var (ok, code, msg) = await ExecOnceAsync(null);
-                        allSuccess = ok;
-                        lastCode = code;
-                        lastMessage = msg;
-                    }
-                    else
-                    {
-                        // Có nhiều URL -> gọi lặp, mỗi lần 1 URL
-                        foreach (var u in urls)
-                        {
-                            var (ok, code, msg) = await ExecOnceAsync(u);
-                            if (!ok) allSuccess = false;
-                            lastCode = code;
-                            lastMessage = msg;
-                        }
-                    }
+                foreach (var urlOrNull in urls)
+                {
+                    pSender.Value = dto.SenderUsername.Trim();
+                    pReceiver.Value = hasReceiver ? dto.ReceiverUsername.Trim() : (object)DBNull.Value;
+                    pGroupId.Value = hasGroup ? dto.GroupId.Trim() : (object)DBNull.Value;
+                    pText.Value = dto.MessageText ?? string.Empty;
+                    pUrl.Value = string.IsNullOrWhiteSpace(urlOrNull) ? (object)DBNull.Value : urlOrNull;
+
+                    // reset output
+                    oCode.Value = DBNull.Value;
+                    oMessage.Value = DBNull.Value;
+                    oMessageId.Value = DBNull.Value;
+                    oTimestamp.Value = DBNull.Value;
+
+                    await cmd.ExecuteNonQueryAsync();
+
+                    var code = oCode.Value?.ToString() ?? "500";
+                    var msg = oMessage.Value?.ToString() ?? "Không có phản hồi";
+
+                    lastCode = code;
+                    lastMessage = msg;
+
+                    if (code != "200")
+                        allSuccess = false;
                 }
 
                 return (allSuccess, lastCode, lastMessage);
+            }
+            catch (OracleException oex)
+            {
+                _errorHandler.WriteToFile(oex);
+                return (false, oex.Number.ToString(), "Oracle error: " + oex.Message);
             }
             catch (Exception ex)
             {

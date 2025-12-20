@@ -49,7 +49,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     return ConnectionMultiplexer.Connect(config);
 });
 builder.Services.AddScoped<IRedisService, RedisService>();
-
+builder.Services.AddHttpClient<IMyProfileService, MyProfileService>();
 // ------------------- Chat (SignalR) -------------------
 builder.Services.AddScoped<ICChat, CChat>();
 builder.Services.AddSignalR();

@@ -1,0 +1,162 @@
+﻿@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container py-4">
+    <h3 class="mb-3 text-center text-primary">
+        <i class="bi bi-person-circle"></i> Thông tin cá nhân
+    </h3>
+
+    <div id="alertBox" class="alert d-none" role="alert"></div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="username" class="form-control" readonly />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Vai trò</label>
+                    <input type="text" id="role" class="form-control" readonly />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Mã nhân viên</label>
+                    <input type="text" id="manv" class="form-control" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Số điện thoại</label>
+                    <input type="text" id="sdt" class="form-control" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="email" class="form-control" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Trạng thái TOTP</label>
+                    <input type="text" id="totpEnabled" class="form-control" readonly />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Số lần MFA fail</label>
+                    <input type="text" id="mfaFailCount" class="form-control" readonly />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">MFA Locked Until</label>
+                    <input type="text" id="mfaLockedUntil" class="form-control" readonly />
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2 justify-content-end">
+                <button class="btn btn-success" id="btnSave">
+                    <i class="bi bi-save"></i> Lưu thay đổi
+                </button>
+
+                <button class="btn btn-danger" id="btnDelete">
+                    <i class="bi bi-trash"></i> Xóa tài khoản
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showAlert(message, type = 'success') {
+            const box = $("#alertBox");
+            box.removeClass().addClass(`alert alert-${type}`).text(message).removeClass("d-none");
+            setTimeout(() => box.addClass("d-none"), 3500);
+        }
+
+        function formatDate(d) {
+            if (!d) return "";
+            const date = new Date(d);
+            if (isNaN(date.getTime())) return d;
+            const dd = String(date.getDate()).padStart(2, '0');
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const yy = date.getFullYear();
+            const hh = String(date.getHours()).padStart(2, '0');
+            const mi = String(date.getMinutes()).padStart(2, '0');
+            return `${dd}/${mm}/${yy} ${hh}:${mi}`;
+        }
+
+        function fillForm(p) {
+            // p là object trong data[0]
+            $("#username").val(p?.username ?? "");
+            $("#role").val(p?.role ?? "");
+            $("#manv").val(p?.manv ?? "");
+            $("#email").val(p?.email ?? "");
+            $("#sdt").val(p?.sdt ?? "");
+
+            $("#totpEnabled").val((p?.iS_TOTP_ENABLED ?? 0) == 1 ? "Đã bật" : "Chưa bật");
+            $("#mfaFailCount").val(p?.mfA_FAIL_COUNT ?? 0);
+            $("#mfaLockedUntil").val(formatDate(p?.mfA_LOCKED_UNTIL));
+        }
+
+        function loadMe() {
+            $.get("/MyProfile/Me")
+                .done(res => {
+                    if (!res || res.success !== true) {
+                        showAlert(res?.message || "Không lấy được thông tin cá nhân", "danger");
+                        return;
+                    }
+                    const p = res.data && res.data.length ? res.data[0] : null;
+                    if (!p) {
+                        showAlert("Không có dữ liệu profile", "danger");
+                        return;
+                    }
+                    fillForm(p);
+                    showAlert(res.message || "Tải thông tin thành công");
+                })
+                .fail(() => showAlert("Lỗi khi gọi /MyProfile/Me", "danger"));
+        }
+
+        $("#btnSave").click(function () {
+            const model = {
+                email: $("#email").val(),
+                sdt: $("#sdt").val(),
+                manv: $("#manv").val()
+            };
+
+            $.ajax({
+                url: "/MyProfile/Update",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(model)
+            })
+            .done(res => {
+                if (res?.success) {
+                    showAlert(res.message || "Cập nhật thành công");
+                    loadMe();
+                } else {
+                    showAlert(res?.message || "Cập nhật thất bại", "danger");
+                }
+            })
+            .fail(() => showAlert("Lỗi khi gọi /MyProfile/Update", "danger"));
+        });
+
+        $("#btnDelete").click(function () {
+            if (!confirm("Bạn chắc chắn muốn xóa tài khoản?")) return;
+
+            $.post("/MyProfile/DeleteMe")
+                .done(res => {
+                    if (res?.success) {
+                        alert("Tài khoản đã bị xóa. Hệ thống sẽ đăng xuất.");
+                        window.location.href = "/Login/Index";
+                    } else {
+                        showAlert(res?.message || "Xóa thất bại", "danger");
+                    }
+                })
+                .fail(() => showAlert("Lỗi khi gọi /MyProfile/DeleteMe", "danger"));
+        });
+
+        // init
+        loadMe();
+    </script>
+}

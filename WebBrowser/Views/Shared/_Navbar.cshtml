@@ -6,7 +6,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
     <div id="navbar_1" class="container-fluid">
-        <a class="navbar-brand fw-bold nav-link" href="/Home/Index">🏠 Trang chủ</a>
+        <a class="navbar-brand fw-bold nav-link spa-link" href="/Home/Index">🏠 Trang chủ</a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
                 aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -14,31 +14,17 @@
         </button>
 
         <div class="collapse navbar-collapse" id="mainNavbar">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="/Emp/Index">Nhân viên</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/Account/Index">Tài khoản</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/Dept/Index">Phòng ban</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/Job1/Index">Công việc</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/Chat/Index">Chat</a>
-                </li>
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navLinks">
+                <li class="nav-item"><a class="nav-link spa-link" href="/Emp/Index">Nhân viên</a></li>
+                <li class="nav-item"><a class="nav-link spa-link" href="/Account/Index">Tài khoản</a></li>
+                <li class="nav-item"><a class="nav-link spa-link" href="/Dept/Index">Phòng ban</a></li>
+                <li class="nav-item"><a class="nav-link spa-link" href="/Job1/Index">Công việc</a></li>
+                <li class="nav-item"><a class="nav-link spa-link" href="/Chat/Index">Chat</a></li>
 
                 @if (!islogin)
                 {
-                    <li class="nav-item">
-                        <a class="nav-link" href="/Login/Index">Đăng nhập</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/Login/Register">Đăng ký</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link spa-link" href="/Login/Index">Đăng nhập</a></li>
+                    <li class="nav-item"><a class="nav-link spa-link" href="/Login/Register">Đăng ký</a></li>
                 }
                 else
                 {
@@ -47,13 +33,31 @@
                            data-bs-toggle="dropdown" aria-expanded="false">
                             👤 @ViewBag.Username
                         </a>
+
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><span class="dropdown-item-text">Vai trò: <strong>@ViewBag.Role</strong></span></li>
-                            <li><hr class="dropdown-divider" /></li>
                             <li>
-                                <form asp-controller="Login" asp-action="Logout" method="post">
+                                <a class="dropdown-item spa-link" href="/MyProfile/Index">
+                                    <i class="bi bi-person-circle"></i> My Profile
+                                </a>
+                            </li>
+
+                            <li><hr class="dropdown-divider" /></li>
+
+                            <li>
+                                <span class="dropdown-item-text">
+                                    Vai trò: <strong>@(ViewBag.Role ?? role)</strong>
+                                </span>
+                            </li>
+
+                            <li><hr class="dropdown-divider" /></li>
+
+                            <li>
+                                <!-- Logout là POST -> không PJAX -->
+                                <form asp-controller="Login" asp-action="Logout" method="post" class="m-0">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="dropdown-item text-danger">Đăng xuất</button>
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                                    </button>
                                 </form>
                             </li>
                         </ul>
@@ -79,19 +83,78 @@
 </nav>
 
 <script>
-    const toggle = document.getElementById('darkModeToggle');
-    if (localStorage.getItem('dark-mode') === 'true') {
-        document.body.classList.add('dark-mode');
-        toggle.checked = true;
+    // ----- Dark mode -----
+    (function initDarkMode() {
+        const toggle = document.getElementById('darkModeToggle');
+        if (!toggle) return;
+
+        const on = localStorage.getItem('dark-mode') === 'true';
+        document.body.classList.toggle('dark-mode', on);
+        toggle.checked = on;
+
+        toggle.addEventListener('change', () => {
+            document.body.classList.toggle('dark-mode', toggle.checked);
+            localStorage.setItem('dark-mode', toggle.checked ? 'true' : 'false');
+        });
+    })();
+
+    // ----- PJAX: chuyển trang không reload -----
+    async function pjaxNavigate(url, push = true) {
+        const content = document.getElementById('appContent');
+        if (!content) { window.location.href = url; return; }
+
+        try {
+            const res = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
+            if (!res.ok) throw new Error("HTTP " + res.status);
+
+            const html = await res.text();
+            content.innerHTML = html;
+
+            if (push) history.pushState({ url }, "", url);
+
+            // set active link (so theo pathname)
+            document.querySelectorAll('#navLinks .nav-link.spa-link').forEach(a => {
+                const href = a.getAttribute('href');
+                a.classList.toggle('active', href === location.pathname);
+            });
+
+            window.scrollTo({ top: 0, behavior: "instant" });
+        } catch (e) {
+            window.location.href = url;
+        }
     }
 
-    toggle?.addEventListener('change', () => {
-        if (toggle.checked) {
-            document.body.classList.add('dark-mode');
-            localStorage.setItem('dark-mode', 'true');
-        } else {
-            document.body.classList.remove('dark-mode');
-            localStorage.setItem('dark-mode', 'false');
+    // chặn click các link PJAX (chỉ a.spa-link, bỏ qua dropdown toggle và link #)
+    document.addEventListener('click', (e) => {
+        const a = e.target.closest('a.spa-link');
+        if (!a) return;
+
+        const href = a.getAttribute('href');
+        if (!href || href === "#" || href.startsWith('http') || href.startsWith('#')) return;
+
+        // mở tab mới thì thôi
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+
+        e.preventDefault();
+
+        // đóng navbar trên mobile sau khi click
+        const nav = document.getElementById('mainNavbar');
+        if (nav?.classList.contains('show')) {
+            nav.classList.remove('show');
         }
+
+        pjaxNavigate(href, true);
+    });
+
+    // back/forward trình duyệt
+    window.addEventListener('popstate', (e) => {
+        const url = (e.state && e.state.url) ? e.state.url : location.pathname;
+        pjaxNavigate(url, false);
+    });
+
+    // active lần đầu
+    document.querySelectorAll('#navLinks .nav-link.spa-link').forEach(a => {
+        const href = a.getAttribute('href');
+        a.classList.toggle('active', href === location.pathname);
     });
 </script>

@@ -25,6 +25,7 @@ namespace WebApi.Controllers
         }
         [HttpDelete("deletePremis")]
         [CustomAuthorize("admin", Edit = true)]
+
         public async Task<IActionResult> Delete([FromBody] UserPermissionDto userPermissionDto)
         {
             try
