@@ -1,5 +1,32 @@
 # 📌Triển khai xác thực đa yếu tố (MFA) trong ứng dụng web – OTP qua email/SMS, Google Authenticator. 
 
+👤 Phạm Thanh Tùng
+MSV: 22810310257
+Nội dung làm:
+Triển khai xác thực đa yếu tố bằng Google Authenticator (TOTP) theo chuẩn RFC 6238.
+Xây dựng logic sinh, xác minh và quản lý mã TOTP.
+Thiết kế và triển khai Stored Procedures (SP) phục vụ xác thực và ghi log bảo mật.
+Tích hợp Redis Cache để lưu trạng thái xác thực và tối ưu hiệu năng hệ thống.
+Phối hợp hoàn thiện kiến trúc backend xác thực đa yếu tố (MFA).
+
+👤 Cấn Anh Quân
+MSV: 22810310260
+Nội dung làm:
+Triển khai xác thực OTP qua Email.
+Xây dựng chức năng gửi OTP bằng Email (SMTP).
+Xử lý kiểm tra OTP, thời gian hiệu lực và chống gửi lặp.
+Sử dụng Redis Cache để lưu OTP tạm thời, giảm truy vấn cơ sở dữ liệu.
+Kết hợp Stored Procedures trong các nghiệp vụ xác thực Email OTP.
+
+👤 Nguyễn Văn Quốc Khánh
+MSV: 22810310261
+Nội dung làm:
+Triển khai xác thực OTP qua SMS.
+Tích hợp dịch vụ gửi SMS OTP.
+Xử lý xác minh OTP SMS và thời gian hết hạn.
+Áp dụng Redis Cache để quản lý OTP SMS và kiểm soát số lần gửi.
+Tham gia viết Stored Procedures liên quan đến OTP SMS và ghi nhận log hệ thống.
+
 ## 📝 1. Giới thiệu
 
 Hệ thống quản lý nhân sự nội bộ tích hợp:
