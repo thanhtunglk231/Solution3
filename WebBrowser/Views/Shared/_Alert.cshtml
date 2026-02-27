@@ -1,0 +1,9 @@
+﻿@model WebBrowser.Models.ApiResponse
+
+@if (!string.IsNullOrEmpty(Model?.Message))
+{
+    var alertClass = Model.Success ? "alert-success" : "alert-danger";
+    <div class="alert @alertClass">
+        @Model.Message
+    </div>
+}

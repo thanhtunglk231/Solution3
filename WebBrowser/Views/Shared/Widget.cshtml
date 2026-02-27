@@ -1,0 +1,7 @@
+﻿@{
+    Layout = null; // Để không chèn layout của site chính
+    ViewBag.Username = Context.Session.GetString("Username") ?? "anonymous";
+}
+
+<!-- Đây là nội dung chat đã có trong _GlobalChatWidget -->
+@Html.Partial("_GlobalChatWidget")

@@ -1,0 +1,25 @@
+﻿@model List<CoreLib.Models.Department>
+
+<h2>Department List</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Captain</th>
+            <th>Established</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var dept in Model)
+        {
+            <tr>
+                <td>@dept.TENPHG</td>
+                <td>@dept.MAPHG</td>
+                <td>@dept.TRPHG</td>
+                <td>@dept.NG_NHANCHUC.ToShortDateString()</td>
+            </tr>
+        }
+    </tbody>
+</table>

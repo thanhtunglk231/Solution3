@@ -8,9 +8,9 @@ namespace CoreLib.Models
 {
     public class Department
     {
-        public string id {  get; set; } 
-        public string name { get; set; }
-        public string captain { get; set; }
-        public DateTime AppointmentDate { get; set; }
+        public string TENPHG {  get; set; } 
+        public int MAPHG { get; set; }
+        public string TRPHG { get; set; }
+        public DateTime NG_NHANCHUC { get; set; }
     }
 }

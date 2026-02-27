@@ -1,0 +1,71 @@
+﻿@model WebBrowser.Models.ViewModels.UserListViewModel
+
+@{
+    ViewData["Title"] = "Danh sách người dùng";
+}
+
+<h2>Danh sách người dùng</h2>
+
+@if (TempData["Message"] != null)
+{
+    var isSuccess = TempData["Success"]?.ToString()?.ToLower() == "true";
+    var alertClass = isSuccess ? "alert-success" : "alert-danger";
+    <div class="alert @alertClass">@TempData["Message"]</div>
+}
+
+@if (!string.IsNullOrEmpty(Model.Response?.Message))
+{
+    var alertClass = Model.Response.Success ? "alert-success" : "alert-danger";
+    <div class="alert @alertClass">@Model.Response.Message</div>
+}
+
+@if (Model.Users != null && Model.Users.Count > 0)
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Tên đăng nhập</th>
+                <th>Mật khẩu</th>
+                <th>Vai trò</th>
+                <th>Mã nhân viên</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Users)
+            {
+                <form asp-action="UpdateUser" method="post">
+                <tr>
+                    <td>
+                        <input name="Username" value="@user.USERNAME" class="form-control" readonly />
+                    </td>
+                    <td>
+                        <input name="Password" value="@user.PASSWORD" class="form-control" />
+                    </td>
+                    
+                    <td>
+                        <select name="Role" class="form-control">
+                            <option value="admin" selected="@(user.ROLE == "admin" ? "selected" : null)">Admin</option>
+                            <option value="user" selected="@(user.ROLE == "user" ? "selected" : null)">User</option>
+                            <option value="manager" selected="@(user.ROLE == "manager" ? "selected" : null)">Manager</option>
+                        </select>
+
+                    </td>
+                  
+                    <td>
+                        <input name="Manv" value="@user.MANV" class="form-control" />
+                    </td>
+                    <td>
+                            @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-success">Lưu</button>
+                    </td>
+                </tr>
+                </form>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">Không có người dùng nào.</div>
+}

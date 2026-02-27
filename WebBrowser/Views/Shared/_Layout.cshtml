@@ -1,49 +1,168 @@
-﻿<!DOCTYPE html>
+﻿
+@{
+    var title = ViewData["Title"] ?? "WebBrowser";
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - WebBrowser</title>
+    <title>@title - WebBrowser</title>
+
+    <!-- Styles -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/WebBrowser.styles.css" asp-append-version="true" />
+
+    <style>
+        #chat-widget-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            visibility: hidden;
+        }
+
+        #chat-widget, #user-list-panel, [id^="chat-window-"] {
+            transition: none !important;
+        }
+
+        .chat-visible {
+            visibility: visible !important;
+        }
+
+        body.dark-mode {
+            background-color: #121212;
+            color: #f5f5f5;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">WebBrowser</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+        @await Html.PartialAsync("_NavBar")
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <div class="container mt-3">
+        <main id="content-body" role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <!-- Chat widget container - Loaded via AJAX -->
+    <div id="chat-widget-container"></div>
+
+    <footer class="border-top footer text-muted mt-4">
         <div class="container">
-            &copy; 2025 - WebBrowser - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; @DateTime.Now.Year - WebBrowser
         </div>
     </footer>
+
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
+
+    <script>
+        if (typeof signalR === 'undefined') {
+            document.write('<script src="~/lib/signalr/signalr.min.js"><\/script>');
+        }
+    </script>
+
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        $(document).ready(function () {
+       
+            $.ajax({
+                url: '/Chat/GlobalChatWidget',
+                method: 'GET',
+                success: function (html) {
+                    $('#chat-widget-container').html(html);
+                    
+                    if (!window.location.pathname.toLowerCase().includes('/chat/index')) {
+                        $('#chat-widget-container').addClass('chat-visible');
+                    }
+                    console.log("Báo cáo anh đang chạy ");
+                     if (typeof startSignalR === 'function') {
+                    startSignalR();
+                   
+                }
+                 
+                else {
+                    console.warn("⚠️ startSignalR chưa được định nghĩa.");
+                }
+                if (typeof loadGroups === 'function') {loadGroups(); console.log("Báo cáo anh load group")}
+                    if (typeof restoreChatState === 'function') {
+                        const chatState = localStorage.getItem('chatState');
+                        if (chatState) {
+                            restoreChatState();
+                        } else {
+                            if (typeof loadUsers === 'function') loadUsers();
+                            if (typeof loadGroups === 'function') {loadGroups(); console.log("Báo cáo anh load group")}
+                        }
+                    }
+                },
+                error: function () {
+                    console.error('❌ Không thể tải chat widget.');
+                }
+            });
+
+                   let lastPath = window.location.pathname.toLowerCase();
+
+        function ajaxLoadPage(href) {
+            const targetPath = href.toLowerCase();
+
+            // Nếu đang ở /chat/index mà rời đi -> reload
+            if (lastPath.includes('/chat/index') && !targetPath.includes('/chat/index')) {
+                location.href = href;
+                return;
+            }
+
+            // Nếu truy cập vào /chat/index -> reload
+            if (targetPath.includes('/chat/index')) {
+                $('#chat-widget-container').removeClass('chat-visible');
+                location.href = href;
+                return;
+            } else {
+                $('#chat-widget-container').addClass('chat-visible');
+            }
+
+            $.ajax({
+                url: href,
+                type: 'GET',
+                success: function (response) {
+                    const html = $('<div>').html(response);
+                    const newContent = html.find('#content-body').html();
+                    $('#content-body').html(newContent);
+
+                    const pageScript = html.find('script[data-partial-script="true"]');
+                    if (pageScript.length > 0) {
+                        eval(pageScript.html());
+                    }
+
+                    history.pushState(null, '', href);
+                    window.scrollTo(0, 0);
+                    lastPath = targetPath; // Cập nhật đường dẫn hiện tại sau chuyển trang
+                },
+                error: function () {
+                    alert('Không thể tải nội dung trang.');
+                }
+            });
+        }
+
+
+            $(document).on('click', 'a.nav-link', function (e) {
+                const href = $(this).attr('href');
+                if (!href || href.startsWith('#') || $(this).attr('target') === '_blank') return;
+
+                e.preventDefault();
+                ajaxLoadPage(href);
+            });
+
+            window.onpopstate = () => ajaxLoadPage(location.pathname);
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
